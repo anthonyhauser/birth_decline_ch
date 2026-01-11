@@ -150,6 +150,11 @@ setdiff(birth_1987_2024$mother_municipality %>% unique() %>% sort(),
         final_mun_df$hist_mun_id %>% unique() %>% sort()) %>% sort()
 
 
+birth_1987_2024$mother_citizenship %>% unique() %>% sort()
+
+birth_1987_2024 %>% filter()
+
+
 #municipality data: link number with municipality name, https://www.agvchapp.bfs.admin.ch/fr
 final_mun_df = load_municipality_data()
 
