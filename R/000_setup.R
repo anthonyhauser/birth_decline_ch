@@ -43,5 +43,8 @@ sapply(path_functions, source)
 #controls
 controls=list(load.encrypted.data=FALSE)
 
+#file directories
+data_folder = "L:/UNISANTE_DESS/S_SUMAC/DIVERS_PROJETS/03_data/kaspar_staub_birth_data/"
+
 
 

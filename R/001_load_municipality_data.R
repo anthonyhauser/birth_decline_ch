@@ -31,15 +31,15 @@ load_municipality_data = function(){
     mun_df <- extract_level(".//municipality")
     
     #save as takes time to load dist_df and mun_df
-    saveRDS(mun_df,"data/mun_df.rds")
-    saveRDS(dist_df,"data/dist_df.rds")
-    saveRDS(ctn_df,"data/ctn_df.rds")
+    saveRDS(mun_df,"data/municipality_data/mun_df.rds")
+    saveRDS(dist_df,"data/municipality_data/dist_df.rds")
+    saveRDS(ctn_df,"data/municipality_data/ctn_df.rds")
   }
   
   #load municipality datasets
-  mun_df = readRDS("data/mun_df.rds")
-  dist_df = readRDS("data/dist_df.rds")
-  ctn_df = readRDS("data/ctn_df.rds")
+  mun_df = readRDS("data/municipality_data/mun_df.rds")
+  dist_df = readRDS("data/municipality_data/dist_df.rds")
+  ctn_df = readRDS("data/municipality_data/ctn_df.rds")
   
   #bind municipality and district data
   mun_df = mun_df %>%
