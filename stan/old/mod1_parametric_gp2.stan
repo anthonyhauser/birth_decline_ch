@@ -18,13 +18,6 @@ functions {
     vector[M] q = exp(log(alpha) + 0.5 * (log(2) - a + to_vector(log_modified_bessel_first_kind(linspaced_int_array(M, 1, M), a))));
     return append_row(q,q);
   }
-  // vector diagSPD_periodic(real alpha, real lambda, int M) {
-  //   real a = 1/lambda^2;
-  //   array[M] int one_to_M;
-  //   for (m in 1:M) one_to_M[m] = m;
-  //   vector[M] q = sqrt(alpha^2 * 2 / exp(a) * to_vector(modified_bessel_first_kind(one_to_M, a)));
-  //   return append_row(q,q);
-  // }
   
   matrix PHI_periodic(int N, int M, real w0, vector x) {
     matrix[N,M] mw0x = diag_post_multiply(rep_matrix(w0*x, M), linspaced_vector(M, 1, M));
@@ -66,7 +59,7 @@ data {
   // Hyperprior parameters
   array[2] real p_age_peak1;
   array[2] real p_h_peak1;
-  array[2] real p_birth_prob_sigma;
+  array[2] real p_birth_prob_sigma1;
   
   array[2] real p_alpha_year;
   array[2] real p_lambda_year;
@@ -94,7 +87,7 @@ parameters {
   
   real <lower=0> age_peak1;
   real <lower=0> h_peak1;
-  real <lower=0> birth_prob_sigma;
+  real <lower=0> birth_prob_sigma1;
   
   // GPs
   vector <lower=0> [N_group] alpha_year;       // Yearly GP scale by age
@@ -120,7 +113,7 @@ model {
   // weak priors
   age_peak1 ~ normal(p_age_peak1[1],p_age_peak1[2]);
   h_peak1 ~ normal(p_h_peak1[1],p_h_peak1[2]);
-  birth_prob_sigma ~ normal(p_birth_prob_sigma[1],p_birth_prob_sigma[2]);
+  birth_prob_sigma1 ~ normal(p_birth_prob_sigma1[1],p_birth_prob_sigma1[2]);
   
   //GP: variance and lengthscale
   lambda_year ~ lognormal(p_lambda_year[1], p_lambda_year[2]);
@@ -132,9 +125,9 @@ model {
   
   if(inference==1){
     //target += normal_lpdf(log(n_birth + 1) |intercept + f_year[year_id] + f_age[age_id] + log(n_pop),sigma); 
-    target += neg_binomial_2_log_lpmf(n_birth |log_birth_prob(to_vector(age_id), age_peak1 * exp(f_year[1,year_id]/25),
-                                                              h_peak1 * exp(f_year[2,year_id]/25),
-                                                              birth_prob_sigma) + log(n_pop), sigma);
+    target += neg_binomial_2_log_lpmf(n_birth |log_birth_prob(to_vector(age_id), age_peak1 * exp(f_year[1,year_id]/N_age),//scale by N_age might decrease the risk of divergences
+                                                              h_peak1 * exp(f_year[2,year_id]/N_age),
+                                                              birth_prob_sigma1) + log(n_pop), sigma);
   }
 }
 
@@ -143,9 +136,9 @@ generated quantities{
   
   for(i in 1:N_year){
     for(j in 1:N_age){
-      birth_prob[i,j] = exp(log_birth_prob2(j, age_peak1 * exp(f_year[1,i]/25),
-                                            h_peak1 * exp(f_year[2,i]/25),
-                                            birth_prob_sigma));
+      birth_prob[i,j] = exp(log_birth_prob2(j, age_peak1 * exp(f_year[1,i]/N_age),
+                                            h_peak1 * exp(f_year[2,i]/N_age),
+                                            birth_prob_sigma1));
     }
   }
 }
