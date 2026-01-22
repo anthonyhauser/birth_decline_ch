@@ -1,8 +1,7 @@
-cmdstan_fit_mod3 = function(birth_df, pop_df, final_mun_df, stan_years = 2000:2024,
+cmdstan_fit_mod3 = function(birth_df, pop_df, stan_years = 2000:2024,
                           mod_name = c("mod3_1expgp_1periodic.stan"),
+                          save_draw = FALSE, save.date,
                           seed_id=123){
-  
-  stan_years = 2003:2010
   #data-------------------------------------------------------------------------
   #add municipality and i
   # birth_mun_df = birth_df %>% 
@@ -12,10 +11,10 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, final_mun_df, stan_years = 2000:20
   #   #check that no missing ctn
   #   birth_mun_df %>% filter(is.na(ctn_abbr))
   # }
-  birth_mod_df = birth_mun_df %>% 
+  birth_mod_df = birth_df %>% 
     filter(mother_age %in% 15:50) %>% 
     group_by(year,month,mother_age,ctn_abbr) %>% 
-    dplyr::summarise(n_birth=n(),.groups="drop")
+    dplyr::summarise(n_birth=sum(n),.groups="drop")
   
   pop_mod_df = pop_df %>% 
     group_by(year,month,mother_age=age,ctn_abbr) %>% 
@@ -81,6 +80,12 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, final_mun_df, stan_years = 2000:20
   
   #init function
   
+  #variables
+  if(mod_name=="mod3_1expgp_1periodic.stan"){
+    var = c("inv_sigma","age_peak1","log_h_peak1", "birth_prob_sigma1","alpha_year","lambda_year","alpha_month","lambda_month","beta_reg")
+    par = c(var, "beta_year","beta_month")
+  }
+  
   #Stan model-------------------------------------------------------------------
   mod <- cmdstan_model(paste0("stan/",mod_name))
   
@@ -88,23 +93,27 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, final_mun_df, stan_years = 2000:20
                     #init=initfun,#init=initfun,
                     chains = 4,
                     parallel_chains = 4,
-                    iter_sampling = 200,
-                    iter_warmup = 500,
+                    iter_sampling = 1,
+                    iter_warmup = 1,
                     adapt_delta = 0.99,
                     refresh = 50,
                     seed = seed_id)
   
+  if(save_draw){
+    fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
+  }
+  
+  if(FALSE){
+    #load
+    fit <- readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
+  }
+  
   #diagnostic of the fit
-  cmdstan_diag = cmdstan_diagnostic(fit)
+  cmdstan_diag = cmdstan_diagnostic(fit,par)
   print(cmdstan_diag)
   
   #Checks----------------------------------------------------------
   #diagnostic of the fit
-  
-  #variables
-  if(mod_name=="mod3_1expgp_1periodic.stan"){
-    var = c("inv_sigma","age_peak1","log_h_peak1", "birth_prob_sigma1","alpha_year","lambda_year","alpha_month","lambda_month","beta_reg")
-  }
   
   #exploration
   if(FALSE){
@@ -131,10 +140,10 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, final_mun_df, stan_years = 2000:20
     left_join(stan_df %>% dplyr::select(year,month,month_id) %>% distinct(),by="month_id") %>% 
     dplyr::mutate(date = make_date(year, month, 1))
   gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-    tidyr::extract(variable,into=c("variable","group_id","month_id"),
-                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
+    tidyr::extract(variable,into=c("variable","month_id"),
+                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
-    dplyr::select(group_id,month_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::select(month_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
     dplyr::mutate(month_id=as.numeric(month_id)) %>% 
     left_join(stan_df %>% dplyr::select(year,month,month_id) %>% distinct(),by="month_id") %>% 
     dplyr::mutate(date = make_date(year, month, 1))
@@ -157,22 +166,22 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, final_mun_df, stan_years = 2000:20
     left_join(stan_df %>% dplyr::select(year,month,month_id) %>% distinct(),by="month_id") %>% 
     dplyr::mutate(date = make_date(year, month, 1))
   
-  
-  pred_df = fit$summary(variables = c("n_birth_pred"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-    tidyr::extract(variable,into=c("variable","row_id"),
-                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-    as_tibble() %>% 
-    dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
-    cbind(stan_df %>% dplyr::select(year,month,mother_age,n_birth)) %>% 
-    dplyr::mutate(date = make_date(year, month, 1))
-  
-  pois_pred_df = fit$summary(variables = c("n_birth_pois_pred"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-    tidyr::extract(variable,into=c("variable","row_id"),
-                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-    as_tibble() %>% 
-    dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
-    cbind(stan_df %>% dplyr::select(year,month,mother_age,n_birth)) %>% 
-    dplyr::mutate(date = make_date(year, month, 1))
+  pred_df = NA
+  # pred_df = fit$summary(variables = c("n_birth_pred"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+  #   tidyr::extract(variable,into=c("variable","row_id"),
+  #                  regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+  #   as_tibble() %>% 
+  #   dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
+  #   cbind(stan_df %>% dplyr::select(year,month,mother_age,n_birth)) %>% 
+  #   dplyr::mutate(date = make_date(year, month, 1))
+  # 
+  # pois_pred_df = fit$summary(variables = c("n_birth_pois_pred"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+  #   tidyr::extract(variable,into=c("variable","row_id"),
+  #                  regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+  #   as_tibble() %>% 
+  #   dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
+  #   cbind(stan_df %>% dplyr::select(year,month,mother_age,n_birth)) %>% 
+  #   dplyr::mutate(date = make_date(year, month, 1))
   
   if(FALSE){
     #main parameters

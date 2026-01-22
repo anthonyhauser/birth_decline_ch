@@ -1,8 +1,7 @@
 cmdstan_fit_mod2 = function(birth_df, pop_df, stan_years = 2000:2024,
                                  mod_name = c("mod2_1expgp_2fixed.stan","mod2_1expgp_1periodic.stan"),
+                            save_draw = FALSE, save.date,
                                  seed_id=123){
-  
-  stan_years = 2003:2010
   #data-------------------------------------------------------------------------
   birth_mod_df = birth_df %>% 
     filter(mother_age %in% 15:50) %>% 
@@ -195,11 +194,14 @@ cmdstan_fit_mod2 = function(birth_df, pop_df, stan_years = 2000:2024,
                     adapt_delta = 0.99,
                     refresh = 50,
                     seed = 1)
+  
+  if(save_draw){
+    fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
+  }
+  
   if(FALSE){
-    #save
-    fit$save_object(file = paste0("stan_result/",mod_name,".RDS"))
     #load
-    fit <- readRDS(paste0("stan_result/",mod_name,".RDS"))
+    fit <- readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
   }
   
   

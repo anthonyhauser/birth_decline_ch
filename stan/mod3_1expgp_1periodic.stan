@@ -107,18 +107,6 @@ parameters {
   vector[2 * J_month] beta_month; // Basis coefficients for weekly GP
 }
 transformed parameters {
-  vector[M_year] diagSPD_year;
-  vector[N_month] f_year;
-  
-  vector[2*J_month] diagSPD_month;
-  vector[N_month] f_month;
-
-  // compute spectral densities for f
-  diagSPD_year = diagSPD_EQ(alpha_year, lambda_year, L_year, M_year);
-  diagSPD_month = diagSPD_periodic(alpha_month, lambda_month, J_month);
-  // compute f
-  f_year = PHI_year * (diagSPD_year .* beta_year);
-  f_month = PHI_month * (diagSPD_month .* beta_month);
   
   real sigma = inv(inv_sigma);
   
@@ -142,6 +130,19 @@ model {
   alpha_month ~ normal(p_alpha_month[1], p_alpha_month[2]);
   beta_month ~ normal(0, 1);
   
+  vector[M_year] diagSPD_year;
+  vector[N_month] f_year;
+  
+  vector[2*J_month] diagSPD_month;
+  vector[N_month] f_month;
+
+  // compute spectral densities for f
+  diagSPD_year = diagSPD_EQ(alpha_year, lambda_year, L_year, M_year);
+  diagSPD_month = diagSPD_periodic(alpha_month, lambda_month, J_month);
+  // compute f
+  f_year = PHI_year * (diagSPD_year .* beta_year);
+  f_month = PHI_month * (diagSPD_month .* beta_month);
+  
   if(inference==1){
     target += neg_binomial_2_log_lpmf(n_birth |log_birth_prob(to_vector(age_id), age_peak1 * exp(f_year[month_id]/N_year),//scale by N_month might decrease the risk of divergences
                                                               log_h_peak1+ beta_reg[reg_id] + f_month[month_id],
@@ -150,25 +151,40 @@ model {
 }
 
 generated quantities{
-  array[N_month, N_age, N_reg] real birth_prob;
+    vector[N_month] f_year;
+    vector[N_month] f_month;
+
+  {
+    
+  vector[M_year] diagSPD_year;
+  vector[2*J_month] diagSPD_month;
+
+  // compute spectral densities for f
+  diagSPD_year = diagSPD_EQ(alpha_year, lambda_year, L_year, M_year);
+  diagSPD_month = diagSPD_periodic(alpha_month, lambda_month, J_month);
   
+  // compute f
+  f_year = PHI_year * (diagSPD_year .* beta_year);
+  f_month = PHI_month * (diagSPD_month .* beta_month);
+  }
+  
+  array[N_month, N_age] real birth_prob;
+
   for(i in 1:N_month){
     for(j in 1:N_age){
-      for(k in 1:N_reg){
-        birth_prob[i,j,k] = exp(log_birth_prob2(j, age_peak1 * exp(f_year[i]/N_year),
-                                              log_h_peak1 + beta_reg[k] +  f_month[i],
+        birth_prob[i,j] = exp(log_birth_prob2(j, age_peak1 * exp(f_year[i]/N_year),
+                                              log_h_peak1 +  f_month[i],
                                               birth_prob_sigma1));
-      }
     }
   }
- vector[N] log_mu;
- array[N] int n_birth_pred;
- array[N] int n_birth_pois_pred;
-
-  log_mu = log_birth_prob(to_vector(age_id),
-                          age_peak1 * exp(f_year[month_id] / N_year),
-                          log_h_peak1 + beta_reg[reg_id] + f_month[month_id],
-                          birth_prob_sigma1) + log(n_pop);
-  n_birth_pred = neg_binomial_2_log_rng(log_mu, sigma);
-  n_birth_pois_pred = poisson_log_rng(log_mu);
+ // vector[N] log_mu;
+ // array[N] int n_birth_pred;
+ // array[N] int n_birth_pois_pred;
+ // 
+ //  log_mu = log_birth_prob(to_vector(age_id),
+ //                          age_peak1 * exp(f_year[month_id] / N_year),
+ //                          log_h_peak1 + beta_reg[reg_id] + f_month[month_id],
+ //                          birth_prob_sigma1) + log(n_pop);
+ //  n_birth_pred = neg_binomial_2_log_rng(log_mu, sigma);
+ //  n_birth_pois_pred = poisson_log_rng(log_mu);
 }

@@ -1,13 +1,19 @@
-cmdstan_diagnostic = function(fit){
+cmdstan_diagnostic = function(fit,var=NULL){
+  if(is.null(var)){
+    fit_summary=fit$summary()
+  }else{
+    fit_summary=fit$summary(variables = var)
+  }
+
   chains = fit$time()$chains %>% filter(!is.na(total)) %>% pull(chain_id) %>% .[1:2]
   stan_diag =  data.frame(time = fit$time()$chains %>% filter(!is.na(total)) %>% pull(total) %>% max(),
                           num_successful_chains =  fit$diagnostic_summary()$num_divergent %>% length(),
                           num_divergent = fit$diagnostic_summary()$num_divergent %>% sum(),#fit$sampler_diagnostics()
                           num_max_treedepth = fit$diagnostic_summary()$num_max_treedepth %>% sum(),
                           ebfmi = fit$diagnostic_summary()$ebfmi %>% min(),
-                          rhat = fit$summary() %>% filter(!is.na(rhat)) %>% pull(rhat) %>% max(),
-                          ess_tail = fit$summary()$ess_tail %>% min(),
-                          ess_bulk = fit$summary()$ess_bulk %>% min()) %>% 
+                          rhat = fit_summary %>% filter(!is.na(rhat)) %>% pull(rhat) %>% max(),
+                          ess_tail = fit_summary$ess_tail %>% min(),
+                          ess_bulk = fit_summary$ess_bulk %>% min()) %>% 
     dplyr::mutate(is.stan.ok = num_successful_chains>=4 & num_divergent==0 & ebfmi>=0.3 & rhat<1.1)
   return(stan_diag)
 }
