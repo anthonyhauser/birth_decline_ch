@@ -19,14 +19,14 @@ date="20260122"
 N=${SLURM_ARRAY_TASK_ID}
 echo "$N"
 
-ra=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f1`
-rb=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f2`
-rc=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f3`
-rd=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f4`
-re=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f5`
-rf=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f6`
-rg=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f7`
-rh=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f8`
+ra=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f1`
+rb=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f2`
+rc=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f3`
+rd=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f4`
+re=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f5`
+rf=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f6`
+rg=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f7`
+rh=`head -n ${N} parameters_mod.txt | tail -n 1 | cut -d' ' -f8`
 
 # Paths to temporary file and out file
 SCR="/users/ahauser6/${PROJECT}/temp-$Rfile-$date-$ra-$rb-$rc-$rd-$re-$rf-$rg-$rh"
@@ -42,6 +42,8 @@ echo "---------------------------------"
 mkdir -p $SCR
 cp -p "$Rfile.R" $SCR/.
 cd $SCR
+
+echo "test--------"
 
 # Load module 
 module purge

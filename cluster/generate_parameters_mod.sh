@@ -1,6 +1,6 @@
 #!/bin/bash
 ramin=1
-ramax=5
+ramax=1
 rastep=1
 rbmin=1 #7
 rbmax=1
@@ -24,7 +24,7 @@ rhmin=1
 rhmax=1
 rhstep=1
 
-filename="parameters_mod8.txt"
+filename="parameters_mod.txt"
 
 echo "Study: sweeping rx and ry parameters "
 echo "   - ra from $ramin to $ramax with $rastep increment"
