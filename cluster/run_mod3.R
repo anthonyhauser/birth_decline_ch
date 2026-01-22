@@ -298,7 +298,13 @@ if(FALSE){
 }
 
 
-
+res = list(mod_name = mod_name,
+           seed_id = seed_id,
+           cmdstan_diag = cmdstan_diag,
+           par_df = par_df,
+           birth_prob_by_age_df = birth_prob_by_age_df,
+           gp_df = gp_df,
+           pred_df = pred_df)
 
 
 #save results

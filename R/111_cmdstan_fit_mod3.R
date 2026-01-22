@@ -238,13 +238,15 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, stan_years = 2000:2024,
     
   }
   
-  return(list(mod_name = mod_name,
-              seed_id = seed_id,
-              cmdstan_diag = cmdstan_diag,
-              par_df = par_df,
-              birth_prob_by_age_df = birth_prob_by_age_df,
-              gp_df = gp_df,
-              pred_df = pred_df))
+  res = list(mod_name = mod_name,
+             seed_id = seed_id,
+             cmdstan_diag = cmdstan_diag,
+             par_df = par_df,
+             birth_prob_by_age_df = birth_prob_by_age_df,
+             gp_df = gp_df,
+             pred_df = pred_df)
+  
+  return(res)
 }
 
 
