@@ -12,7 +12,7 @@ if(!grepl("ahauser6",getwd())){
   library(flextable)
   library(officer)
   library(readxl)
-  library(scales)
+  library(scales)qu
 }
 
 if(FALSE){#check cmdstan
@@ -27,7 +27,8 @@ if(FALSE){#check cmdstan
     chains = 4,
     parallel_chains = 4,
     refresh = 500 # print update every 500 iters
-  )
+  )n
+  
 }
 
 theme_set(theme_bw())
