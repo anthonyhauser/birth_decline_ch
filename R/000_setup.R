@@ -1,10 +1,15 @@
+
+
 library(pacman)
 pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr,purrr,ggplot2,stringr,zoo,ppcor,progress,
-               patchwork,xml2)
+               xml2)
 
 #cmdstanr
 library(cmdstanr)
 cmdstan_path()
+
+print(getwd())
+print(grepl("ahauser6",getwd()))
 
 if(!grepl("ahauser6",getwd())){
   set_cmdstan_path("C:/TEMP/.cmdstan/cmdstan-2.36.0")
@@ -12,7 +17,8 @@ if(!grepl("ahauser6",getwd())){
   library(flextable)
   library(officer)
   library(readxl)
-  library(scales)qu
+  library(scales)
+  library(patchwork)
 }
 
 if(FALSE){#check cmdstan
@@ -27,7 +33,7 @@ if(FALSE){#check cmdstan
     chains = 4,
     parallel_chains = 4,
     refresh = 500 # print update every 500 iters
-  )n
+  )
   
 }
 

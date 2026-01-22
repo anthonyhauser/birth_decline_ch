@@ -1,0 +1,86 @@
+
+R version 4.4.1 (2024-06-14) -- "Race for Your Life"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##########################################
+> #load arguments from ubelix array
+> # args9="20231129"
+> # for(args1 in c(3)){
+> #   for(args2 in c(2)){
+> #     for(args3 in c(3)){
+> #       for(args4 in c(1,2,3)){
+> #         for(args5 in c(1)){
+> #  args=c(args1,args2,args3,args4,args5,NA,NA,NA,args9)
+> 
+> ##########################################
+> #Setting up paths
+> is.sim.cluster=TRUE
+> wd = getwd()
+> code_root_path = paste0(strsplit(wd, split="/cluster")[[1]][1],"/")
+> source(paste0(code_root_path,"R/000_setup.R"))
+This is cmdstanr version 0.8.1
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- CmdStan path: /users/ahauser6/.cmdstan/cmdstan-2.35.0
+- CmdStan version: 2.35.0
+
+A newer version of CmdStan is available. See ?install_cmdstan() to install it.
+To disable this check set option or environment variable cmdstanr_no_ver_check=TRUE.
+[1] "/users/ahauser6/birth_decline_ch/cluster/temp-run_mod3-20260122-1-1-1-1-1-1-1-1"
+[1] TRUE
+[1] "/users/ahauser6/birth_decline_ch//R//001_load_birth_data.R"          
+[2] "/users/ahauser6/birth_decline_ch//R//001_load_municipality_data.R"   
+[3] "/users/ahauser6/birth_decline_ch//R//001_load_pop.R"                 
+[4] "/users/ahauser6/birth_decline_ch//R//010_tuning_parameter_cond_EQ.R" 
+[5] "/users/ahauser6/birth_decline_ch//R//011_cmdstan_diagnostic.R"       
+[6] "/users/ahauser6/birth_decline_ch//R//110_cmdstan_fit_mod1_nonparam.R"
+[7] "/users/ahauser6/birth_decline_ch//R//110_cmdstan_fit_mod1_param.R"   
+[8] "/users/ahauser6/birth_decline_ch//R//111_cmdstan_fit_mod2.R"         
+[9] "/users/ahauser6/birth_decline_ch//R//111_cmdstan_fit_mod3.R"         
+> 
+> args_all=(commandArgs(TRUE)) #args_all=c(c(5,rep(1,7)),"20241218")
+> args=as.numeric(unlist(args_all[1:8]))#args[9] should be simulation date
+> save.date=as.character(args_all[[9]])
+> 
+> print("print args")
+[1] "print args"
+> print(args)
+[1] 1 1 1 1 1 1 1 1
+> print(save.date)#save.date="20260122"
+[1] "20260122"
+> 
+> # Check if the folder exists, and create it if it doesn't
+> folder_path <- paste0(code_root_path,"results/", save.date)
+> if (!dir.exists(folder_path)) {
++   dir.create(folder_path)
++   cat("Folder created:", folder_path, "\n")
++ } else {
++   cat("Folder already exists:", folder_path, "\n")
++ }
+Folder already exists: /users/ahauser6/birth_decline_ch/results/20260122 
+> 
+> #model_name
+> mod_name = "mod1_param_1expgp_2fixed.stan"
+> mod_name = "mod3_1expgp_1periodic.stan"
+> 
+> #load data
+> birth_agg_df = readRDS(paste0(code_root_path,"cluster/cluster_data/birth_agg_df.RDS"))
+> pop_df =  readRDS(paste0(code_root_path,"cluster/cluster_data/pop_agg_df.RDS"))
+> 
+> #run model
+> res = cmdstan_fit_mod3(birth_agg_df, pop_df, stan_years = 2000:2024,
++                                  mod_name =  mod_name,
++                                  save_draw = TRUE, save.date = save.date,
++                                  seed_id=123)

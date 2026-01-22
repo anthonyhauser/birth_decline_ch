@@ -32,7 +32,7 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, stan_years = 2000:2024,
   
   }
   
-  
+ print("Data processed.") 
   #Stan list--------------------------------------------------------------------
   stan_data = list(N = dim(stan_df)[1],
                    N_year = length(unique(stan_df$year)),
@@ -87,8 +87,9 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, stan_years = 2000:2024,
   }
   
   #Stan model-------------------------------------------------------------------
-  mod <- cmdstan_model(paste0("stan/",mod_name))
-  
+  mod <- cmdstan_model(paste0(code_root_path,"stan/",mod_name))
+  print("Model compiled.")
+
   fit <- mod$sample(data = stan_data,
                     #init=initfun,#init=initfun,
                     chains = 4,
@@ -98,11 +99,11 @@ cmdstan_fit_mod3 = function(birth_df, pop_df, stan_years = 2000:2024,
                     adapt_delta = 0.99,
                     refresh = 50,
                     seed = seed_id)
-  
+  print("Model run.")
   if(save_draw){
     fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
   }
-  
+  print("Sample saved.")
   if(FALSE){
     #load
     fit <- readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))

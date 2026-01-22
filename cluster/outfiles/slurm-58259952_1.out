@@ -1,0 +1,10 @@
+1
+SCR: /users/ahauser6/birth_decline_ch/cluster/temp-run_mod3-20260122-1-1-1-1-1-1-1-1
+OUT: /users/ahauser6/birth_decline_ch/cluster/outfiles/run_mod3-20260122-1-1-1-1-1-1-1-1.Rout
+Job array item 1: ra=1, rb=1, rc=1, rd=1, re=1, rf=1, rg=1, rh=1
+---------------------------------
+/var/spool/slurm/d/job58259952/slurm_script: line 48: dcsrsoft: command not found
+---------------------------------
+WARNING: group: unknown groupid 160167
+---------------------------------
+Job is done.
