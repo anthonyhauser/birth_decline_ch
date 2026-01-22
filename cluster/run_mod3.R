@@ -153,10 +153,10 @@ fit <- mod$sample(data = stan_data,
                   #init=initfun,#init=initfun,
                   chains = 4,
                   parallel_chains = 4,
-                  iter_sampling = 1,
-                  iter_warmup = 1,
+                  iter_sampling = 200,
+                  iter_warmup = 500,
                   adapt_delta = 0.99,
-                  refresh = 50,
+                  refresh = 5,
                   seed = seed_id)
 print("Model run.")
 if(save_draw){
