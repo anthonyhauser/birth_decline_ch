@@ -48,7 +48,8 @@ load_pop_year_age_nat_ctn = function(){
       filter(sex=="Femme",
              citizenship!="Nationalité (catégorie) - total",
              region!="Suisse",
-             age!="Âge - total") %>% 
+             age!="Âge - total",
+             region!="Sans indication") %>% #we can remove them as the number of people in this category is 0
       #clean column
       left_join(ctn_map, by="region") %>% 
       dplyr::mutate(year = as.numeric(year),

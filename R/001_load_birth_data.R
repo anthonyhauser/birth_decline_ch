@@ -1,10 +1,8 @@
 
 load_birth_data = function(){
-  
-  if (file.exists("data/birth_data/birth_1987_2024.RDS")) {
-    
-    birth_1987_2024 = readRDS("data/birth_data/birth_1987_2024.RDS")
-    
+  paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS")
+  if (file.exists(paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS"))) {
+    birth_1987_2024 = readRDS(paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS"))
   } else {
   
     #1987-2015

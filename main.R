@@ -8,23 +8,33 @@ pop_df = load_pop_year_age_nat_ctn()
 
 #assign a current mun_id from mother_municipality as well as its corresponding district and canton
 birth_df = birth_1987_2024 %>% 
-  left_join(mun_df %>% dplyr::select(mother_ctn_abbr=ctn_abbr, mother_ctn_id = ctn_id,
+  left_join(mun_df %>% dplyr::select(mother_ctn_abbr = ctn_abbr, mother_ctn_id = ctn_id,
                                        mother_dist_name = dist_name, mother_dist_id = dist_id,
                                        mother_mun_id = mun_id, mother_mun_name = mun_name,
                                        mother_municipality = hist_mun_id),by="mother_municipality")
-
 if(FALSE){
-  #check Swiss mother (i.e., mother_municipality 8100), with missing mun_id
+  #check Swiss mother (i.e., mother_municipality 8100), with missing mun_id: 1 row
   birth_df %>% 
     filter(is.na(mother_mun_id),mother_municipality==8100)
 }
+
+birth_agg_df = birth_df %>% 
+  filter(!is.na(mother_mun_id)) %>% #remove foreigners (and 1 row with missing mun_id)
+  group_by(year,month,mother_age,mother_ctn_abbr) %>% #we could add mother_citizenship (but needs to be binary),other_ctn_id,mother_dist_name
+  dplyr::summarise(n = n(),.groups="drop")
+
+#save for cluster
+saveRDS(birth_agg_df,file="cluster/cluster_data/birth_agg_df.RDS")
+saveRDS(pop_df,file="cluster/cluster_data/pop_agg_df.RDS")
+
+
 
 
 ###############################################################################################################################################################
 
 #non-parameteric
 cmstan_fit_mod1_nonparam(birth_df, pop_df,stan_years = 2000:2024,
-                                dist = "negbin",#""negbin","normal"
+                                mod_name = "mod1_param_1expgp_2fixed.stan",
                                 cut_age_group_year_gp = NULL, #c(28,35)
                                 seed_id=123)
 

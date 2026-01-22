@@ -152,4 +152,14 @@ generated quantities{
                                             birth_prob_sigma1));
     }
   }
+ vector[N] log_mu;
+ array[N] int n_birth_pred;
+ array[N] int n_birth_pois_pred;
+
+  log_mu = log_birth_prob(to_vector(age_id),
+                          age_peak1 * exp(f_year[month_id] / N_year),
+                          log_h_peak1 + f_month[month_id],
+                          birth_prob_sigma1) + log(n_pop);
+  n_birth_pred = neg_binomial_2_log_rng(log_mu, sigma);
+  n_birth_pois_pred = poisson_log_rng(log_mu);
 }

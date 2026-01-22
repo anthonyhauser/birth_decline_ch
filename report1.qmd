@@ -1,0 +1,55 @@
+---
+title: "Birth decline in Switzerland: "
+format: html
+editor: visual
+---
+
+## Data
+
+### Birth data
+
+Stratification level: individual-based
+
+- increase in high age and decrease in low age over time
+- probability of giving birth by age over time
+- municipality
+
+### Population data
+
+Stratification level: age, year (1987-2024), canton
+
+- Restrict to women between 15 and 50.
+- Linear interpolation within months
+- Finer level of stratification (e.g., municipality) for 2010-2024
+
+
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+
+# Issues
+
+- Warm-up of 200 is not sufficient, can create divergences
+- Some divergences (around 1\%) also observed when adapt_delta=0.8
+- When we use negative-binomial with var=mu*(1+phi), it leads to many divergence (more than 80\%)
+- There is one row with Swiss mother missing mun_id (currently removed)
+
+# To do
+
+- SEP: can only for 2010-2024 because we need population by municipality to assign SEP.
+- Launch in cluster, parallelization possible

@@ -1,14 +1,16 @@
-cmstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
+cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
                             mod_name = c("mod1_param_3fixed.stan",
                                          "mod1_param_1lin_2fixed.stan","mod1_param_1lin_1explin_1fixed.stan","mod1_param_2explin_1fixed.stan",
                                          "mod1_param_1expgp_2fixed.stan","mod1_param_2expgp_1fixed.stan","mod1_param_3expgp.stan",
                                          "mod1_param_1gp_1expgp_1fixed.stan"),
+                            save_draw = FALSE, save.date,
                                seed_id=123){
+  
   #data-------------------------------------------------------------------------
   birth_mod_df = birth_df %>% 
-    filter(!is.na(mother_mun_id),mother_age %in% 15:50) %>% 
+    filter(mother_age %in% 15:50) %>% 
     group_by(year,mother_age) %>% 
-    dplyr::summarise(n_birth=n(),.groups="drop")
+    dplyr::summarise(n_birth=sum(n),.groups="drop")
   
   pop_mod_df = pop_df %>% 
     filter(month==7) %>% 
@@ -130,8 +132,11 @@ cmstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
                     iter_sampling = 200,
                     iter_warmup = 200,
                     #adapt_delta = 0.95,
-                    refresh = 50,
+                    refresh = 10,
                     seed = seed_id)
+  if(save_draw){
+    fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
+  }
   
   #diagnostic of the fit
   cmdstan_diag = cmdstan_diagnostic(fit)
@@ -167,6 +172,7 @@ cmstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
   
   #Posterior estimates----------------------------------------------------------
   par_df =  fit$summary(variables = var, "mean",~quantile(.x, probs = c(0.025, 0.975)))
+  #birth probability
   birth_prob_by_age_df = fit$summary(variables = c("birth_prob"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
     tidyr::extract(variable,into=c("variable","year_id","age_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
@@ -176,14 +182,53 @@ cmstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
                   age_id=as.numeric(age_id)) %>% 
     left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") %>% 
     left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id") 
-  gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-    tidyr::extract(variable,into=c("variable","group_id","year_id"),
-                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
+  #GP
+  if(stan_data$N_group==1){
+    gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+      tidyr::extract(variable,into=c("variable","year_id"),
+                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+      as_tibble() %>% 
+      dplyr::mutate(group_id=1) %>% 
+      dplyr::select(group_id,year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+      dplyr::mutate(year_id=as.numeric(year_id)) %>% 
+      left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id")
+  }else{
+    gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+      tidyr::extract(variable,into=c("variable","group_id","year_id"),
+                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
+      as_tibble() %>% 
+      dplyr::select(group_id,year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+      dplyr::mutate(year_id=as.numeric(year_id)) %>% 
+      left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id")
+  }
+  #prediction
+  pred_df = fit$summary(variables = c("n_birth_pred"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+    tidyr::extract(variable,into=c("variable","row_id"),
+                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
-    dplyr::select(group_id,year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
-    dplyr::mutate(year_id=as.numeric(year_id)) %>% 
-    left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id")
-  pred_df = NA
+    dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
+    cbind(stan_df %>% dplyr::select(year,mother_age,n_birth))
+  
+  pois_pred_df = fit$summary(variables = c("n_birth_pois_pred"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+    tidyr::extract(variable,into=c("variable","row_id"),
+                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+    as_tibble() %>% 
+    dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
+    cbind(stan_df %>% dplyr::select(year,mother_age,n_birth))
+  
+  #bias
+  age_bias_df = fit$summary(variables = c("age_bias"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+    tidyr::extract(variable,into=c("variable","age_id"),
+                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+    as_tibble() %>% 
+    dplyr::select(age_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::mutate(age_id=as.numeric(age_id)) %>% 
+    left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") %>% 
+    left_join(stan_df %>% group_by(age_id) %>% dplyr::summarise(n_tot_birth=sum(n_birth)),by="age_id")
+  age_bias_df = rbind(age_bias_df %>%  dplyr::mutate(indicator="absolute"),
+                      age_bias_df %>%  dplyr::mutate(indicator="relative") %>% 
+                        dplyr::mutate(  dplyr::across(c(est, lwb, upb), ~ .x / n_tot_birth) ))
+    
   
   if(FALSE){
     #main parameters
@@ -200,6 +245,41 @@ cmstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
       geom_ribbon(fill="blue",alpha=0.2)+
       geom_line(col="blue")+
       facet_grid(group_id ~.)
+    #predictive intervals
+    pred_df %>% 
+      filter(mother_age %in% c(15,16,18,20,22,24,26)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+    pred_df %>% 
+      filter(mother_age %in% c(28:34)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+    pred_df %>% 
+      filter(mother_age %in% c(36,38,40,42,45,48,50)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+    #predictive intervals: poisson and negbin
+    rbind(pred_df %>% dplyr::mutate(dist="negbin"),
+          pois_pred_df %>% dplyr::mutate(dist="pois")) %>% 
+      filter(mother_age %in% c(18,22,30,32,34,46)) %>% 
+      ggplot(aes(x=date))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb,fill=dist),alpha=0.2)+
+      facet_grid(mother_age~.,scale="free_y")
+    
+    age_bias_df %>% 
+      ggplot(aes(x=mother_age))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      facet_grid(indicator~.,scales="free")
   }
   
   return(list(mod_name = mod_name,
@@ -208,7 +288,8 @@ cmstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
               par_df = par_df,
               birth_prob_by_age_df = birth_prob_by_age_df,
               gp_df = gp_df,
-              pred_df = pred_df))
+              pred_df = pred_df,
+              age_bias_df = age_bias_df))
 }
 
 

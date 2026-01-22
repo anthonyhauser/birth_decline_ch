@@ -25,13 +25,23 @@ functions {
   }
   
   
-  vector log_birth_prob(vector age_id, vector a_peak, real log_h_peak, real sigma) {
-    return log_h_peak - (age_id - a_peak)^2 / (2*sigma^2);
+  real log_birth_prob_mix(
+  real age,
+  real mu_t,
+  real log_h,
+  vector w,
+  vector delta,
+  vector sigma
+) {
+  vector[num_elements(w)] lp;
+  for (k in 1:num_elements(w)) {
+    lp[k] =
+      log(w[k]) +
+      log_h -
+      square(age - (mu_t + delta[k])) / (2 * square(sigma[k]));
   }
-  
-  real log_birth_prob2(real age_id, real a_peak,real log_h_peak, real sigma) {
-    return log_h_peak - (age_id - a_peak)^2 / (2*sigma^2);
-  }
+  return log_sum_exp(lp);
+}
   
 
 }
@@ -40,6 +50,7 @@ data {
   int<lower=1> N;
   int<lower=1> N_year;
   int<lower=1> N_age;
+  int<lower=2> K; // number of mixture components
   
   //vector[N] n_birth;
   array[N] int n_birth;
@@ -92,8 +103,17 @@ parameters {
   real <lower=0> alpha_year;       // Yearly GP scale by age
   real <lower=0> lambda_year;      // Yearly GP lengthscale by age
   vector[M_year] beta_year; // Basis coefficients for yearly GP
+  
+  // mixture
+  simplex[K] w;                    // weights
+  ordered[K] delta_raw;            // ordered offsets
+  vector<lower=0>[K] sigma_mix;    // component widths
 }
 transformed parameters {
+  vector[K] delta;
+
+  delta = delta_raw - delta_raw[2]; // component 2 centered at peak
+  
   vector[M_year] diagSPD_year;
   vector[N_year] f_year;
   
@@ -117,39 +137,57 @@ model {
   alpha_year ~ normal(p_alpha_year[1], p_alpha_year[2]);
   beta_year ~ normal(0, 1);
   
+  
+  w ~ dirichlet(rep_vector(2.0, K));      // mild regularization
+  delta_raw ~ normal(0, 5);               // offsets in years
+  sigma_mix ~ normal(0, 5);               // widths in years
+  
   if(inference==1){
-    target += neg_binomial_2_log_lpmf(n_birth |log_birth_prob(to_vector(age_id), age_peak1 * exp(f_year[year_id]/N_year),//scale by N_age might decrease the risk of divergences
-                                                              log_h_peak1,
-                                                              birth_prob_sigma1) + log(n_pop), sigma);
+   for (n in 1:N) {
+  real mu_t = age_peak1 * exp(f_year[year_id[n]] / N_year);
+
+  target += neg_binomial_2_log_lpmf(
+    n_birth[n] |
+    log_birth_prob_mix(
+      age_id[n],
+      mu_t,
+      log_h_peak1,
+      w,
+      delta,
+      sigma_mix
+    ) + log(n_pop[n]),
+    sigma
+  );
+}
   }
 }
 
 generated quantities{
-  array[N_year, N_age] real birth_prob;
-  
-  for(i in 1:N_year){
-    for(j in 1:N_age){
-      birth_prob[i,j] = exp(log_birth_prob2(j, age_peak1 * exp(f_year[i]/N_year),
-                                            log_h_peak1,
-                                            birth_prob_sigma1));
-    }
-  }
-  
-  vector[N] log_mu;
-  array[N] int n_birth_pred;
-  array[N] int n_birth_pois_pred;
-  
-  log_mu = log_birth_prob(to_vector(age_id), age_peak1 * exp(f_year[year_id]/N_year),
-                                                            log_h_peak1,
-                                                            birth_prob_sigma1) + log(n_pop);
-  n_birth_pred = neg_binomial_2_log_rng(log_mu, sigma);
-  n_birth_pois_pred = poisson_log_rng(log_mu);
-  
-  vector[N_age] age_bias;
-  for(i in 1:N_age){
-    age_bias[i] = 0.0;
-  }
-  for(i in 1:N){
-    age_bias[age_id[i]] = age_bias[age_id[i]] + (n_birth_pred[i]-n_birth[i]);
-  }
+  // array[N_year, N_age] real birth_prob;
+  // 
+  // for(i in 1:N_year){
+  //   for(j in 1:N_age){
+  //     birth_prob[i,j] = exp(log_birth_prob2(j, age_peak1 * exp(f_year[i]/N_year),
+  //                                           log_h_peak1,
+  //                                           birth_prob_sigma1));
+  //   }
+  // }
+  // 
+  // vector[N] log_mu;
+  // array[N] int n_birth_pred;
+  // array[N] int n_birth_pois_pred;
+  // 
+  // log_mu = log_birth_prob(to_vector(age_id), age_peak1 * exp(f_year[year_id]/N_year),
+  //                                                           log_h_peak1,
+  //                                                           birth_prob_sigma1) + log(n_pop);
+  // n_birth_pred = neg_binomial_2_log_rng(log_mu, sigma);
+  // n_birth_pois_pred = poisson_log_rng(log_mu);
+  // 
+  // vector[N_age] age_bias;
+  // for(i in 1:N_age){
+  //   age_bias[i] = 0.0;
+  // }
+  // for(i in 1:N){
+  //   age_bias[age_id[i]] = age_bias[age_id[i]] + (n_birth_pred[i]-n_birth[i]);
+  // }
 }
