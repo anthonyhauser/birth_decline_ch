@@ -4,36 +4,6 @@ load_pop_year_age_nat_ctn = function(){
    }else {
     pop_df = read_excel(paste0(data_folder, "population_data/pop_year_age_nat_ctn.xlsx"))
     
-    ctn_map <- tibble::tribble( ~ctn_abbr, ~region,
-                                "CH",      "Suisse",
-                                "ZH",      "Zürich",
-                                "BE",      "Bern / Berne",
-                                "LU",      "Luzern",
-                                "UR",      "Uri",
-                                "SZ",      "Schwyz",
-                                "OW",      "Obwalden",
-                                "NW",      "Nidwalden",
-                                "GL",      "Glarus",
-                                "ZG",      "Zug",
-                                "FR",      "Fribourg / Freiburg",
-                                "SO",      "Solothurn",
-                                "BS",      "Basel-Stadt",
-                                "BL",      "Basel-Landschaft",
-                                "SH",      "Schaffhausen",
-                                "AR",      "Appenzell Ausserrhoden",
-                                "AI",      "Appenzell Innerrhoden",
-                                "SG",      "St. Gallen",
-                                "GR",      "Graubünden / Grigioni / Grischun",
-                                "AG",      "Aargau",
-                                "TG",      "Thurgau",
-                                "TI",      "Ticino",
-                                "VD",      "Vaud",
-                                "VS",      "Valais / Wallis",
-                                "NE",      "Neuchâtel",
-                                "GE",      "Genève",
-                                "JU",      "Jura",
-                                NA,        "Sans indication")
-    
     pop_df0 = pop_df[3:325586,-1] %>% as_tibble() %>% 
       rename( year = 1,
               region = 2,

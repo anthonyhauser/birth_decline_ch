@@ -2,19 +2,29 @@
 title: "Birth decline in Switzerland: "
 format: html
 editor: visual
+execute:
+  warning: false
+  message: false
+  echo: false
 ---
 
-## Data
+# Data
 
-### Birth data
+```{r}
+#| include: false
+source("R/000_setup.R")
 
-Stratification level: individual-based
+#load data
+#birth data, 1987_2024
+birth_1987_2024 = load_birth_data()
+birth_df = birth_1987_2024 %>% 
+  filter(live_birth==1,mother_permanent==1) %>% 
+  dplyr::select(year,month,mother_age,birth_loc,birth_state,mother_municipality,mother_citizenship,parity) %>% 
+  dplyr::mutate(mother_birth_year = year-mother_age)
+```
 
-- increase in high age and decrease in low age over time
-- probability of giving birth by age over time
-- municipality
 
-### Population data
+## Population data
 
 Stratification level: age, year (1987-2024), canton
 
@@ -22,32 +32,532 @@ Stratification level: age, year (1987-2024), canton
 - Linear interpolation within months
 - Finer level of stratification (e.g., municipality) for 2010-2024
 
+## Birth data
 
+Stratification level: individual-based
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
-```
-
-You can add options to executable code like this
+- increase in high age and decrease in low age over time
+- probability of giving birth by age over time
+- municipality
 
 ```{r}
-#| echo: false
-2 * 2
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
 
+```
+
+### Number of births
+
+#### Over time
+
+```{r}
+load("results/res.RData")
+#Total number of births---------------------------------------------------------
+#by year: decrease from 2016, exception in 2021
+birth_df %>% 
+  group_by(year) %>% 
+  dplyr::summarise(n=n()) %>% 
+  ggplot(aes(x=year,y=n)) + geom_point()+geom_line()+
+  expand_limits(y = 0)
+
+```
+
+#### By month
+
+```{r}
+birth_df %>% 
+  filter(year %in% c(1990,2000,2010,2020,2024)) %>% 
+  group_by(month,year) %>% 
+  dplyr::summarise(n=n()) %>% 
+  ggplot(aes(x=month,y=n,col=factor(year))) + geom_point()+geom_line()
+```
+
+#### By citizenship
+
+```{r}
+#number of births by mother citizenship
+birth_df %>% 
+  dplyr::mutate(mother_citizenship = as.numeric(mother_citizenship==8100)) %>%
+  group_by(year,mother_citizenship) %>% dplyr::summarise(n=n()) %>% 
+  ggplot(aes(x=year,y=n,col=factor(mother_citizenship)))+geom_point()+geom_line()+
+  expand_limits(y = 0)
+```
+
+### Mother age
+
+#### Mean mother age over time
+
+```{r}
+birth_df %>% 
+  group_by(year) %>% 
+  dplyr::summarise(mean = mean(mother_age)) %>% 
+  ggplot(aes(x = year, y = mean)) +
+  geom_point() +
+  geom_line() +
+  expand_limits(y = 0)
+```
+
+
+#### Mother age distribution by calendar year
+
+```{r}
+birth_df |>
+  filter(year %in% c(1990, 2000, 2010, 2020, 2024)) |>
+  ggplot(aes(x = mother_age,
+             y = after_stat(density),
+             color = factor(year))) +
+  geom_freqpoly(binwidth = 1, linewidth = 1) +
+  labs(x = "Mother age", y = "Proportion", color = "Year")
+```
+
+
+#### Mean mother age by citizenship
+
+```{r}
+birth_df %>% 
+  dplyr::mutate(mother_citizenship = as.numeric(mother_citizenship == 8100)) %>%
+  group_by(year, mother_citizenship) %>% 
+  dplyr::summarise(mean = mean(mother_age)) %>% 
+  ggplot(aes(x = year, y = mean, col = factor(mother_citizenship))) +
+  geom_point() +
+  geom_line() +
+  expand_limits(y = 0)
+```
+
+#### Mother age distribution by calendar year and citizenship
+
+```{r}
+#| fig-width: 8
+#| fig-height: 10
+birth_df |>
+  dplyr::mutate(mother_citizenship = as.numeric(mother_citizenship == 8100)) %>%
+  filter(year %in% c(1990, 2000, 2010, 2020, 2024)) |>
+  ggplot(aes(x = mother_age,
+             y = after_stat(density),
+             color = factor(mother_citizenship))) +
+  geom_freqpoly(binwidth = 1, linewidth = 1) +
+  labs(x = "Mother age", y = "Proportion", color = "Swiss") +
+  facet_grid(year ~ .)+
+  theme(legend.position = "bottom")
+```
+
+#### Mother age by mother birth year (right-censoring adjusted)
+
+```{r}
+years <- c(1970, 1975, 1980, 1985, 1990, 1995)
+
+birth_df %>% 
+  filter(mother_birth_year %in% years,
+         mother_age > (1987 - min(years)),
+         mother_age < (2024 - max(years))) %>% 
+  ggplot(aes(x = mother_age,
+             y = after_stat(density),
+             color = factor(mother_birth_year))) +
+  geom_freqpoly(binwidth = 1, linewidth = 1) +
+  labs(x = "Mother age", y = "Dist", color = "Birth year")
+```
+
+#### Mother age (first child only, density)
+
+```{r}
+years <- c(1982, 1983, 1988, 1990)
+
+birth_df %>% 
+  dplyr::mutate(mother_citizenship = as.numeric(mother_citizenship == 8100)) %>%
+  filter(parity == 1,
+         mother_birth_year %in% years,
+         mother_age > (2004 - min(years)),
+         mother_age < (2024 - max(years))) %>% 
+  ggplot(aes(x = mother_age,
+             y = after_stat(density),
+             color = factor(mother_birth_year))) +
+  geom_freqpoly(binwidth = 1, linewidth = 1) +
+  labs(x = "Mother age", y = "Dist", color = "Birth year") +
+  facet_grid(mother_citizenship ~ .)
+```
+
+### Parity
+
+#### Parity distribution over selected years
+
+```{r}
+birth_df %>% 
+  filter(year %in% c(2005, 2010, 2020, 2024),
+         parity <= 5) %>% 
+  ggplot(aes(x = parity,
+             y = after_stat(density),
+             color = factor(year))) +
+  geom_freqpoly(binwidth = 1, linewidth = 1) +
+  labs(x = "Parity", y = "Count", color = "Year")
+```
+
+#### Proportion of parity 2–4 over time
+
+```{r}
+birth_df %>% 
+  filter(year >= 2005) %>% 
+  group_by(year, parity) %>% 
+  dplyr::summarise(n = n(), .groups = "drop_last") %>% 
+  dplyr::mutate(p = n / sum(n)) %>% 
+  ungroup() %>% 
+  filter(parity >= 2, parity <= 4) %>% 
+  ggplot(aes(x = year,
+             y = p,
+             col = factor(parity))) +
+  geom_line() +
+  geom_point() +
+  expand_limits(y = 0)
+```
+
+# Models
+
+## Model 1
+
+### Non-parametric age-distribution of births
+
+By age and by year from 2000 to 2024: $25 \times 36 = 900$ rows.<br>
+Neg-binomial distribution of births with an offset on the population.<br>
+Effect of years and of age on birth rates modelled with Gaussian processes (GPs).<br>
+Limitations: For a given age, cannot disentangle the variation in birth rate due to increase in age of delivery or genuine change in number of births.
+
+#### Same effect of year for any year
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+cowplot::plot_grid(
+  #GP age
+  res1$gp_age_df %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(fill="blue",alpha=0.2)+
+    geom_line(col="blue"),
+  #GP year
+  res1$gp_year_df %>% 
+    ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(group_year_id)),alpha=0.2)+
+    geom_line(aes(col=factor(group_year_id)))+
+    theme(legend.position = "bottom"))
+```
+
+#### Age-specific effect of year
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+cowplot::plot_grid(
+  #GP age
+  res2$gp_age_df %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(fill="blue",alpha=0.2)+
+    geom_line(col="blue"),
+  #GP year
+  res2$gp_year_df %>% 
+    ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(group_year_id)),alpha=0.2)+
+    geom_line(aes(col=factor(group_year_id)))+
+    theme(legend.position = "bottom"))
+```
+
+
+### Parametric age-distribution of births
+
+Parametric function to model the probability of giving birth with respect to age (Gaussian curve).<br>
+Three parameters govern the Gaussian curve: 1) peak age, 2) peak height and 3) width (i.e., concentration around peak).
+
+#### Time-varying peak age
+
+```{r}
+#parametric function
+res3$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024)) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+```
+
+```{r}
+#GP
+res3$gp_df %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")+
+  facet_grid(group_id ~.)
+```
+
+#### Prediction intervals
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+res3$pred_df %>% 
+      filter(mother_age %in% c(15,16,18,20,22,24,26)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+res3$pred_df %>% 
+      filter(mother_age %in% c(28:34)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+res3$pred_df %>% 
+      filter(mother_age %in% c(36,38,40,42,45,48,50)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+#### Bias
+
+```{r}
+#| fig-width: 8
+#| fig-height: 6
+
+res3$age_bias_df %>% 
+      ggplot(aes(x=mother_age))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      facet_grid(indicator~.,scales="free")
+```
+
+### Model 2 bis
+
+```{r}
+#parametric function
+res4$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024)) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+```
+
+```{r}
+#GP
+res4$gp_df %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")+
+  facet_grid(group_id ~.)
+```
+
+### Semi-parametric age-distribution of births
+
+Semi-parametric function to model the probability of giving birth with respect to age (random walk).<br>
+
+#### Time-varying peak age
+
+```{r}
+#parametric function
+res6$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024)) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+```
+
+```{r}
+#GP
+res6$gp_df %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")+
+  facet_grid(group_id ~.)
+```
+
+#### Prediction intervals
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+res6$pred_df %>% 
+      filter(mother_age %in% c(15,16,18,20,22,24,26)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+res6$pred_df %>% 
+      filter(mother_age %in% c(28:34)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+res6$pred_df %>% 
+      filter(mother_age %in% c(36,38,40,42,45,48,50)) %>% 
+      ggplot(aes(x=year))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=2)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+#### Bias
+
+```{r}
+#| fig-width: 8
+#| fig-height: 6
+
+res6$age_bias_df %>% 
+      ggplot(aes(x=mother_age))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      facet_grid(indicator~.,scales="free")
+```
+
+## Model 2
+
+By age, year and months: $12\times 25 \times 36  = 10,800$ rows.<br>
+Seasonal variation captured by a periodic GP.
+
+```{r}
+#parametric function
+res5$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024),month==1) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+
+```
+
+
+```{r}
+#| fig-width: 8
+#| fig-height: 7
+#GP
+cowplot::plot_grid(
+res5$gp_year_df %>% 
+  ggplot(aes(x=date,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue"),#facet_grid(group_id ~.)
+res5$gp_month_df %>%
+  filter(year<=2001) %>% 
+  ggplot(aes(x=date,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue"),ncol=1)
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+res5$pred_df %>% 
+      filter(mother_age %in% c(15,16,18,20,22,24,26)) %>% 
+      ggplot(aes(x=date))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=1.5,alpha=0.5)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+res5$pred_df %>% 
+      filter(mother_age %in% c(28:34)) %>% 
+      ggplot(aes(x=date))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=1.5,alpha=0.5)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+res5$pred_df %>% 
+      filter(mother_age %in% c(36,38,40,42,45,48,50)) %>% 
+      ggplot(aes(x=date))+
+      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
+      geom_line(aes(y=est),col="darkred")+
+      geom_point(aes(y=n_birth),size=1.5,alpha=0.5)+
+      facet_grid(mother_age~.,scale="free_y")
+```
+
+## Model 3
+
+By age, year, months and cantons: $12\times 25 \times 36 \times 26 = 280,800$ rows.
+
+## Model 4
+
+By age, year, months, cantons and SEP: $12\times 25 \times 36 \times 26 \times 3 = 842,400$ rows.
+But only for 2010-2024.
+
+# Main points
+
+**Objective**
+
+- 2 parts:
+  - Understand long-term evolution of birth in Switzerland (peak age) and regional differences: expectation
+  - Identify and explain (i.e., adjust for some confounding) birth excess/deficit.
+
+**Stratification**
+
+- Stratifications increase number of likelihood estimates, which increases computation time
+- Even if level of stratification in the model is coarse (e.g., national level), we will still be able to perform some post-processing where we compute excess/deficit in birth by finer levels (e.g., by district, municipality, SEP, etc)
+- The models, through their different levels of stratification, serve different purposes:
+  - National-level expectation:
+    - Inspect regional deviations
+  - Regional-level expectation:
+    - Explore finer geographical effect (municipality, district)
+    - Explore effect of SEP after accounting for potential confounding by region.
+
+**Modelling age distribution**
+
+- Why explicitly modelling mother age distribution:
+  - to quantify age shift
+  - to disentangle effects of age shift and of genuine fertility change on birth rate
+  - to adjust for confounding by population age to isolate the effect of region on birth rate (e.g., a region with more 30-year-old women is expected to have higher fertility rates)
+- Bias in birth expectation by age due to the use to a parametric function lacking flexibility: try more flexible functions
+- Some effect might be overfitted (e.g., time-varying time peak height).
+
+**To explore**
+
+- Effect of nationality could be interesting to explore.
+
+**Questions**
+- How to filter: live birth, permanent population
 
 # Issues
 
-- Warm-up of 200 is not sufficient, can create divergences
-- Some divergences (around 1\%) also observed when adapt_delta=0.8
-- When we use negative-binomial with var=mu*(1+phi), it leads to many divergence (more than 80\%)
-- There is one row with Swiss mother missing mun_id (currently removed)
+- Using a Gaussian curve introduces biases at some ages and does not capture the true mean properly.
+- A warm-up of 200 iterations is not sufficient and can lead to divergences.
+- Some divergences (around 1%) are still observed when `adapt_delta = 0.8`.
+- Using a negative-binomial parameterization with `var = mu * (1 + phi)` leads to many divergences (more than 80%).
+- One row with a Swiss mother is missing `mun_id` (currently removed); analysis is restricted to `mother_permanent == 1` and `live_birth == 1`.
 
 # To do
 

@@ -8,6 +8,7 @@ pop_df = load_pop_year_age_nat_ctn()
 
 #assign a current mun_id from mother_municipality as well as its corresponding district and canton
 birth_df = birth_1987_2024 %>% 
+  filter(live_birth==1,mother_permanent==1) %>% 
   left_join(mun_df %>% dplyr::select(mother_ctn_abbr = ctn_abbr, mother_ctn_id = ctn_id,
                                        mother_dist_name = dist_name, mother_dist_id = dist_id,
                                        mother_mun_id = mun_id, mother_mun_name = mun_name,
@@ -33,15 +34,171 @@ saveRDS(pop_df,file="cluster/cluster_data/pop_agg_df.RDS")
 ###############################################################################################################################################################
 
 #non-parameteric
-cmstan_fit_mod1_nonparam(birth_df, pop_df,stan_years = 2000:2024,
-                                mod_name = "mod1_param_1expgp_2fixed.stan",
-                                cut_age_group_year_gp = NULL, #c(28,35)
-                                seed_id=123)
 
-#parametric
-mod1_param_res = cmstan_fit_mod1_param(birth_df, pop_df, stan_years = 2000:2024,
-                             mod_name = "mod1_param_3expgp.stan",
-                             seed_id=123)
+res1 =cmstan_fit_mod1_nonparam(birth_agg_df, pop_df,stan_years = 2000:2024,
+                                    dist = "negbin",#"normal"
+                                    cut_age_group_year_gp = NULL, #c(28,35)
+                                    seed_id=123)
+
+res2 =cmstan_fit_mod1_nonparam(birth_agg_df, pop_df,stan_years = 2000:2024,
+                               dist = "negbin",#"normal"
+                               cut_age_group_year_gp = c(28,35),
+                               seed_id=123)
+
+
+cowplot::plot_grid(
+  #GP age
+  res1$gp_age_df %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(fill="blue",alpha=0.2)+
+    geom_line(col="blue"),
+  #GP year
+  res1$gp_year_df %>% 
+    ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(group_year_id)),alpha=0.2)+
+    geom_line(aes(col=factor(group_year_id)))+
+    theme(legend.position = "bottom"))
+
+cowplot::plot_grid(
+  #GP age
+  res2$gp_age_df %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(fill="blue",alpha=0.2)+
+    geom_line(col="blue"),
+  #GP year
+  res2$gp_year_df %>% 
+    ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(group_year_id)),alpha=0.2)+
+    geom_line(aes(col=factor(group_year_id)))+
+    theme(legend.position = "bottom"))
+
+res3 = cmdstan_fit_mod1_param(birth_df, pop_df, stan_years = 2000:2024,
+                                         mod_name = "mod1_param_1expgp_2fixed.stan",
+                                         save_draw = FALSE, save.date=NULL,
+                                         seed_id=123)
+res4 = cmdstan_fit_mod1_param(birth_df, pop_df, stan_years = 2000:2024,
+                                         mod_name = "mod1_param_2expgp_1fixed.stan",
+                                         save_draw = FALSE, save.date=NULL,
+                                         seed_id=123)
+
+res6 = cmdstan_fit_mod1_param(birth_df, pop_df, stan_years = 2000:2024,
+                              mod_name = "mod1_rw1.stan",
+                              save_draw = FALSE, save.date=NULL,
+                              seed_id=123)
+
+
+
+#parametric function
+res3$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024)) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+#GP
+res3$gp_df %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")+
+  facet_grid(group_id ~.)
+
+
+#parametric function
+res4$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024)) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+#GP
+res4$gp_df %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")+
+  facet_grid(group_id ~.)
+
+res5 = cmdstan_fit_mod2(birth_df, pop_df, stan_years = 2000:2024,
+                            mod_name = "mod2_1expgp_1periodic.stan",
+                            save_draw = FALSE, save.date,
+                            seed_id=123)
+
+#parametric function
+res5$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024),month==1) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+
+#GP
+cowplot::plot_grid(
+res5$gp_year_df %>% 
+  ggplot(aes(x=date,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue"),#facet_grid(group_id ~.)
+res5$gp_month_df %>%
+  filter(year<=2001) %>% 
+  ggplot(aes(x=date,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue"))
+
+save(res1,res2,res3,res4,res5,res6,file="results/res.RData")
+
+
+load("results/res.RData")
+
+
+save.date = "20260122"
+paste0("results/",save.date,"/res_mod3_1expgp_1periodic.RData")
+
+
+
+
+load(paste0("results/",save.date,"/res_mod3_1expgp_1periodic.RData"))
+res$cmdstan_diag
+res$birth_prob_by_age_df %>% 
+  filter(year %in% c(2000,2010,2021,2024),month==1) %>% 
+  ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+  geom_line(aes(col=factor(year)))
+
+res$gp_df %>% 
+ggplot(aes(x=date,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")
+
+res$par_df %>% 
+  filter(grepl("beta_reg",variable)) %>% 
+  tidyr::extract(variable,into=c("variable","reg_id"),
+                 regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+  as_tibble() %>% 
+  dplyr::select(reg_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+  dplyr::mutate(reg_id = as.numeric(reg_id)) %>% 
+  left_join(stan_df %>% dplyr::select(ctn_abbr,reg_id) %>% distinct(),by="reg_id") %>% 
+  ggplot(aes(x=ctn_abbr, y=est))+
+  geom_hline(yintercept = 0,lty=4,alpha=0.5)+
+  geom_point()+
+  geom_segment(aes(xend = ctn_abbr, y = lwb, yend = upb))
+
+#https://www.swisstopo.admin.ch/en/landscape-model-swissboundaries3d
+ctn_sf <- st_read("data/boundary_data/swissBOUNDARIES3D_1_5_TLM_KANTONSGEBIET.shp") %>% 
+  dplyr::select(ctn_name = NAME, geometry) %>% 
+  left_join(ctn_map,by=c("ctn_name"="region"))
+
+res$par_df %>% 
+  filter(grepl("beta_reg",variable)) %>% 
+  tidyr::extract(variable,into=c("variable","reg_id"),
+                 regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+  as_tibble() %>% 
+  dplyr::select(reg_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+  dplyr::mutate(reg_id = as.numeric(reg_id)) %>% 
+  left_join(stan_df %>% dplyr::select(ctn_abbr,reg_id) %>% distinct(),by="reg_id") %>% 
+  left_join(ctn_sf, by = c("ctn_abbr")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill = est)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient(name = "Relative fertility",
+                      low = "red",
+                      high = "green" ) +
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal" )
 
 
 

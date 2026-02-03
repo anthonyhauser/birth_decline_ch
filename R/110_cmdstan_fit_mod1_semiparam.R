@@ -1,13 +1,11 @@
-cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
-                            mod_name = c("mod1_param_3fixed.stan",
-                                         "mod1_param_1lin_2fixed.stan","mod1_param_1lin_1explin_1fixed.stan","mod1_param_2explin_1fixed.stan",
-                                         "mod1_param_1expgp_2fixed.stan","mod1_param_2expgp_1fixed.stan","mod1_param_3expgp.stan",
-                                         "mod1_param_1gp_1expgp_1fixed.stan",
-                                         "mod1_rw1.stan"),
-                            save_draw = FALSE, save.date,
-                               seed_id=123){
+cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
+                                  mod_name = c("mod1_rw1.stan","mod1_gp_gp.stan","mod1_gp_gp_diff.stan"),
+                                  save_draw = FALSE, save.date,
+                                  seed_id=123){
   
   #data-------------------------------------------------------------------------
+  
+  #year
   birth_mod_df = birth_df %>% 
     filter(mother_age %in% 15:50) %>% 
     group_by(year,mother_age) %>% 
@@ -18,23 +16,91 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
     group_by(year,mother_age=age) %>% 
     dplyr::summarise(n_pop=sum(n),.groups="drop")
   
+  min_age = 25
+  
   stan_df = pop_mod_df %>% 
     left_join(birth_mod_df,by=c("year","mother_age")) %>% 
-    filter(year %in% stan_years) %>% 
     dplyr::mutate(n_birth = replace_na(n_birth,0),
-                  age_id = mother_age - min(mother_age) + 1,
-                  birth_year = year - mother_age,
+                  birth_year = year - mother_age) %>% 
+    #filter(year %in% stan_years) %>% 
+    filter(birth_year >= 1987-min_age) %>% #,year<=2024) %>% 
+    dplyr::mutate(age_id = mother_age - min(mother_age) + 1,
                   birth_year_id = birth_year-min(birth_year) + 1,
                   cal_year_id = year-min(year) + 1,
                   #assign year_id (either calendar or birth year)
                   year_id = cal_year_id,
-                  year_id1 =  cal_year_id)#  birth_year_id)
+                  year_id1 = birth_year_id)
   
-  max_age_shift = 5
-  stan_df = stan_df %>% 
-    dplyr::mutate(age_id = age_id + max_age_shift)
+  
+  
+  #month
+  birth_mod_df = birth_df %>% 
+    filter(mother_age %in% 15:50) %>% 
+    group_by(year,mother_age,month) %>% 
+    dplyr::summarise(n_birth=sum(n),.groups="drop")
+  
+  pop_mod_df = pop_df %>% 
+    group_by(year,mother_age=age,month) %>% 
+    dplyr::summarise(n_pop=sum(n),.groups="drop")
+  
+  min_age = 25
+  
+  stan_df = pop_mod_df %>%
+    filter(year<=2024) %>% 
+    left_join(birth_mod_df,by=c("year","mother_age","month")) %>% 
+    filter(month %in% c(1:12)) %>% 
+    dplyr::mutate(n_birth = replace_na(n_birth,0),
+                  birth_year = year - mother_age) %>% 
+    #filter(year %in% stan_years) %>% 
+    filter(birth_year >= 1987-min_age) %>% #,year<=2024) %>% 
+    dplyr::mutate(age_id = mother_age - min(mother_age) + 1,
+                  birth_year_id = birth_year-min(birth_year) + 1,
+                  cal_year_id = year-min(year) + 1,
+                  #assign year_id (either calendar or birth year)
+                  year_id = cal_year_id,
+                  year_id1 = birth_year_id)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  #max_age_shift = 0, not used for differential version of age shift (mod1_gp_gp_diff2.stan)
+  # max_age_shift = 0
+  # stan_df = stan_df %>% 
+  #   dplyr::mutate(age_id = age_id + max_age_shift)
+  
   #Data plots-------------------------------------------------------------------
   if(FALSE){
+    age_min = 22
+    age_max = 38
+    birth_year_min = 1987-age_min
+    birth_year_max = 2024-age_max
+    d = pop_mod_df %>% 
+      left_join(birth_mod_df,by=c("year","mother_age")) %>% 
+      dplyr::mutate(birth_year = year-mother_age,
+                    p_birth = n_birth/n_pop) %>% 
+      filter(birth_year>=birth_year_min, birth_year<=birth_year_max,
+             mother_age>=age_min, mother_age<=age_max)
+    d %>% 
+      filter(birth_year %in% c(1967,1970,1975,1980,1985,1990)) %>% 
+      ggplot(aes(x=mother_age,y=p_birth,col=factor(birth_year)))+
+        geom_line(size=1)
+
+    #mean and median
+    d %>% group_by(birth_year) %>%
+      arrange(mother_age, .by_group = TRUE) %>%
+      summarise(mean = sum(n_birth * mother_age) / sum(n_birth),
+                median = mother_age[min(which(cumsum(n_birth) / sum(n_birth) >= 0.5))]) %>%
+      ggplot(aes(x = birth_year)) + geom_line(aes(y = mean), linewidth = 1) +
+      geom_line(aes(y = median), linetype = 2, linewidth = 1)
+    
+    
     stan_df %>% 
       filter(year %in% c(2000,2001,2010,2020,2024)) %>% 
       dplyr::mutate(p_birth = n_birth/n_pop,
@@ -72,11 +138,13 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
                    N_year = length(unique(stan_df$year)),
                    N_year1 = length(unique(stan_df$year_id1)),
                    N_age = length(unique(stan_df$mother_age)) +2*max_age_shift,
+                   N_sigma =1,# length(unique(stan_df$mother_age)) +2*max_age_shift,
                    N_group = 1,#number of GPs
                    
                    year_id = stan_df$year_id,
                    year_id1 = stan_df$year_id1,
                    age_id = stan_df$age_id,
+                   sigma_id = rep(1,length(stan_df$age_id)),#stan_df$age_id, 
                    
                    n_pop = stan_df$n_pop,
                    n_birth = stan_df$n_birth,
@@ -84,42 +152,28 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
                    #x = sort(unique(stan_df$year_id)),
                    x = 1:(max(stan_df$age_id) + max_age_shift), #only for mod1_gp.stan
                    x1 = 1:(max(stan_df$age_id) + max_age_shift),
-                   x2 = stan_df$year_id1 %>% unique(),
+                   x2 = stan_df$year_id1 %>% unique() %>% sort(),
                    
                    M_year = 8, 
                    c_year = 5,
                    
+                   M_age = 10, 
+                   c_age = 5,
+                   
                    p_rho = c(2,5),
-                   p_alpha = c(3,3),
-                  
+                   p_alpha = c(3,1),
+                   
+                   rho = 1,
                    lambda_year = 2,
                    p_lambda_year = c(0.5, 1),
                    p_alpha_year = c(0,0.5),
                    
-                   p_age_peak1 = c(15,2),
-                   p_age_peak2 = c(0,1),
-                   
-                   p_log_h_peak1 = c(log(0.12)-0.2^2/2,0.2),
-                   p_log_h_peak2 = c(0,1),
-                   
-                   p_birth_prob_sigma1 = c(5,1),
-                   p_birth_prob_sigma2 = c(0,0.4),
-                   
-                   p_inv_sigma = 10,
-                   
-                   p_delta0 = c(-5,3),
-                   p_sigma_rw = c(0,2),
-                   p_delta = c(-5,3),
+                   p_inv_sigma = 100,
+                   p_delta0 = c(-5-log(12),2),
                    
                    inference = 1)
   
-  if(mod_name %in% c("mod1_param_2expgp_1fixed.stan", "mod1_param_1gp_1expgp_1fixed.stan")){
-    stan_data$N_group = 2
-  }else if(mod_name %in% c("mod1_param_3expgp.stan")){
-    stan_data$N_group = 3
-  }
-  
-  #checks
+  #Check prior values
   if(FALSE){
     #lengthscale
     l = exp(rnorm(1000,stan_data$p_lambda_year[1],stan_data$p_lambda_year[1]))
@@ -138,15 +192,38 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
       scale_x_continuous() 
   }
   
-  #init function
-  initfun <- function() { list(inv_sigma = rexp(1,stan_data$p_inv_sigma),
-                               age_peak1=rnorm(1,stan_data$p_age_peak1[1],stan_data$p_age_peak1[2]),
-                               age_peak2=rnorm(1,stan_data$p_age_peak2[1],stan_data$p_age_peak2[2]),
-                               h_peak1=abs(rnorm(1,stan_data$p_h_peak1[1],stan_data$p_h_peak1[2])),
-                               h_peak2=rnorm(1,stan_data$p_h_peak2[1],stan_data$p_h_peak2[2]),
-                               birth_prob_sigma=rnorm(1,stan_data$p_birth_prob_sigma[1],stan_data$p_birth_prob_sigma[2])) }
+  #Check newer version gives same results---------------------------------------
+  if(FALSE){
+    mod1 <- cmdstan_model(paste0("stan/","mod1_gp_gp_diff.stan"))
+    mod2 <- cmdstan_model(paste0("stan/","mod1_gp_gp_diff2.stan"))
+    fit1 <- mod1$sample(data = stan_data,
+                        chains = 1,
+                        parallel_chains = 1,
+                        iter_sampling = 1,
+                        iter_warmup = 0,
+                        fixed_param = TRUE,
+                        seed = 1)
+    fit2 <- mod2$sample(data = stan_data,
+                        chains = 1,
+                        parallel_chains = 1,
+                        iter_sampling = 1,
+                        iter_warmup = 0,
+                        fixed_param = TRUE,
+                        seed = 1)
+    
+    fit1$draws(variables = "f_year[1]")
+    fit2$draws(variables = "f_year[1]")
+    
+    fit1$draws(variables = "f_age[1,1]")
+    fit2$draws(variables = "f_age[1,1]")
+    fit1$draws(variables = "f_age[36,46]")
+    fit2$draws(variables = "f_age[36,46]")
+  }
   
-  initfun <- function() { list(delta0=-8) }
+  #init functiob 
+  nitfun <- function() { list(delta0=-8) }
+  
+  
   
   #Stan model-------------------------------------------------------------------
   mod <- cmdstan_model(paste0("stan/",mod_name))
@@ -154,15 +231,15 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
                     #init=initfun, #avoid because some chains finished unexpectedly
                     chains = 4,
                     parallel_chains = 4,
-                    iter_sampling = 500,
-                    iter_warmup = 500,
-                    adapt_delta = 0.95,
+                    iter_sampling = 200,
+                    iter_warmup = 200,
+                    adapt_delta = 0.8,
                     refresh = 10,
-                    seed = 2)
+                    seed = 6)#2
   if(save_draw){
     fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
   }
-  fit$summary() %>% arrange(-rhat)
+  fit$summary() %>% arrange(-rhat) %>% View()
   
   #diagnostic of the fit
   cmdstan_diag = cmdstan_diagnostic(fit)
@@ -172,18 +249,8 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
   #diagnostic of the fit
   
   #variables
-  if(mod_name=="mod1_param_3fixed.stan"){
-    var = c("inv_sigma","age_peak1","log_h_peak1", "birth_prob_sigma1")
-  }else if(mod_name=="mod1_param_1lin_2fixed.stan"){
-    var = c("inv_sigma","age_peak1","age_peak2","log_h_peak1", "birth_prob_sigma1")
-  }else if(mod_name=="mod1_param_1lin_1explin_1fixed.stan"){
-    var = c("inv_sigma","age_peak1","age_peak2","log_h_peak1","log_h_peak2", "birth_prob_sigma1")
-  }else if(mod_name=="mod1_param_2explin_1fixed.stan"){
-    var = c("inv_sigma","age_peak1","age_peak2","log_h_peak1","log_h_peak2", "birth_prob_sigma1")
-  }else if(mod_name %in% c("mod1_param_1expgp_2fixed.stan","mod1_param_2expgp_1fixed.stan","mod1_param_3expgp.stan","mod1_param_1gp_1expgp_1fixed.stan")){
-    var = c("inv_sigma","age_peak1","log_h_peak1", "birth_prob_sigma1","alpha_year","lambda_year")
-  }else if(mod_name %in% c("mod1_rw1.stan")){
-    var = c("inv_sigma","sigma_rw","beta")
+  if(mod_name %in% c("mod1_gp_gp_diff.stan","mod1_gp_gp_diff2.stan")){
+    var = c("delta0","alpha","alpha_year", "inv_sigma","sigma")
   }
   
   #exploration
@@ -207,36 +274,124 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
                      regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
       dplyr::mutate(year_id = as.numeric(year_id),
                     age_id = as.numeric(age_id)) %>% 
-      left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") %>% 
-      left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id") 
-  
+      left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id")
+    
     
     sample_birth_prob %>% 
-      group_by(chain, var,year_id,age_id,mother_age,year) %>% 
+      group_by(chain, var,year_id,age_id,mother_age) %>% 
       dplyr::summarise(est = mean(values),
                        lwb = quantile(values,probs=0.025),
                        upb = quantile(values,probs=0.975),.groups="drop") %>% 
-      filter(year %in% c(2000,2011)) %>% 
+      filter(year_id %in% c(1,20,40)) %>% 
       ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(aes(fill=factor(chain)),alpha=0.2)+
       geom_line(aes(col=factor(chain)))+
-      facet_grid(year~.)+
-      coord_cartesian(ylim=c(0,0.12))
+      facet_grid(year_id~.)
     
     sample_birth_prob %>% 
-      group_by(chain, var,year_id,age_id,mother_age,year) %>% 
+      group_by(chain, var,year_id,age_id,mother_age) %>% 
       dplyr::summarise(est = mean(values),
                        lwb = quantile(values,probs=0.025),
                        upb = quantile(values,probs=0.975),.groups="drop") %>% 
-      filter(year %in% c(2000,2011,2020)) %>% 
+      filter(year_id %in% c(1,20,40)) %>% 
       ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
-      geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
-      geom_line(aes(col=factor(year)))+
+      geom_ribbon(aes(fill=factor(year_id)),alpha=0.2)+
+      geom_line(aes(col=factor(year_id)))+
       facet_grid(chain~.)
     
-    #trajectory birth_prob
+    #trajectory f_age two dimensions
+    d_sample <- fit$draws(variables=c("f_age"))
+    f_age_df = as.data.frame(ftable(d_sample[,,])) %>% 
+      dplyr::mutate(chain = as.numeric(as.character(chain)),
+                    iteration = as.numeric(as.character(iteration)),
+                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
+      dplyr::select(chain,iter,var=variable,values=Freq) %>% 
+      tidyr::extract(var,into=c("var","age_id","year_id"),
+                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
+      dplyr::mutate(year_id = as.numeric(year_id),
+                    age_id = as.numeric(age_id)) 
+    
+    f_age_df %>%  
+      group_by(chain, var,age_id) %>% 
+      dplyr::summarise(est = mean(values),
+                       lwb = quantile(values,probs=0.025),
+                       upb = quantile(values,probs=0.975),.groups="drop") %>% 
+      ggplot(aes(x=age_id,y=est,ymin=lwb,ymax=upb))+
+      geom_ribbon(aes(fill=factor(chain)),alpha=0.2)+
+      geom_line(aes(col=factor(chain)))+
+      facet_grid(chain~.)
+    
+    f_age_df %>% 
+      left_join(delta0_df %>% dplyr::rename(values2 = values), by=c("chain","iter")) %>% 
+      dplyr::mutate(f_age = values+values2, 
+                      prob = inv.logit(f_age)) %>% 
+      group_by(year_id,age_id) %>% 
+      dplyr::summarise(est = mean(f_age),
+                       lwb = quantile(f_age,probs=0.025),
+                       upb = quantile(f_age,probs=0.975),.groups="drop") %>% 
+      filter(year_id %in% c(1,2,10,20,30,40,45)) %>% 
+      ggplot(aes(x=age_id,y=est,ymin=lwb,ymax=upb))+
+      geom_ribbon(aes(fill=factor(year_id)),alpha=0.2)+
+      geom_line(aes(col=factor(year_id)))
+    
+    #trajectory f_age
+    d_sample <- fit$draws(variables=c("f_age"))
+    sample_f_age = as.data.frame(ftable(d_sample[,,])) %>% 
+      dplyr::mutate(chain = as.numeric(as.character(chain)),
+                    iteration = as.numeric(as.character(iteration)),
+                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
+      dplyr::select(chain,iter,var=variable,values=Freq) %>% 
+      tidyr::extract(var,into=c("var","age_id"),
+                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+      dplyr::mutate(age_id = as.numeric(age_id)) %>% 
+      left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") 
+    
+    sample_f_age %>%  
+      group_by(chain, var,age_id,mother_age) %>% 
+      dplyr::summarise(est = mean(values),
+                       lwb = quantile(values,probs=0.025),
+                       upb = quantile(values,probs=0.975),.groups="drop") %>% 
+      ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+      geom_ribbon(aes(fill=factor(chain)),alpha=0.2)+
+      geom_line(aes(col=factor(chain)))
+    
+    #delta0
+    d_sample <- fit$draws(variables=c("delta0"))
+    delta0_df = as.data.frame(ftable(d_sample[,,])) %>% 
+      dplyr::mutate(chain = as.numeric(as.character(chain)),
+                    iteration = as.numeric(as.character(iteration)),
+                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
+      dplyr::select(chain,iter,var=variable,values=Freq)
+    
+    delta0_df %>% 
+      group_by(chain, var) %>% 
+      dplyr::summarise(est = mean(values),
+                       lwb = quantile(values,probs=0.025),
+                       upb = quantile(values,probs=0.975),.groups="drop") 
+    
+    #trajectory logit_birth_prob_int
+    d_sample <- fit$draws(variables=c("logit_birth_prob_int"))
+    sample_logit_birth_prob_int = as.data.frame(ftable(d_sample[,,])) %>% 
+      dplyr::mutate(chain = as.numeric(as.character(chain)),
+                    iteration = as.numeric(as.character(iteration)),
+                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
+      dplyr::select(chain,iter,var=variable,values=Freq) %>% 
+      tidyr::extract(var,into=c("var","age_id"),
+                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+      dplyr::mutate(age_id = as.numeric(age_id)) %>% 
+      left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") 
+    
+    sample_logit_birth_prob_int %>% 
+      group_by(chain, var,age_id,mother_age) %>% 
+      dplyr::summarise(est = mean(values),
+                       lwb = quantile(values,probs=0.025),
+                       upb = quantile(values,probs=0.975),.groups="drop") %>% 
+      ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+      geom_ribbon(aes(fill=factor(chain)),alpha=0.2)+
+      geom_line(aes(col=factor(chain)))
+    
+    #trajectory f_year
     d_sample <- fit$draws(variables=c("f_year"))
-    n_iter_per_chain = d_sample[,1,1] %>% length()
     sample_f_year = as.data.frame(ftable(d_sample[,,])) %>% 
       dplyr::mutate(chain = as.numeric(as.character(chain)),
                     iteration = as.numeric(as.character(iteration)),
@@ -244,23 +399,19 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
       dplyr::select(chain,iter,var=variable,values=Freq) %>% 
       tidyr::extract(var,into=c("var","year_id"),
                      regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-      dplyr::mutate(year_id = as.numeric(year_id)) %>% 
-      left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id") 
+      dplyr::mutate(year_id = as.numeric(year_id))
     
     sample_f_year %>% 
-      group_by(chain, var,year_id,year) %>% 
+      group_by(chain,var,year_id) %>% 
       dplyr::summarise(est = mean(values),
                        lwb = quantile(values,probs=0.025),
                        upb = quantile(values,probs=0.975),.groups="drop") %>% 
-      ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+      ggplot(aes(x=year_id,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(aes(fill=factor(chain)),alpha=0.2)+
       geom_line(aes(col=factor(chain)))
     
-    
-    
-    #trajectory 
+    #trajectory n_birth_pred
     d_sample <- fit$draws(variables=c("n_birth_pred"))
-    n_iter_per_chain = d_sample[,1,1] %>% length()
     n_birth_pred = as.data.frame(ftable(d_sample[,,])) %>% 
       dplyr::mutate(chain = as.numeric(as.character(chain)),
                     iteration = as.numeric(as.character(iteration)),
@@ -271,8 +422,6 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
       dplyr::mutate(data_id = as.numeric(data_id)) %>% 
       left_join(stan_df %>% dplyr::select(mother_age,age_id,year,year_id,n_birth ) %>% 
                   dplyr::mutate(data_id = row_number()),by="data_id")
-    
-  
     
     n_birth_pred %>% 
       group_by(chain, var,year_id,age_id,mother_age,year) %>% 
@@ -288,92 +437,7 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
       facet_grid(chain~.,scales="free_y")
     
     ############################################################################
-    logit_birth_prob2(36, 36, 0, 0.5, logit_birth_prob_int) 
-    logit_birth_prob2 <- function(N_age, age_id, lw, age_shift, logit_birth_prob_int) {
-      frac <- age_shift - lw
-      
-      if (age_id <= 1 + age_shift) {
-        logit_birth_prob_shift <- logit_birth_prob_int[1]
-      } else if (age_id >= N_age + age_shift) {
-        logit_birth_prob_shift <- logit_birth_prob_int[N_age]
-      } else {
-        idx <- age_id - lw
-        logit_birth_prob_shift <- logit_birth_prob_int[idx-1] * frac + logit_birth_prob_int[idx] * (1-frac)
-      }
-      
-      return(logit_birth_prob_shift)
-    }
-    
-    
-    lw2_df = as.data.frame(ftable(fit$draws(variables=c("lw2"))[,,])) %>% 
-      dplyr::mutate(chain = as.numeric(as.character(chain)),
-                    iteration = as.numeric(as.character(iteration)),
-                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
-      filter(iter==1) %>% 
-      dplyr::select(iter,var=variable,values=Freq) %>% 
-      tidyr::extract(var,into=c("var","year_id"),
-                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-      dplyr::mutate(year_id = as.numeric(year_id))
-    
-    
-    f_year2_df = as.data.frame(ftable(fit$draws(variables=c("f_year2"))[,,])) %>% 
-      dplyr::mutate(chain = as.numeric(as.character(chain)),
-                    iteration = as.numeric(as.character(iteration)),
-                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
-      filter(iter==1) %>% 
-      dplyr::select(iter,var=variable,values=Freq) %>% 
-      tidyr::extract(var,into=c("var","year_id"),
-                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-      dplyr::mutate(year_id = as.numeric(year_id))
-    
-    logit_birth_prob_int = as.data.frame(ftable(fit$draws(variables=c("logit_birth_prob_int"))[,,])) %>% 
-      dplyr::mutate(chain = as.numeric(as.character(chain)),
-                    iteration = as.numeric(as.character(iteration)),
-                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
-      filter(iter==1) %>% 
-      dplyr::select(iter,var=variable,values=Freq) %>% 
-      tidyr::extract(var,into=c("var","age_id"),
-                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-      dplyr::mutate(age_id = as.numeric(age_id)) %>% pull(values)
-    
-    
-    
-    d = sample_birth_prob %>% 
-      filter(iter==1) %>% 
-      left_join(lw2_df %>% dplyr::select(lw=values,year_id),by="year_id") %>% 
-      left_join(f_year2_df %>% dplyr::select(f_year=values,year_id),by="year_id") %>% 
-      rowwise() %>% 
-      dplyr::mutate(frac = f_year - lw,
-                    logit_values2 = logit_birth_prob2(stan_data$N_age, age_id, lw, f_year, logit_birth_prob_int),
-                    values2 = inv.logit(logit_values2))
-    
-    d %>% filter(mother_age==25,year %in% c(2000,2001,2011,2012))
-    
-
-    d %>% 
-      filter(iter==1,year %in% c(2000,2001,2011,2012)) %>% 
-      ggplot(aes(x=mother_age,y=values))+
-      geom_line(aes(col=factor(year)),size=1)
-    
-    d %>% 
-      filter(iter==1,year %in% c(2000,2010,2020,2024)) %>% 
-      ggplot(aes(x=mother_age,y=values2))+
-      geom_line(aes(col=factor(year)),size=1)
-    
-    
-    d %>% 
-      filter(iter==1,year %in% c(2000,2001,2011,2012),age_id %in% c(9:12)) %>% 
-      ggplot(aes(x=age_id,y=logit_values2))+
-      geom_line(aes(col=factor(year)),size=1)
-    
-    
-    as.data.frame(ftable(fit$draws(variables=c("f_year2"))[,,])) %>% 
-      dplyr::mutate(chain = as.numeric(as.character(chain)),
-                    iteration = as.numeric(as.character(iteration)),
-                    iter=iteration+n_iter_per_chain*(chain-1)) %>% 
-      filter(iter==1)
-
-    
+    #Shinystan
     shinystan::launch_shinystan(fit)
   }
   
@@ -418,24 +482,15 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
     dplyr::mutate(year_id=as.numeric(year_id)) %>% 
     left_join(stan_df %>% dplyr::select(birth_year,year_id=year_id1) %>% distinct(),by="year_id")
   
-  if(stan_data$N_group==1){
-    gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-      tidyr::extract(variable,into=c("variable","year_id"),
-                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-      as_tibble() %>% 
-      dplyr::mutate(group_id=1) %>% 
-      dplyr::select(group_id,year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
-      dplyr::mutate(year_id=as.numeric(year_id)) %>% 
-      left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id")
-  }else{
-    gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-      tidyr::extract(variable,into=c("variable","group_id","year_id"),
-                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
-      as_tibble() %>% 
-      dplyr::select(group_id,year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
-      dplyr::mutate(year_id=as.numeric(year_id)) %>% 
-      left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id")
-  }
+  #sigma
+ inv_sigma_df = fit$summary(variables = c("inv_sigma"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+    tidyr::extract(variable,into=c("variable","age_id"),
+                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",),collapse='\\,'),'\\]'), remove = T) %>% 
+    as_tibble() %>% 
+    dplyr::select(age_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::mutate(age_id=as.numeric(age_id))
+  
+  
   #prediction
   pred_df =NA
   pois_pred_df=NA
@@ -447,7 +502,7 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
     as_tibble() %>%
     dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>%
     cbind(stan_df %>% dplyr::select(year,mother_age,n_birth))
-
+  
   pois_pred_df = fit$summary(variables = c("n_birth_pois_pred"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>%
     tidyr::extract(variable,into=c("variable","row_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>%
@@ -467,7 +522,7 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
   age_bias_df = rbind(age_bias_df %>%  dplyr::mutate(indicator="absolute"),
                       age_bias_df %>%  dplyr::mutate(indicator="relative") %>%
                         dplyr::mutate(  dplyr::across(c(est, lwb, upb), ~ .x / n_tot_birth) ))
-    
+  
   
   if(FALSE){
     #main parameters
@@ -479,7 +534,7 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
       geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
       geom_line(aes(col=factor(year)))
     birth_prob_by_age_df %>% 
-      filter(birth_year %in% c(1950,1970,1990,2009)) %>% 
+      filter(birth_year %in% c(1962,1990,2000)) %>% 
       ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(aes(fill=factor(birth_year)),alpha=0.2)+
       geom_line(aes(col=factor(birth_year)))
@@ -498,16 +553,12 @@ cmdstan_fit_mod1_param = function(birth_df, pop_df, stan_years = 2000:2024,
       geom_ribbon(fill="blue",alpha=0.2)+
       geom_line(col="blue")+
       facet_grid(group_id ~.)
+    #inv_sigma
+    inv_sigma_df %>% 
+      ggplot(aes(x=age_id,y=est,ymin=lwb,ymax=upb))+
+      geom_ribbon(fill="blue",alpha=0.2)+
+      geom_line(col="blue")
     #predictive intervals
-    pred_df %>% 
-      filter(mother_age %in% c(15:18)) %>% 
-      ggplot(aes(x=year))+
-      geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
-      geom_line(aes(y=est),col="darkred")+
-      geom_point(aes(y=n_birth),size=2)+
-      facet_grid(mother_age~.,scale="free_y")+
-      coord_cartesian(ylim=c(0,500))
-    
     
     pred_df %>% 
       filter(mother_age %in% c(15,16,18,19,20,22,24,26)) %>% 

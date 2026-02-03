@@ -4,9 +4,9 @@ cmstan_fit_mod1_nonparam = function(birth_df, pop_df,stan_years = 2000:2024,
                                 seed_id=123){
   #data-------------------------------------------------------------------------
   birth_mod_df = birth_df %>% 
-    filter(!is.na(mother_mun_id),mother_age %in% 15:50) %>% 
+    filter(mother_age %in% 15:50) %>% 
     group_by(year,mother_age) %>% 
-    dplyr::summarise(n_birth=n(),.groups="drop")
+    dplyr::summarise(n_birth=sum(n),.groups="drop")
   
   pop_mod_df = pop_df %>% 
     filter(month==7) %>% 
@@ -102,6 +102,8 @@ cmstan_fit_mod1_nonparam = function(birth_df, pop_df,stan_years = 2000:2024,
   #intercept
   log(sum(stan_df$n_birth[stan_df$age_id==1])/sum(stan_df$n_pop[stan_df$age_id==1]))
   
+  var=c("intercept","lambda_year","alpha_year","lambda_age","alpha_age")
+  
   #Stan model-------------------------------------------------------------------
   mod <- cmdstan_model("stan/mod1_nonparam.stan")
   fit <- mod$sample(data = stan_data,
@@ -115,7 +117,10 @@ cmstan_fit_mod1_nonparam = function(birth_df, pop_df,stan_years = 2000:2024,
                     seed = seed_id)
   
   #diagnostic of the fit
-  cmdstan_diagnostic(fit)
+  cmdstan_diag = cmdstan_diagnostic(fit)
+  print(cmdstan_diag)
+  
+  
   
   #checks estimates
   if(FALSE){
@@ -130,32 +135,42 @@ cmstan_fit_mod1_nonparam = function(birth_df, pop_df,stan_years = 2000:2024,
     shinystan::launch_shinystan(fit)
   }
   
+  #Posterior estimates----------------------------------------------------------
+  par_df =  fit$summary(variables = var, "mean",~quantile(.x, probs = c(0.025, 0.975)))
+  #GP
+  #GP age
+  gp_age_df = fit$summary(variables = c("f_age"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+    tidyr::extract(variable,into=c("variable","age_id"),
+                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
+    as_tibble() %>% 
+    dplyr::select(age_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::mutate(age_id=as.numeric(age_id)) %>% 
+    left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id")
+  #GP year
+  gp_year_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+    tidyr::extract(variable,into=c("variable","group_year_id","year_id"),
+                   regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
+    as_tibble() %>% 
+    dplyr::select(year_id,group_year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::mutate(year_id=as.numeric(year_id),
+                  group_year_id = as.numeric(group_year_id)) %>% 
+    left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id")
+  
   
   #Plots------------------------------------------------------------------------
   if(FALSE){
+    cowplot::plot_grid(
     #GP age
-    fit$summary(variables = c("f_age"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-      tidyr::extract(variable,into=c("variable","age_id"),
-                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
-      as_tibble() %>% 
-      dplyr::select(age_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
-      dplyr::mutate(age_id=as.numeric(age_id)) %>% 
-      left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") %>% 
+    gp_age_df %>% 
       ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(fill="blue",alpha=0.2)+
-      geom_line(col="blue")
+      geom_line(col="blue"),
     #GP year
-    fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
-      tidyr::extract(variable,into=c("variable","group_year_id","year_id"),
-                     regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
-      as_tibble() %>% 
-      dplyr::select(year_id,group_year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
-      dplyr::mutate(year_id=as.numeric(year_id),
-                    group_year_id = as.numeric(group_year_id)) %>% 
-      left_join(stan_df %>% dplyr::select(year,year_id) %>% distinct(),by="year_id") %>% 
+    gp_year_df %>% 
       ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(aes(fill=factor(group_year_id)),alpha=0.2)+
-      geom_line(aes(col=factor(group_year_id)))
+      geom_line(aes(col=factor(group_year_id)))+
+      theme(legend.position = "bottom"))
   }
   
   
@@ -164,7 +179,13 @@ cmstan_fit_mod1_nonparam = function(birth_df, pop_df,stan_years = 2000:2024,
   # birth_prob_by_age_df
   # gp_df
   # pred_birth_df
-  return("Posterior estimate missing in the script.")
+  return(list(mod_name = "mod1_nonparam.stan",
+              dist = dist,
+              seed_id = seed_id,
+              cmdstan_diag = cmdstan_diag,
+              par_df = par_df,
+              gp_age_df = gp_age_df,
+              gp_year_df = gp_year_df))
 }
 
 

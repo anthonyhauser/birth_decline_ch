@@ -2,7 +2,8 @@
 
 library(pacman)
 pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr,purrr,ggplot2,stringr,zoo,ppcor,progress,
-               xml2)
+               xml2,
+               boot)
 
 #cmdstanr
 library(cmdstanr)
@@ -53,5 +54,39 @@ controls=list(load.encrypted.data=FALSE)
 #file directories
 data_folder = "L:/UNISANTE_DESS/S_SUMAC/DIVERS_PROJETS/03_data/kaspar_staub_birth_data/"
 
+#canton names
+ctn_map <- tibble::tribble( ~ctn_abbr, ~region,
+                            "CH",      "Suisse",
+                            "ZH",      "Zürich",
+                            "BE",      "Bern / Berne",
+                            "LU",      "Luzern",
+                            "UR",      "Uri",
+                            "SZ",      "Schwyz",
+                            "OW",      "Obwalden",
+                            "NW",      "Nidwalden",
+                            "GL",      "Glarus",
+                            "ZG",      "Zug",
+                            "FR",      "Fribourg / Freiburg",
+                            "SO",      "Solothurn",
+                            "BS",      "Basel-Stadt",
+                            "BL",      "Basel-Landschaft",
+                            "SH",      "Schaffhausen",
+                            "AR",      "Appenzell Ausserrhoden",
+                            "AI",      "Appenzell Innerrhoden",
+                            "SG",      "St. Gallen",
+                            "GR",      "Graubünden / Grigioni / Grischun",
+                            "AG",      "Aargau",
+                            "TG",      "Thurgau",
+                            "TI",      "Ticino",
+                            "VD",      "Vaud",
+                            "VS",      "Valais / Wallis",
+                            "NE",      "Neuchâtel",
+                            "GE",      "Genève",
+                            "JU",      "Jura",
+                            "VS",      "Valais",
+                            "FR",      "Fribourg",
+                            "GR",      "Graubünden",
+                            "BE",      "Bern",
+                            NA,        "Sans indication")
 
 

@@ -138,12 +138,6 @@ cmdstan_fit_mod2 = function(birth_df, pop_df, stan_years = 2000:2024,
                    
                    inference = 1)
   
-  if(mod_name %in% c("mod1_param_2expgp_1fixed.stan", "mod1_param_1gp_1expgp_1fixed.stan")){
-    stan_data$N_group = 2
-  }else if(mod_name %in% c("mod1_param_3expgp.stan")){
-    stan_data$N_group = 3
-  }
-  
   #checks
   if(FALSE){
     #lengthscale
@@ -344,7 +338,8 @@ cmdstan_fit_mod2 = function(birth_df, pop_df, stan_years = 2000:2024,
               cmdstan_diag = cmdstan_diag,
               par_df = par_df,
               birth_prob_by_age_df = birth_prob_by_age_df,
-              gp_df = gp_df,
+              gp_year_df = gp_year_df,
+              gp_month_df = gp_month_df,
               pred_df = pred_df))
 }
 
