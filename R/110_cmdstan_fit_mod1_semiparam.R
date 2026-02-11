@@ -1,79 +1,82 @@
 cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
-                                  mod_name = c("mod1_rw1.stan","mod1_gp_gp.stan","mod1_gp_gp_diff.stan"),
+                                  mod_name = c("mod1_rw1.stan","mod1_gp_gp.stan","mod1_gp_gp_diff2.stan",
+                                               "mod1_gp_gp_diff2_lengthscale.stan",
+                                               "mod1_gp_diff.stan"),
+                                  effect_on_age_shift = c("birth_year","cal_year"),
                                   save_draw = FALSE, save.date,
                                   seed_id=123){
-  
+  effect_on_age_shift = "birth_year"
+  effect_on_age_shift = "cal_year"
   #data-------------------------------------------------------------------------
-  
-  #year
+  #to do:
+  #try by calendar year
+  #increase c_age, because boundary condition (but already at 5 so should be ok)
+  #try to understand sum of sin curve is it same as fourier transform
+  #scale at f=0
+  #log(logit)
+  ##############################################################################
+  #year aggregation
+  #population
+  pop_mod_df = pop_df %>% 
+    filter(month==7) %>% #take population size at the middle of the year
+    group_by(year,mother_age=age) %>% 
+    dplyr::summarise(n_pop=sum(n),.groups="drop")
+  #birth
   birth_mod_df = birth_df %>% 
     filter(mother_age %in% 15:50) %>% 
     group_by(year,mother_age) %>% 
     dplyr::summarise(n_birth=sum(n),.groups="drop")
-  
-  pop_mod_df = pop_df %>% 
-    filter(month==7) %>% 
-    group_by(year,mother_age=age) %>% 
-    dplyr::summarise(n_pop=sum(n),.groups="drop")
-  
-  min_age = 25
-  
+
+  #bind pop and birth
   stan_df = pop_mod_df %>% 
+    filter(year<=2024) %>% 
     left_join(birth_mod_df,by=c("year","mother_age")) %>% 
     dplyr::mutate(n_birth = replace_na(n_birth,0),
-                  birth_year = year - mother_age) %>% 
-    #filter(year %in% stan_years) %>% 
-    filter(birth_year >= 1987-min_age) %>% #,year<=2024) %>% 
-    dplyr::mutate(age_id = mother_age - min(mother_age) + 1,
-                  birth_year_id = birth_year-min(birth_year) + 1,
-                  cal_year_id = year-min(year) + 1,
-                  #assign year_id (either calendar or birth year)
-                  year_id = cal_year_id,
-                  year_id1 = birth_year_id)
-  
-  
-  
-  #month
+                  birth_year = year - mother_age,
+                  age_id = mother_age - min(mother_age) + 1) 
+  #year_id1
+  if(effect_on_age_shift=="birth_year"){
+    min_age = 25
+    stan_df = stan_df %>% 
+      filter(birth_year >= 1987-min_age) %>% 
+      dplyr::mutate(year_id1 = birth_year-min(birth_year) + 1)
+  }else if(effect_on_age_shift=="cal_year"){
+    stan_df = stan_df %>% 
+      filter(year %in% stan_years) %>% 
+      dplyr::mutate(year_id1 = year-min(year) + 1)
+  }
+
+  ##############################################################################
+  #month aggregation
+  #population
+  pop_mod_df = pop_df %>% 
+    group_by(year,mother_age=age,month) %>% 
+    dplyr::summarise(n_pop=sum(n),.groups="drop")
+  #birth
   birth_mod_df = birth_df %>% 
     filter(mother_age %in% 15:50) %>% 
     group_by(year,mother_age,month) %>% 
     dplyr::summarise(n_birth=sum(n),.groups="drop")
   
-  pop_mod_df = pop_df %>% 
-    group_by(year,mother_age=age,month) %>% 
-    dplyr::summarise(n_pop=sum(n),.groups="drop")
-  
-  min_age = 25
-  
-  stan_df = pop_mod_df %>%
+  #bind pop and birth
+  stan_df = pop_mod_df %>% 
     filter(year<=2024) %>% 
     left_join(birth_mod_df,by=c("year","mother_age","month")) %>% 
     filter(month %in% c(1:12)) %>% 
     dplyr::mutate(n_birth = replace_na(n_birth,0),
-                  birth_year = year - mother_age) %>% 
-    #filter(year %in% stan_years) %>% 
-    filter(birth_year >= 1987-min_age) %>% #,year<=2024) %>% 
-    dplyr::mutate(age_id = mother_age - min(mother_age) + 1,
-                  birth_year_id = birth_year-min(birth_year) + 1,
-                  cal_year_id = year-min(year) + 1,
-                  #assign year_id (either calendar or birth year)
-                  year_id = cal_year_id,
-                  year_id1 = birth_year_id)
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  #max_age_shift = 0, not used for differential version of age shift (mod1_gp_gp_diff2.stan)
-  # max_age_shift = 0
-  # stan_df = stan_df %>% 
-  #   dplyr::mutate(age_id = age_id + max_age_shift)
+                  birth_year = year - mother_age,
+                  age_id = mother_age - min(mother_age) + 1) 
+  #year_id1
+  if(effect_on_age_shift=="birth_year"){
+    min_age = 25
+    stan_df = stan_df %>% 
+      filter(birth_year >= 1987-min_age) %>% 
+      dplyr::mutate(year_id1 = birth_year-min(birth_year) + 1)
+  }else if(effect_on_age_shift=="cal_year"){
+    stan_df = stan_df %>% 
+      filter(year %in% stan_years) %>% 
+      dplyr::mutate(year_id1 = year-min(year) + 1)
+  }
   
   #Data plots-------------------------------------------------------------------
   if(FALSE){
@@ -133,15 +136,38 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
       expand_limits(y=0)
   }
   
+  stan_df0=stan_df
+  stan_df = stan_df0 %>% filter(month %in% 1:12)
+  
+  if(FALSE){
+    set.seed(123)
+    
+    simulated_stan_df <- stan_df %>%
+      dplyr::select(age_id, year_id1, n_pop, n_birth) %>%
+      group_by(year_id1, age_id) %>%
+      slice_sample(prop = 1) %>%   # shuffle within group
+      ungroup() %>%
+      mutate(n_birth_sim = round(n_birth * runif(n(), 0.99, 1.01)))
+    saveRDS(stan_df, "data/stan_df.RDS")
+    saveRDS(simulated_stan_df, "data/simulated_stan_full_df.RDS")
+    saveRDS(simulated_stan_df %>% dplyr::select(-n_birth_sim) , "data/simulated_stan_df.RDS")
+    
+    
+    simulated_stan_df %>%
+      filter(age_id %in% c(5,10,15,20,30)) %>% 
+      ggplot(aes(x=year_id1,y=n_birth_sim))+
+      geom_point(aes(y=n_birth),color="green")+
+      geom_point()+
+      facet_grid(age_id ~ .,scale="free_y")+
+      expand_limits(y=0)
+  }
+  
   #Stan list--------------------------------------------------------------------
   stan_data = list(N = dim(stan_df)[1],
-                   N_year = length(unique(stan_df$year)),
                    N_year1 = length(unique(stan_df$year_id1)),
-                   N_age = length(unique(stan_df$mother_age)) +2*max_age_shift,
+                   N_age = length(unique(stan_df$mother_age)),
                    N_sigma =1,# length(unique(stan_df$mother_age)) +2*max_age_shift,
-                   N_group = 1,#number of GPs
                    
-                   year_id = stan_df$year_id,
                    year_id1 = stan_df$year_id1,
                    age_id = stan_df$age_id,
                    sigma_id = rep(1,length(stan_df$age_id)),#stan_df$age_id, 
@@ -149,24 +175,22 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
                    n_pop = stan_df$n_pop,
                    n_birth = stan_df$n_birth,
                    
-                   #x = sort(unique(stan_df$year_id)),
-                   x = 1:(max(stan_df$age_id) + max_age_shift), #only for mod1_gp.stan
-                   x1 = 1:(max(stan_df$age_id) + max_age_shift),
+                   x1 = 1:max(stan_df$age_id),
                    x2 = stan_df$year_id1 %>% unique() %>% sort(),
                    
-                   M_year = 8, 
+                   M_year = 10, 
                    c_year = 5,
                    
-                   M_age = 10, 
+                   M_age = 25, 
                    c_age = 5,
                    
+                   rho=0.6,
                    p_rho = c(2,5),
                    p_alpha = c(3,1),
                    
-                   rho = 1,
                    lambda_year = 2,
-                   p_lambda_year = c(0.5, 1),
-                   p_alpha_year = c(0,0.5),
+                   p_lambda_year = c(2, 2),
+                   p_alpha_year = c(2,2),
                    
                    p_inv_sigma = 100,
                    p_delta0 = c(-5-log(12),2),
@@ -221,25 +245,24 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
   }
   
   #init functiob 
-  nitfun <- function() { list(delta0=-8) }
-  
-  
+  initfun <- function() { list(delta0=-8) }
   
   #Stan model-------------------------------------------------------------------
   mod <- cmdstan_model(paste0("stan/",mod_name))
   fit <- mod$sample(data = stan_data,
-                    #init=initfun, #avoid because some chains finished unexpectedly
+                    init=0,#init=initfun, #avoid because some chains finished unexpectedly
                     chains = 4,
                     parallel_chains = 4,
                     iter_sampling = 200,
                     iter_warmup = 200,
                     adapt_delta = 0.8,
                     refresh = 10,
-                    seed = 6)#2
+                    seed = 1)
   if(save_draw){
     fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
   }
   fit$summary() %>% arrange(-rhat) %>% View()
+  
   
   #diagnostic of the fit
   cmdstan_diag = cmdstan_diagnostic(fit)
@@ -249,8 +272,10 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
   #diagnostic of the fit
   
   #variables
-  if(mod_name %in% c("mod1_gp_gp_diff.stan","mod1_gp_gp_diff2.stan")){
-    var = c("delta0","alpha","alpha_year", "inv_sigma","sigma")
+  if(mod_name %in% c("mod1_gp_diff.stan")){
+    var = c("delta0","alpha", "inv_sigma","sigma","rho")
+  }else if(mod_name %in% c("mod1_gp_gp_diff.stan","mod1_gp_gp_diff2.stan")){
+    var = c("inv_sigma","sigma","delta0","alpha","alpha_year", "rho","lambda_year")
   }
   
   #exploration
@@ -259,7 +284,7 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
     
     #by chain (e.g., when rhat is high)
     d=fit$draws()
-    apply(d[, , "age_peak1", drop = TRUE],2,mean)
+    apply(d[, , "lambda_year", drop = TRUE],2,mean)
     cmdstan_est_by_chain(fit, var = c("h_peak1","h_peak2","inv_sigma"), chains=1:4)
     
     #trajectory birth_prob
@@ -321,18 +346,6 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
       geom_line(aes(col=factor(chain)))+
       facet_grid(chain~.)
     
-    f_age_df %>% 
-      left_join(delta0_df %>% dplyr::rename(values2 = values), by=c("chain","iter")) %>% 
-      dplyr::mutate(f_age = values+values2, 
-                      prob = inv.logit(f_age)) %>% 
-      group_by(year_id,age_id) %>% 
-      dplyr::summarise(est = mean(f_age),
-                       lwb = quantile(f_age,probs=0.025),
-                       upb = quantile(f_age,probs=0.975),.groups="drop") %>% 
-      filter(year_id %in% c(1,2,10,20,30,40,45)) %>% 
-      ggplot(aes(x=age_id,y=est,ymin=lwb,ymax=upb))+
-      geom_ribbon(aes(fill=factor(year_id)),alpha=0.2)+
-      geom_line(aes(col=factor(year_id)))
     
     #trajectory f_age
     d_sample <- fit$draws(variables=c("f_age"))
@@ -479,8 +492,8 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
     as_tibble() %>% 
     dplyr::mutate(group_id=1) %>% 
     dplyr::select(group_id,year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
-    dplyr::mutate(year_id=as.numeric(year_id)) %>% 
-    left_join(stan_df %>% dplyr::select(birth_year,year_id=year_id1) %>% distinct(),by="year_id")
+    dplyr::mutate(year_id=as.numeric(year_id)) #%>% 
+    #left_join(stan_df %>% dplyr::select(birth_year,year_id=year_id1) %>% distinct(),by="year_id")
   
   #sigma
  inv_sigma_df = fit$summary(variables = c("inv_sigma"), "median",~quantile(.x, probs = c(0.025, 0.975))) %>% 
@@ -546,13 +559,11 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
     gp_df %>% 
       ggplot(aes(x=birth_year,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(fill="blue",alpha=0.2)+
-      geom_line(col="blue")+
-      facet_grid(group_id ~.)
+      geom_line(col="blue")
     gp_df %>% 
-      ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+      ggplot(aes(x=year_id,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(fill="blue",alpha=0.2)+
-      geom_line(col="blue")+
-      facet_grid(group_id ~.)
+      geom_line(col="blue")
     #inv_sigma
     inv_sigma_df %>% 
       ggplot(aes(x=age_id,y=est,ymin=lwb,ymax=upb))+
@@ -606,4 +617,25 @@ cmdstan_fit_mod1_semiparam = function(birth_df, pop_df, stan_years = 2000:2024,
               age_bias_df = age_bias_df))
 }
 
+
+
+nb_loglik_individual <- function(data, mu, size) {
+  data |>
+    dplyr::mutate(
+      ll = dnbinom(
+        x = y,
+        size = size,
+        mu = mu,
+        log = TRUE
+      )
+    )
+}
+
+
+df <- data.frame(y = c(0, 10, 20))
+
+data.frame(mean=seq(1,20,by=0.01)) %>% 
+  rowwise() %>% 
+  dplyr::mutate(ll=nb_loglik_individual(data = df,mu = mean, size = 5) %>% pull(ll) %>% sum) %>% 
+  ggplot(aes(x=mean,y=ll))+geom_line()
 

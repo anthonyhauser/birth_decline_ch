@@ -4,7 +4,24 @@ source("R/000_setup.R")
 #birth data, 1987_2024
 birth_1987_2024 = load_birth_data()
 mun_df = load_municipality_data()
-pop_df = load_pop_year_age_nat_ctn()
+
+#population data
+pop_df = load_pop_year_age_ctn_ctz() #population ctn 1987-2024
+pop_mun_df = load_pop_year_age_mun_ctz() #population mun 2011-2025
+
+#rural/urban, votation
+rural_urban_df = load_rural_urban_data()
+vote_df = load_vote_data()
+
+mun_df %>% filter(mun_name=="Moutier")
+pop_mun_df %>% filter(reg_name=="Moutier")
+
+rural_urban_df %>% filter(mun_name=="Moutier")
+vote_df %>% filter(reg_name=="Moutier")
+
+#population municipality
+#agegp, country ctz, 1970-2000
+pop_ctz_df = load_pop_10year_agegp_mun_ctz()
 
 #assign a current mun_id from mother_municipality as well as its corresponding district and canton
 birth_df = birth_1987_2024 %>% 
@@ -29,7 +46,7 @@ saveRDS(birth_agg_df,file="cluster/cluster_data/birth_agg_df.RDS")
 saveRDS(pop_df,file="cluster/cluster_data/pop_agg_df.RDS")
 
 
-
+birth_df = birth_agg_df
 
 ###############################################################################################################################################################
 

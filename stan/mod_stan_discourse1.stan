@@ -30,24 +30,17 @@ data {
   array[N] int sigma_id;
   
   // Time points and corresponding locations
-  vector[N_year1] x2;
   vector[N_age] x1;
   
   // GP basis function settings
-  real<lower=0> c_year;           // Boundary scaling factor
-  int M_year;   
   real<lower=0> c_age;           // Boundary scaling factor
-  int M_age;   
- 
-  //fixed parameters
-  real rho;
-  real lambda_year;   
+  int M_age;
   
   //prior 
   real p_inv_sigma;
   array[2] real p_delta0;
   array[2] real p_alpha;
-  array[2] real p_alpha_year;
+  array[2] real p_rho;
 
   int inference;
 }
@@ -57,16 +50,12 @@ transformed data {
   real x1_mean = mean(x1);
   real x1_sd = sd(x1);
   vector[N_age] xn1 = (x1 - x1_mean)/x1_sd;
-  real x_mean = mean(x2);
-  real x_sd = sd(x2);
-  vector[N_year1] xn = (x2 - x_mean)/x_sd;
   
   // compute boundary value
-  real L_year = c_year*max(xn);
   real L_age = c_age*max(xn1);
   
   // compute basis functions for f_year
-  matrix[N_year1,M_year] PHI_year = PHI_EQ(N_year1, M_year, L_year, xn);
+  matrix[N_age,M_age] PHI_age = PHI_EQ(N_age, M_age, L_age, xn1);
 }
 
 parameters {
@@ -75,36 +64,17 @@ parameters {
   
   // GPs
   real<lower=0> alpha;
+  real<lower=0> rho;
   vector[M_age] beta_age;
-  real <lower=0> alpha_year;       // Yearly GP scale by age
-  vector[M_year] beta_year; // Basis coefficients for yearly GP
 }
 transformed parameters {
-  vector[M_year] diagSPD_year;
   vector[M_age] diagSPD_age;
-  vector[N_year1] f_year;
-  matrix[N_age,N_year1] f_age;
-  
-  // compute spectral densities for f_year
-  diagSPD_year = diagSPD_EQ(alpha_year, lambda_year, L_year, M_year);
-  f_year = PHI_year * (diagSPD_year .* beta_year);
+  vector[N_age] f_age;
   
   // compute basis functions and spectral density for f_age
   diagSPD_age = diagSPD_EQ(alpha, rho, L_age, M_age);
-  array[N_year1] matrix[N_age,M_age] PHI_age;
-  for(i in 1:N_year1){
-    PHI_age[i] = PHI_EQ(N_age, M_age, L_age, xn1 + f_year[i]/x1_sd);
-    f_age[,i] = PHI_age[i] * (diagSPD_age .* beta_age);
-  }
-  
-  // print(N_age);
-  // print(M_age);
-  // print(L_age);
-  // print(xn1);
-  // print(f_year[1]);
-  // print(x1_sd);
-  
-  //print(  PHI_age[1]);
+  f_age = PHI_age * (diagSPD_age .* beta_age);
+
   //sigma
   vector[N_sigma] sigma = inv(inv_sigma);
 }
@@ -115,18 +85,11 @@ model {
   
  //GP: variance and lengthscale
   alpha ~ normal(p_alpha[1], p_alpha[2]);
+  rho ~ normal(p_rho[1], p_rho[2]);
   beta_age ~ std_normal();
   
-  alpha_year ~ normal(p_alpha_year[1], p_alpha_year[2]);
-  beta_year ~ normal(0, 1);
-
-  
   if(inference==1){
-    vector[N] v; 
-    for(i in 1:N){
-     v[i] = f_age[age_id[i],year_id1[i]];
-    }
-    target += neg_binomial_2_log_lpmf(n_birth | log(inv_logit(v + delta0)) + log(n_pop), sigma[sigma_id]);
+    target += neg_binomial_2_log_lpmf(n_birth | delta0 + f_age[age_id] + log(n_pop), sigma[sigma_id]);
     
   }
 }
@@ -139,13 +102,13 @@ generated quantities{
   {
     for(i in 1:N_year1){
       for(j in 1:N_age){
-         logit_birth_prob[i,j] =  f_age[j,i] + delta0;
-         birth_prob[i,j] =  inv_logit(f_age[j,i] + delta0);
+         logit_birth_prob[i,j] =  f_age[j] + delta0;
+         birth_prob[i,j] =  exp(f_age[j] + delta0);
       }
     }
     vector[N] log_mu;
     for(i in 1:N){
-     log_mu[i] = log(inv_logit(f_age[age_id[i],year_id1[i]] + delta0)) + log(n_pop[i]);
+      log_mu[i] = f_age[age_id[i]] + delta0 + log(n_pop[i]);
     }
     n_birth_pred = neg_binomial_2_log_rng(log_mu, sigma[sigma_id]);
     n_birth_pois_pred = poisson_log_rng(log_mu);

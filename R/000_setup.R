@@ -3,7 +3,7 @@
 library(pacman)
 pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr,purrr,ggplot2,stringr,zoo,ppcor,progress,
                xml2,
-               boot)
+               boot,janitor)
 
 #cmdstanr
 library(cmdstanr)

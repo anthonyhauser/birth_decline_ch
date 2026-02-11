@@ -1,4 +1,4 @@
-load_pop_year_age_nat_ctn = function(){
+load_pop_year_age_ctn_ctz = function(){
   if(file.exists("data/population_data/pop_year_age_nat_ctn.RDS")) {
     pop_df = readRDS("data/population_data/pop_year_age_nat_ctn.RDS")
    }else {
@@ -23,9 +23,9 @@ load_pop_year_age_nat_ctn = function(){
       #clean column
       left_join(ctn_map, by="region") %>% 
       dplyr::mutate(year = as.numeric(year),
-                    citizenship = case_when(citizenship == "Suisse"   ~ 1,
-                                            citizenship == "Étranger" ~ 0,
-                                            TRUE                      ~ NA_real_),
+                    citizenship = case_when(citizenship == "Suisse"   ~ "swiss",
+                                            citizenship == "Étranger" ~ "non-swiss",
+                                            TRUE                      ~ NA_character_),
                     age = case_when( str_detect(age, "^\\d+\\s+an") ~ as.numeric(str_extract(age, "^\\d+")),
                                      age == "99 ans ou plus"        ~ 99,
                                      TRUE                           ~ NA_real_ ),
@@ -57,7 +57,8 @@ load_pop_year_age_nat_ctn = function(){
                               xout = t,
                               rule = 2)$y) %>%
                 ungroup() %>% 
-               dplyr::select(year,month,ctn_abbr,citizenship,age,n)
+               dplyr::select(year,month,ctn_abbr,citizenship,age,n) %>% 
+     filter(!(year==2025 & month>1))
     
     saveRDS(pop_df,"data/population_data/pop_year_age_nat_ctn.RDS")
   }
