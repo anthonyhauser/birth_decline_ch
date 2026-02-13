@@ -12,8 +12,8 @@ cmdstan_diagnostic = function(fit,var=NULL){
                           num_max_treedepth = fit$diagnostic_summary()$num_max_treedepth %>% sum(),
                           ebfmi = fit$diagnostic_summary()$ebfmi %>% min(),
                           rhat = fit_summary %>% filter(!is.na(rhat)) %>% pull(rhat) %>% max(),
-                          ess_tail = fit_summary$ess_tail %>% min(),
-                          ess_bulk = fit_summary$ess_bulk %>% min()) %>% 
+                          ess_tail = fit_summary$ess_tail %>% min(.,na.rm = TRUE),
+                          ess_bulk = fit_summary$ess_bulk %>% min(.,na.rm = TRUE)) %>% 
     dplyr::mutate(is.stan.ok = num_successful_chains>=4 & num_divergent==0 & ebfmi>=0.3 & rhat<1.1)
   return(stan_diag)
 }

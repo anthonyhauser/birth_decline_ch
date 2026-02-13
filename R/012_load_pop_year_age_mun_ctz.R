@@ -1,4 +1,4 @@
-load_pop_year_age_mun_ctz = function(){
+load_pop_year_age_mun_ctz = function(mun_df){
   #from https://www.pxweb.bfs.admin.ch/pxweb/fr/
   file_names = c("pop_mun_age_14.xlsx",#added because the numbers correspond to the population at 31 Dec
                  "pop_mun_age_15_35_permanent.xlsx",
@@ -59,9 +59,6 @@ load_pop_year_age_mun_ctz = function(){
       filter(year %in% c(2011,2024,2025),age==20) %>% 
       group_by(reg_agg_level,year) %>% 
       dplyr::summarise(n=sum(n))
-    
-    pop_df %>% 
-      filter(year %in% c(2011,2024,2025),citizenship=="total",resident=="permanent",age==20)
   }
   
   #extrapolate numbers by month
@@ -81,6 +78,30 @@ load_pop_year_age_mun_ctz = function(){
     dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n) %>% 
     filter(!(year==2025 & month>1))
   
-  return(pop_df)
+  #list of dataframe by level of aggregation
+  pop_df_list <- split(pop_df, pop_df$reg_agg_level)
+  
+  if(FALSE){
+    #check Swiss mother (i.e., mother_municipality 8100), with missing mun_id
+    birth_1987_2024 %>% 
+      filter(is.na(mother_mun_id),mother_municipality==8100)
+  }
+  
+  #add municipality
+  pop_df_list[["municipality"]] = pop_df_list[["municipality"]] %>% 
+    dplyr::mutate(reg_id = as.numeric(reg_id)) %>% 
+    left_join(mun_df %>% dplyr::select(ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name, reg_id = hist_mun_id),
+              by="reg_id")
+  
+  if(FALSE){
+    #check rows with missing mun_name, i.e., where reg_id could not be match with any hist_mun_id of mun_df: 0 row
+    pop_df_list[["municipality"]] %>% filter(is.na(mun_name))
+    #check row with reg_name different than mun_name, mostly changes of municipality names
+    pop_df_list[["municipality"]] %>% 
+      filter(reg_name!=mun_name) %>% 
+      dplyr::select(-c(year,month,age,n,citizenship)) %>% distinct() %>% print(n=50)
+  }
+  
+  return(pop_df_list)
 }
 

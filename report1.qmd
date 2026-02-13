@@ -23,22 +23,21 @@ birth_df = birth_1987_2024 %>%
   dplyr::mutate(mother_birth_year = year-mother_age)
 ```
 
-
 ## Population data
 
 Stratification level: age, year (1987-2024), canton
 
-- Restrict to women between 15 and 50.
-- Linear interpolation within months
-- Finer level of stratification (e.g., municipality) for 2010-2024
+-   Restrict to women between 15 and 50.
+-   Linear interpolation within months
+-   Finer level of stratification (e.g., municipality) for 2010-2024
 
 ## Birth data
 
 Stratification level: individual-based
 
-- increase in high age and decrease in low age over time
-- probability of giving birth by age over time
-- municipality
+-   increase in high age and decrease in low age over time
+-   probability of giving birth by age over time
+-   municipality
 
 ```{r}
 
@@ -99,7 +98,6 @@ birth_df %>%
   expand_limits(y = 0)
 ```
 
-
 #### Mother age distribution by calendar year
 
 ```{r}
@@ -111,7 +109,6 @@ birth_df |>
   geom_freqpoly(binwidth = 1, linewidth = 1) +
   labs(x = "Mother age", y = "Proportion", color = "Year")
 ```
-
 
 #### Mean mother age by citizenship
 
@@ -217,10 +214,7 @@ birth_df %>%
 
 ### Non-parametric age-distribution of births
 
-By age and by year from 2000 to 2024: $25 \times 36 = 900$ rows.<br>
-Neg-binomial distribution of births with an offset on the population.<br>
-Effect of years and of age on birth rates modelled with Gaussian processes (GPs).<br>
-Limitations: For a given age, cannot disentangle the variation in birth rate due to increase in age of delivery or genuine change in number of births.
+By age and by year from 2000 to 2024: $25 \times 36 = 900$ rows.<br> Neg-binomial distribution of births with an offset on the population.<br> Effect of years and of age on birth rates modelled with Gaussian processes (GPs).<br> Limitations: For a given age, cannot disentangle the variation in birth rate due to increase in age of delivery or genuine change in number of births.
 
 #### Same effect of year for any year
 
@@ -260,11 +254,9 @@ cowplot::plot_grid(
     theme(legend.position = "bottom"))
 ```
 
-
 ### Parametric age-distribution of births
 
-Parametric function to model the probability of giving birth with respect to age (Gaussian curve).<br>
-Three parameters govern the Gaussian curve: 1) peak age, 2) peak height and 3) width (i.e., concentration around peak).
+Parametric function to model the probability of giving birth with respect to age (Gaussian curve).<br> Three parameters govern the Gaussian curve: 1) peak age, 2) peak height and 3) width (i.e., concentration around peak).
 
 #### Time-varying peak age
 
@@ -440,8 +432,7 @@ res6$age_bias_df %>%
 
 ## Model 2
 
-By age, year and months: $12\times 25 \times 36  = 10,800$ rows.<br>
-Seasonal variation captured by a periodic GP.
+By age, year and months: $12\times 25 \times 36  = 10,800$ rows.<br> Seasonal variation captured by a periodic GP.
 
 ```{r}
 #parametric function
@@ -452,7 +443,6 @@ res5$birth_prob_by_age_df %>%
   geom_line(aes(col=factor(year)))
 
 ```
-
 
 ```{r}
 #| fig-width: 8
@@ -494,7 +484,6 @@ res5$pred_df %>%
       facet_grid(mother_age~.,scale="free_y")
 ```
 
-
 ```{r}
 #| fig-width: 8
 #| fig-height: 12
@@ -513,53 +502,213 @@ By age, year, months and cantons: $12\times 25 \times 36 \times 26 = 280,800$ ro
 
 ## Model 4
 
-By age, year, months, cantons and SEP: $12\times 25 \times 36 \times 26 \times 3 = 842,400$ rows.
-But only for 2010-2024.
+By age, year, months, cantons and SEP: $12\times 25 \times 36 \times 26 \times 3 = 842,400$ rows. But only for 2010-2024.
 
 # Main points
 
 **Objective**
 
-- 2 parts:
-  - Understand long-term evolution of birth in Switzerland (peak age) and regional differences: expectation
-  - Identify and explain (i.e., adjust for some confounding) birth excess/deficit.
+-   2 parts:
+    -   Understand long-term evolution of birth in Switzerland (peak age) and regional differences: expectation
+    -   Identify and explain (i.e., adjust for some confounding) birth excess/deficit.
 
 **Stratification**
 
-- Stratifications increase number of likelihood estimates, which increases computation time
-- Even if level of stratification in the model is coarse (e.g., national level), we will still be able to perform some post-processing where we compute excess/deficit in birth by finer levels (e.g., by district, municipality, SEP, etc)
-- The models, through their different levels of stratification, serve different purposes:
-  - National-level expectation:
-    - Inspect regional deviations
-  - Regional-level expectation:
-    - Explore finer geographical effect (municipality, district)
-    - Explore effect of SEP after accounting for potential confounding by region.
+-   Stratifications increase number of likelihood estimates, which increases computation time
+-   Even if level of stratification in the model is coarse (e.g., national level), we will still be able to perform some post-processing where we compute excess/deficit in birth by finer levels (e.g., by district, municipality, SEP, etc)
+-   The models, through their different levels of stratification, serve different purposes:
+    -   National-level expectation:
+        -   Inspect regional deviations
+    -   Regional-level expectation:
+        -   Explore finer geographical effect (municipality, district)
+        -   Explore effect of SEP after accounting for potential confounding by region.
 
 **Modelling age distribution**
 
-- Why explicitly modelling mother age distribution:
-  - to quantify age shift
-  - to disentangle effects of age shift and of genuine fertility change on birth rate
-  - to adjust for confounding by population age to isolate the effect of region on birth rate (e.g., a region with more 30-year-old women is expected to have higher fertility rates)
-- Bias in birth expectation by age due to the use to a parametric function lacking flexibility: try more flexible functions
-- Some effect might be overfitted (e.g., time-varying time peak height).
+-   Why explicitly modelling mother age distribution:
+    -   to quantify age shift
+    -   to disentangle effects of age shift and of genuine fertility change on birth rate
+    -   to adjust for confounding by population age to isolate the effect of region on birth rate (e.g., a region with more 30-year-old women is expected to have higher fertility rates)
+-   Bias in birth expectation by age due to the use to a parametric function lacking flexibility: try more flexible functions
+-   Some effect might be overfitted (e.g., time-varying time peak height).
 
 **To explore**
 
-- Effect of nationality could be interesting to explore.
+-   Effect of nationality could be interesting to explore.
 
-**Questions**
-- How to filter: live birth, permanent population
+**Questions** - How to filter: live birth, permanent population
 
 # Issues
 
-- Using a Gaussian curve introduces biases at some ages and does not capture the true mean properly.
-- A warm-up of 200 iterations is not sufficient and can lead to divergences.
-- Some divergences (around 1%) are still observed when `adapt_delta = 0.8`.
-- Using a negative-binomial parameterization with `var = mu * (1 + phi)` leads to many divergences (more than 80%).
-- One row with a Swiss mother is missing `mun_id` (currently removed); analysis is restricted to `mother_permanent == 1` and `live_birth == 1`.
+-   Using a Gaussian curve introduces biases at some ages and does not capture the true mean properly.
+-   A warm-up of 200 iterations is not sufficient and can lead to divergences.
+-   Some divergences (around 1%) are still observed when `adapt_delta = 0.8`.
+-   Using a negative-binomial parameterization with `var = mu * (1 + phi)` leads to many divergences (more than 80%).
+-   One row with a Swiss mother is missing `mun_id` (currently removed); analysis is restricted to `mother_permanent == 1` and `live_birth == 1`.
 
 # To do
 
-- SEP: can only for 2010-2024 because we need population by municipality to assign SEP.
-- Launch in cluster, parallelization possible
+-   SEP: can only for 2010-2024 because we need population by municipality to assign SEP.
+-   Launch in cluster, parallelization possible
+
+
+
+
+
+
+
+```{r}
+#national, by year--------------------------------------------------------------
+excess_birth_year_df = pred_n_birth_draw_df %>% 
+  #sum over age and month
+  group_by(year,draw) %>% 
+  dplyr::summarise(n_pop = sum(n_pop),
+                   n_birth = sum(n_birth),
+                   n_pred = sum(n_pred),.groups="drop_last") %>% 
+  dplyr::summarise(n_pop = n_pop[1],
+                   n_birth = n_birth[1],
+                   n_exp_mean = mean(n_pred),
+                   n_exp_lwb = quantile(n_pred,probs=0.025),
+                   n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+  dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
+                n_exc_lwb = n_birth- n_exp_lwb,
+                n_exc_upb = n_birth-n_exp_upb,
+                rel_exc_mean = (n_birth - n_exp_mean)/n_exp_mean,
+                rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
+                rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean)
+
+plot_df = excess_birth_year_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+             n_exc_mean, n_exc_lwb, n_exc_upb,
+             rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|lwb|upb)",
+    values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  ggplot(aes(x = year, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df, var %in% c("Excess birth", "Relative excess")),
+    aes(yintercept = 0),
+    linetype = 2) +
+  geom_line(data = subset(plot_df, var %in% c("Expected birth")),
+    aes(y=n_birth),col="darkred",
+    linetype = 2 ) +
+  facet_grid(var~.,scale="free_y")
+
+#national, by year and month----------------------------------------------------
+excess_birth_year_month_df = pred_n_birth_reg_draw_df %>% 
+  #sum over age and month
+  group_by(year,month,draw) %>% 
+  dplyr::summarise(n_pop = sum(n_pop),
+                   n_birth = sum(n_birth),
+                   n_pred = sum(n_pred),.groups="drop_last") %>% 
+  dplyr::summarise(n_pop = n_pop[1],
+                   n_birth = n_birth[1],
+                   n_exp_mean = mean(n_pred),
+                   n_exp_lwb = quantile(n_pred,probs=0.025),
+                   n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+  dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
+                n_exc_lwb = n_birth- n_exp_lwb,
+                n_exc_upb = n_birth-n_exp_upb,
+                rel_exc_mean = (n_birth - n_exp_mean)/n_exp_mean,
+                rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
+                rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean) %>% 
+  dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
+
+plot_df = excess_birth_year_month_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+                        n_exc_mean, n_exc_lwb, n_exc_upb,
+                        rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+               names_to = c("var", "stat"),
+               names_pattern = "(.*)_(mean|lwb|upb)",
+               values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  filter(year>=2020) %>% 
+  ggplot(aes(x = date, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df %>%  filter(year>=2020) , var %in% c("Excess birth", "Relative excess")),
+             aes(yintercept = 0),
+             linetype = 2) +
+  geom_line(data = subset(plot_df  %>%  filter(year>=2020), var %in% c("Expected birth")),
+            aes(y=n_birth),col="darkred",
+            linetype = 2 ) +
+  facet_grid(var~.,scale="free_y")
+
+#by region----------------------------------------------------------------------
+excess_birth_year_reg_df = pred_n_birth_reg_draw_df %>% 
+  #sum over age and month
+  group_by(dist_name,dist_id,year,draw) %>% 
+  dplyr::summarise(n_pop = sum(n_pop),
+                   n_birth = sum(n_birth),
+                   n_pred = sum(n_pred),.groups="drop_last") %>% 
+  dplyr::summarise(n_pop = n_pop[1],
+                    n_birth = n_birth[1],
+                   n_exp_mean = mean(n_pred),
+                   n_exp_lwb = quantile(n_pred,probs=0.025),
+                   n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+  dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
+                n_exc_lwb = n_birth- n_exp_lwb,
+                n_exc_upb = n_birth-n_exp_upb,
+                rel_exc_mean = (n_birth - n_exp_mean)/n_exp_mean,
+                rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
+                rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean))
+
+#load region location
+regions_sf <- st_read("data/boundary_data/Boundaries_K4_District_20260101.shp") #source: https://www.agvchapp.bfs.admin.ch/fr/boundaries?SnapshotDate=01.01.2018&Unit=BAE2018
+regions_sf = regions_sf[,c(1,3,7)]
+names(regions_sf)[c(1,2)] <- c("dist_name2", "dist_id")
+
+excess_birth_year_reg_df %>% 
+  filter(year %in% 2017:2024) %>% 
+  dplyr::mutate(rel_exc_mean = n_exc_mean/n_exp_mean) %>% 
+  left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill = rel_exc_mean)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")+
+  facet_wrap(year~.,ncol=2)
+
+#other
+excess_birth_year_df %>% 
+  ggplot(aes(x = year, y = n_exp_mean, ymin = n_exp_lwb, ymax = n_exp_upb)) +
+  geom_ribbon( alpha = 0.2) +geom_line()
+excess_birth_year_df %>% 
+  ggplot(aes(x = year, y = n_exp_mean/n_pop, ymin = n_exp_lwb/n_pop, ymax = n_exp_upb/n_pop)) +
+  geom_ribbon( alpha = 0.2) +geom_line()
+
+#district
+df = excess_birth_year_reg_df %>% 
+  filter(dist_id %in% sample(unique(excess_birth_year_reg_df$dist_id), 6)) %>% 
+  left_join(excess_birth_year_df %>% dplyr::select(year,n_pop_nat=n_pop,n_exp_mean_nat=n_exp_mean),by="year")
+df %>% 
+  ggplot(aes(x = year, y = n_exp_mean, ymin = n_exp_lwb, ymax = n_exp_upb)) +
+  geom_ribbon(aes(fill=dist_name), alpha = 0.2) +
+  geom_line(aes(col=dist_name)) +
+  facet_grid(dist_name~.,scale="free_y")
+df %>% 
+  ggplot(aes(x = year, y = n_exp_mean/n_pop, ymin = n_exp_lwb/n_pop, ymax = n_exp_upb/n_pop)) +
+  geom_ribbon(aes(fill=dist_name), alpha = 0.2) +
+  geom_line(aes(col=dist_name)) +
+  geom_line(aes(y=n_exp_mean_nat/n_pop_nat),lty=2)+
+  facet_grid(dist_name~.)
+excess_birth_year_reg_df %>% 
+  ggplot(aes(x = year, y = n_exp_mean/n_pop)) +
+  geom_line(aes(col=dist_name)) +
+  expand_limits(y=0)+theme(legend.position = "none")
+
+```

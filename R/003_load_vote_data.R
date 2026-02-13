@@ -1,4 +1,4 @@
-load_vote_data = function(){
+load_vote_data = function(mun_df, pop_mun_df){
   #from Kaspar
   file_names <- c("px-x-1703030000_101_20260127-171511.xlsx",
                   "px-x-1703030000_101_20260127-171701.xlsx",
@@ -63,15 +63,57 @@ load_vote_data = function(){
   
   if(FALSE){
     df_na_prop = vote_df %>% filter(is.na(part_prop) | is.na(yes_prop))
-    #missing because: new group ("étranger", which might not have vote right in some region), new munipality, new canton (JU)
+    #missing because: new group ("étranger", which might not have vote right in some region), new municipality, new canton (JU)
     #for some rows, missings only concern part_prop
     rbindlist(data_list) %>% right_join(df_na_prop %>% dplyr::select(reg_id,vote_object_de))
   }
   
-  #remove rows where vote result is missing
+  #remove rows where vote result is missing and where it's special population
+  special_text <- c( "Anderes","autres", "altri","Ausland","étranger","Korrespondenz","corrispondenza")
   vote_df = vote_df %>% 
+    filter(!str_detect(reg_name,
+                       str_c(special_text, collapse = "|"))) %>% 
     filter(!is.na(yes_prop))
   
-  return(vote_df)
+  #split by level of aggregation
+  vote_df_list <- split(vote_df, vote_df$reg_agg_level)
+  
+  #add municipality---------------------------------------------------------------
+  vote_df_list[["municipality"]] = vote_df_list[["municipality"]] %>%
+    dplyr::mutate(reg_id = as.numeric(reg_id)) %>% 
+    left_join(mun_df %>% dplyr::select(ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name, reg_id = hist_mun_id),
+              by="reg_id")
+  if(FALSE){
+    #check the missing district: all are others, correspondance votes, foreigners -> they were already removed
+    vote_df_list[["municipality"]] %>% filter(is.na(dist_name)) %>% dplyr::select(reg_id,reg_name,dist_name,dist_id) %>% distinct()
+    #other NA: already removed
+    vote_df_list[["municipality"]] %>%
+      filter(if_any(everything(), ~ is.na(.)) & !is.na(dist_name))
+  }
+  vote_df_list[["municipality"]] = vote_df_list[["municipality"]] %>% 
+    filter(!is.na(dist_id))
+  if(FALSE){
+    #check reg_id and vote_object with more than 1 row: none found
+    vote_df_list[["municipality"]] %>%
+      group_by(vote_object,reg_id) %>% 
+      dplyr::mutate(n=n()) %>% ungroup() %>% filter(n>1)
+  }
+  #add population of women 15-50 (for weight sum)-------------------------------
+  #population in 2024 by mun_id
+  pop_mun_2024_df = pop_mun_df %>% 
+    dplyr::filter(year==2024) %>% 
+    group_by(mun_id) %>% 
+    dplyr::summarise(n_pop = sum(n),.groups="drop")
+  
+  
+  vote_df_list[["municipality"]] = vote_df_list[["municipality"]]  %>% 
+    left_join(pop_mun_2024_df, by="mun_id")
+  
+  if(FALSE){
+    #check missing n_pop: none
+    vote_df_list[["municipality"]] %>% filter(is.na(n_pop))
+  }
+  
+  return(vote_df_list)
 }
 

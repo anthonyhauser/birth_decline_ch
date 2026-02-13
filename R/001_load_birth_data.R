@@ -1,12 +1,10 @@
-
-load_birth_data = function(){
-  paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS")
-  if (file.exists(paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS"))) {
+load_birth_data = function(mun_df, rerun=FALSE){
+  if (file.exists(paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS")) & !rerun) {
     birth_1987_2024 = readRDS(paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS"))
   } else {
   
     #1987-2015
-    birth_1987_2015 = read.csv(paste0(data_folder,"birth_data/birth_data_1987_2006.csv"),
+    birth_1987_2015 = read.csv(paste0(data_folder,"birth_data/births_1987_2006.csv"),
                                sep=";")  %>% 
       dplyr::mutate(year = as.numeric(Ereignisjahr),
                     iso_year = as.numeric(Statistikjahr),
@@ -144,7 +142,25 @@ load_birth_data = function(){
                                        birth_2021,
                                        birth_2022,
                                        birth_2023,
-                                       birth_2024)
+                                       birth_2024) %>% 
+      #filter on live birth and permanent mother
+      filter(live_birth==1,mother_permanent==1)
+    
+    #assign a current mun_id from mother_municipality as well as its corresponding district and canton
+    birth_1987_2024 = birth_1987_2024 %>% 
+      left_join(mun_df %>% dplyr::select(mother_ctn_abbr = ctn_abbr, mother_ctn_id = ctn_id,
+                                         mother_dist_name = dist_name, mother_dist_id = dist_id,
+                                         mother_mun_id = mun_id, mother_mun_name = mun_name,
+                                         mother_municipality = hist_mun_id), by="mother_municipality")
+    
+    if(FALSE){
+      #check Swiss mother (i.e., mother_municipality 8100), with missing mun_id
+      birth_1987_2024 %>% 
+        filter(is.na(mother_mun_id),mother_municipality==8100)
+    }
+    #remove foreigners (not missing mother_mun_id from 2000)
+    birth_1987_2024 = birth_1987_2024 %>% 
+      filter(!is.na(mother_mun_id))
     
     saveRDS(birth_1987_2024,"data/birth_data/birth_1987_2024.RDS")
   }

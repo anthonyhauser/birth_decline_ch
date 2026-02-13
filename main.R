@@ -1,40 +1,226 @@
 source("R/000_setup.R")
 
-#load data
-#birth data, 1987_2024
-birth_1987_2024 = load_birth_data()
+#load data----------------------------------------------------------------------
+#municipality data
 mun_df = load_municipality_data()
+
+#birth data, 1987_2024
+birth_df = load_birth_data(mun_df = mun_df, rerun=FALSE)
+birth_agg_df = birth_df %>% 
+  group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr) %>% 
+  dplyr::summarise(n = n(),.groups="drop")
+
+
+birth_df %>% filter(is.na(mother_mun_id))
+
 
 #population data
 pop_df = load_pop_year_age_ctn_ctz() #population ctn 1987-2024
-pop_mun_df = load_pop_year_age_mun_ctz() #population mun 2011-2025
+pop_mun_df_list = load_pop_year_age_mun_ctz(mun_df = mun_df) #population mun 2011-2025, list of df, one for each aggregation level (national, canton, district, municipality)
+pop_mun_df = pop_mun_df_list[["municipality"]]#reg_id is historical region id (e.g., for municipality levels it corresponds to hist_mun_id)
 
 #rural/urban, votation
-rural_urban_df = load_rural_urban_data()
-vote_df = load_vote_data()
+rural_urban_df = load_rural_urban_data(pop_mun_df = pop_mun_df)
+vote_df_list = load_vote_data(mun_df,pop_mun_df)
+vote_mun_df = vote_df_list[["municipality"]]
 
-mun_df %>% filter(mun_name=="Moutier")
-pop_mun_df %>% filter(reg_name=="Moutier")
+#District-level data------------------------------------------------------------
+#population
+pop_dist_df = pop_mun_df %>% 
+  group_by(dist_name,dist_id, year, month, age) %>% 
+  dplyr::summarise(n=sum(n),.groups="drop") 
+#votation
+vote_dist_df = vote_mun_df %>% 
+  group_by(vote_object,dist_name,dist_id) %>% 
+  dplyr::summarise(yes_prop = sum(yes_prop * n_pop)/sum(n_pop),.groups="drop") 
+#rural/urban
+rural_urban_dist_df = rural_urban_df %>% 
+  group_by(dist_name,dist_id) %>% 
+  dplyr::summarise(urban_rural_type1   = sum(urban_rural_type1 * n_pop)/sum(n_pop),
+                   urban_rural_type2   = sum(urban_rural_type2 * n_pop)/sum(n_pop),.groups="drop") 
+
+#run model----------------------------------------------------------------------
+#stan model
+save.date="20260209"
+mod5_res = cmstan_fit_mod5(pop_df, birth_agg_df,
+                           mod_name ="mod5",
+                           stan_years=  2020:2024,
+                           effect_on_age_shift = "cal_year",
+                           save_draw = FALSE, save.date,
+                           seed_id = 123)
+#post-processing: estimates by district
+save.date="20260209"
+fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", "mod5", ".RDS"))
+list_pred_n_birth_draw_by_dist_list = get_pred_birth_draw_by_dist(fit, #cmdstanr fit
+                                                          pop_dist_df,#pop by district
+                                                          birth_df, #birth_df (individual level)
+                                                          n_draw_subset = 100)
+pred_n_birth_draw_by_dist_df = list_pred_n_birth_draw_by_dist_list[["pred_n_birth_draw_df"]]
+pred_n_birth_reg_draw_by_dist_df = list_pred_n_birth_draw_list[["pred_n_birth_reg_draw_df"]]
+
+#---------------------------------------------------------------------
+#check it's the same
+pop_dist_df %>%group_by(year,month,age) %>% dplyr::summarise(n=sum(n)) %>% filter(year==2011,month==1,age==15)
+pop_df %>%group_by(year,month,age) %>% dplyr::summarise(n=sum(n)) %>% filter(year==2011,month==1,age==15)
+
+mun_df$mun_id %>% unique() %>% length()
+mun_df$dist_id %>% unique() %>% length()
+mun_df$hist_mun_id %>% unique() %>% length()
+
+#---------------------------------------------------------------------
+#correlation between excess and socio-demographic variables
+#excess by district
+excess_birth_year_reg_df = pred_n_birth_reg_draw_by_dist_df %>% 
+  #sum over age and month
+  group_by(dist_name,dist_id,year,draw) %>% 
+  dplyr::summarise(n_pop = sum(n_pop),
+                   n_birth = sum(n_birth),
+                   n_pred = sum(n_pred),.groups="drop_last") %>% 
+  dplyr::summarise(n_pop = n_pop[1],
+                   n_birth = n_birth[1],
+                   n_exp_mean = mean(n_pred),
+                   n_exp_lwb = quantile(n_pred,probs=0.025),
+                   n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+  dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
+                n_exc_lwb = n_birth- n_exp_lwb,
+                n_exc_upb = n_birth-n_exp_upb,
+                rel_exc_mean = (n_birth - n_exp_mean)/n_exp_mean,
+                rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
+                rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean)
+
+
+excess_birth_year_reg_df %>% 
+  dplyr::select(dist_id,year,rel_exc_mean) %>% 
+  left_join(vote_dist_df,by="dist_id", relationship = "many-to-many") %>% 
+  group_by(year,vote_object) %>% 
+  dplyr::summarise(corr = cor(rel_exc_mean,yes_prop)) %>% 
+  ggplot(aes(x=year,y=corr,col=vote_object)) +
+  geom_point(position = position_dodge(width=1))
+
+excess_birth_year_reg_df %>% 
+  dplyr::select(dist_id,year,rel_exc_mean) %>% 
+  left_join(vote_dist_df,by="dist_id", relationship = "many-to-many") %>% 
+  filter(year %in% 2021:2024,vote_object %in% c("womens_suffrage","paternity_leave")) %>% 
+  ggplot(aes(x=rel_exc_mean,y=yes_prop))+geom_point()+
+  facet_grid(year~vote_object)
+
+excess_birth_year_reg_df %>% 
+  dplyr::select(dist_id,year,rel_exc_mean) %>% 
+  left_join(rural_urban_dist_df,by="dist_id", relationship = "many-to-many") %>% 
+  filter(year %in% 2021:2024) %>% 
+  ggplot(aes(x=rel_exc_mean,y=urban_rural_type2))+geom_point()+
+  facet_grid(year~.)
+
+
+excess_birth_year_reg_df %>% 
+  dplyr::select(dist_id,year,rel_exc_mean) %>% 
+  left_join(rural_urban_dist_df,by="dist_id", relationship = "many-to-many") %>% 
+  filter(year %in% 2024) %>% 
+  arrange(urban_rural_type2)
+
+
+
+model <- excess_birth_year_reg_df %>%
+  dplyr::select(dist_id, year, rel_exc_mean) %>%
+  left_join(rural_urban_dist_df %>% dplyr::select(-dist_name),
+            by = "dist_id") %>%
+  left_join(
+    vote_dist_df %>%
+      pivot_wider(names_from = vote_object,
+                  values_from = yes_prop),
+    by = "dist_id"
+  ) %>%
+  lm(rel_exc_mean*100 ~ factor(year) +
+       urban_rural_type2 +
+       family_tax_education_support +paternity_leave + reduce_childcare_tax + womens_suffrage,
+     data = .)
+
+summary(model)
+
+model <- excess_birth_year_reg_df %>% filter(year==2021) %>% 
+  dplyr::select(dist_id, year, rel_exc_mean) %>%
+  left_join(rural_urban_dist_df %>% dplyr::select(-dist_name),
+            by = "dist_id") %>%
+  left_join(
+    vote_dist_df %>%
+      pivot_wider(names_from = vote_object,
+                  values_from = yes_prop),
+    by = "dist_id"
+  ) %>%
+  lm(rel_exc_mean ~ 
+       urban_rural_type2 +
+       family_tax_education_support +paternity_leave + reduce_childcare_tax + womens_suffrage,
+     data = .)
+
+summary(model)
+
+#District-level data------------------------------------------------------------
+#plots
+#load region location
+regions_sf <- st_read("data/boundary_data/Boundaries_K4_District_20260101.shp") #source: https://www.agvchapp.bfs.admin.ch/fr/boundaries?SnapshotDate=01.01.2018&Unit=BAE2018
+regions_sf = regions_sf[,c(1,3,7)]
+names(regions_sf)[c(1,2)] <- c("dist_name2", "dist_id")
+
+vote_dist_df %>% 
+  left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill = yes_prop/100)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 0.5,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")+
+  facet_wrap(vote_object~.,ncol=2)
+
+rural_urban_dist_df %>% 
+  left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill = urban_rural_type2)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 20,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")
+
+
+
+
+
 
 rural_urban_df %>% filter(mun_name=="Moutier")
 vote_df %>% filter(reg_name=="Moutier")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #population municipality
 #agegp, country ctz, 1970-2000
 pop_ctz_df = load_pop_10year_agegp_mun_ctz()
 
-#assign a current mun_id from mother_municipality as well as its corresponding district and canton
-birth_df = birth_1987_2024 %>% 
-  filter(live_birth==1,mother_permanent==1) %>% 
-  left_join(mun_df %>% dplyr::select(mother_ctn_abbr = ctn_abbr, mother_ctn_id = ctn_id,
-                                       mother_dist_name = dist_name, mother_dist_id = dist_id,
-                                       mother_mun_id = mun_id, mother_mun_name = mun_name,
-                                       mother_municipality = hist_mun_id),by="mother_municipality")
-if(FALSE){
-  #check Swiss mother (i.e., mother_municipality 8100), with missing mun_id: 1 row
-  birth_df %>% 
-    filter(is.na(mother_mun_id),mother_municipality==8100)
-}
 
 birth_agg_df = birth_df %>% 
   filter(!is.na(mother_mun_id)) %>% #remove foreigners (and 1 row with missing mun_id)
@@ -247,10 +433,7 @@ param_res$gp_df %>%
 
 ###################################################################################################################################################
 ###################################################################################################################################################
-birth_df = birth_1987_2024 %>% 
-  filter(live_birth==1,mother_permanent==1) %>% 
-  dplyr::select(year,month,mother_age,birth_loc,birth_state,mother_municipality,mother_citizenship,parity) %>% 
-  dplyr::mutate(mother_birth_year = year-mother_age)
+
 
 #Total number of births---------------------------------------------------------
 #by year: decrease from 2016, exception in 2021
@@ -439,15 +622,15 @@ birth_df %>%
 
 ###################################################################################################################################################
 
-birth_1987_2024$mother_municipality %>% unique() %>% sort()
+birth_df$mother_municipality %>% unique() %>% sort()
 
-setdiff(birth_1987_2024$mother_municipality %>% unique() %>% sort(),
+setdiff(birth_df$mother_municipality %>% unique() %>% sort(),
         final_mun_df$hist_mun_id %>% unique() %>% sort()) %>% sort()
 
 
-birth_1987_2024$mother_citizenship %>% unique() %>% sort()
+birth_df$mother_citizenship %>% unique() %>% sort()
 
-birth_1987_2024 %>% filter()
+birth_df %>% filter()
 
 
 #municipality data: link number with municipality name, https://www.agvchapp.bfs.admin.ch/fr
