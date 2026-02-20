@@ -20,6 +20,8 @@ if(!grepl("ahauser6",getwd())){
   library(readxl)
   library(scales)
   library(patchwork)
+  library(sf)
+  library(foreign)
 }
 
 if(FALSE){#check cmdstan

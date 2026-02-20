@@ -1,6 +1,6 @@
 cmstan_fit_mod5 = function(pop_df, birth_agg_df,
                            mod_name ="mod5",
-                           stan_years=  2020:2024,
+                           stan_years=  2000:2024,
                            effect_on_age_shift = "cal_year",
                            save_draw = FALSE, save.date,
                            seed_id = 123){
@@ -8,10 +8,12 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   if(FALSE){
     mod_name ="mod5"
     pop_df
-    birth_df
-    effect_on_age_shift="cal_year"
+    birth_agg_df
+    effect_on_age_shift="birth_year"
+    seed_id=1
   }
-  
+  mod_name0 = mod_name#used to compile model
+  mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_birthyear")) #used as text to name saved results
   #Load data--------------------------------------------------------------------
   #population
   pop_mod_df = pop_df %>% 
@@ -41,6 +43,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
       filter(year %in% stan_years) %>% 
       dplyr::mutate(year_id1 = year-min(year) + 1)
   }
+  saveRDS(stan_df, paste0("results/",mod_name,"_standf.RDS"))
   
   #Stan list--------------------------------------------------------------------
   stan_month_data = list(N = dim(stan_df)[1],
@@ -57,7 +60,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
                          n_pop = stan_df$n_pop,
                          n_birth = stan_df$n_birth,
                          
-                         log_mean_n_birth_n_pop = log(mean(stan_month_data$n_birth)/mean(stan_month_data$n_pop)),
+                         log_mean_n_birth_n_pop = log(mean(stan_df$n_birth)/mean(stan_df$n_pop)),
                          
                          x1 = 1:max(stan_df$age_id),
                          x2 = stan_df$year_id1 %>% unique() %>% sort(),
@@ -82,7 +85,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   stan_month_data$N
   
   #Stan model-------------------------------------------------------------------
-  mod5 <- cmdstan_model(paste0("stan/",mod_name,".stan"))
+  mod5 <- cmdstan_model(paste0("stan/",mod_name0,".stan"))
   fit <- mod5$sample(data = stan_month_data,
                             init=0, #this needs to be relaxed later on
                             metric = "dense_e",
@@ -92,14 +95,14 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
                             iter_warmup = 1000,
                             adapt_delta = 0.99,
                             refresh = 10,
-                            seed = 1)
+                            seed = seed_id)
   
   if(save_draw){
-    fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,".RDS"))
+    fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
     #saveRDS(fit, file = paste("results/fit_",save.date,"_",mod_name,".RDS"))
   }
   if(FALSE){
-    fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name, ".RDS"))
+    fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name,"_seedid",seed_id,".RDS"))
   }
   
   
@@ -121,16 +124,21 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     dplyr::select(year_id,age_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>% 
     dplyr::mutate(year_id = as.numeric(year_id),
                   age_id=as.numeric(age_id)) %>% 
-    left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") %>% 
-    left_join(stan_df %>% dplyr::select(year,year_id=year_id1) %>% distinct(),by="year_id") 
+    left_join(stan_df %>% dplyr::select(year,mother_age,birth_year,age_id,year_id=year_id1) %>% distinct(),by=c("age_id","year_id")) 
   #gp
   gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
     tidyr::extract(variable,into=c("variable","year_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
     dplyr::select(year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
-    dplyr::mutate(year_id=as.numeric(year_id)) %>% 
-    left_join(stan_df %>% dplyr::select(year,year_id=year_id1) %>% distinct(),by="year_id") 
+    dplyr::mutate(year_id=as.numeric(year_id))
+  if(grepl("birth_year",mod_name)){
+    gp_df = gp_df %>% 
+      left_join(stan_df %>% dplyr::select(birth_year,year_id=year_id1) %>% distinct(),by="year_id") 
+  }else{
+    gp_df = gp_df %>% 
+      left_join(stan_df %>% dplyr::select(year,year_id=year_id1) %>% distinct(),by="year_id") 
+  }
   #bias
   age_bias_df = fit$summary(variables = c("age_bias"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>%
     tidyr::extract(variable,into=c("variable","age_id"),
@@ -146,27 +154,33 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>%
     as_tibble() %>%
     dplyr::select(row_id,est=median,lwb=`2.5%`,upb=`97.5%`) %>%
-    cbind(stan_df %>% dplyr::select(year_id=year_id1,age_id,n_birth)) %>% 
-    left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") %>% 
-    left_join(stan_df %>% dplyr::select(year,year_id=year_id1) %>% distinct(),by="year_id") 
+    cbind(stan_df %>% dplyr::select(year_id=year_id1,month,age_id,n_birth)) %>% 
+    left_join(stan_df %>% dplyr::select(year,mother_age,birth_year,age_id,year_id=year_id1) %>% distinct(),by=c("age_id","year_id")) %>% 
+    dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
   
-  saveRDS(stan_diag_df, paste0("results/",save.date,"_",mod_name,"_standiag.RDS"))
-  saveRDS(par_df, paste0("results/",save.date,"_",mod_name,"_par.RDS"))
-  saveRDS(birth_prob_by_age_df, paste0("results/",save.date,"_",mod_name,"_birthprob.RDS"))
-  saveRDS(gp_df, paste0("results/",save.date,"_",mod_name,"_gp.RDS"))
-  saveRDS(age_bias_df, paste0("results/",save.date,"_",mod_name,"_agebias.RDS"))
-  saveRDS(pred_df, paste0("results/",save.date,"_",mod_name,"_pred.RDS"))
-  saveRDS(par_df, paste0("results/",save.date,"_",mod_name,"_par.RDS"))
+  saveRDS(stan_diag_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
+  saveRDS(par_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
+  saveRDS(birth_prob_by_age_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
+  saveRDS(gp_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
+  saveRDS(age_bias_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
+  saveRDS(pred_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
   
+  return(list(stan_diag_df = stan_diag_df,
+              par_df = par_df,
+              birth_prob_by_age_df = birth_prob_by_age_df,
+              gp_df = gp_df,
+              age_bias_df = age_bias_df,
+              pred_df = pred_df,
+              par_df = par_df))
   
   if(FALSE){
-    stan_diag_df = readRDS(paste0("results/",save.date,"_",mod_name,"_standiag.RDS"))
-    par_df = readRDS(paste0("results/",save.date,"_",mod_name,"_par.RDS"))
-    birth_prob_by_age_df=  readRDS(paste0("results/",save.date,"_",mod_name,"_birthprob.RDS"))
-    gp_df = readRDS(paste0("results/",save.date,"_",mod_name,"_gp.RDS"))
-    age_bias_df = readRDS(paste0("results/",save.date,"_",mod_name,"_agebias.RDS"))
-    pred_df = readRDS(paste0("results/",save.date,"_",mod_name,"_pred.RDS"))
-    par_df = readRDS(paste0("results/",save.date,"_",mod_name,"_par.RDS"))
+    stan_diag_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
+    par_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
+    birth_prob_by_age_df=  readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
+    gp_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
+    age_bias_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
+    pred_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
+    par_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
     
     
     par_df %>%
@@ -181,18 +195,18 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
       geom_line(col="blue")
     
     birth_prob_by_age_df %>% 
-      filter(year_id %in% c(1, 10,24)) %>% 
-      ggplot(aes(x=age_id,y=est,ymin=lwb,ymax=upb))+
-      geom_ribbon(aes(fill=factor(year_id)),alpha=0.2)+
-      geom_line(aes(col=factor(year_id)))
+      filter(year_id %in% c(1, 10,24,40)) %>% 
+      ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+      geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+      geom_line(aes(col=factor(year)))
     
     gp_df %>% 
-      ggplot(aes(x=year_id,y=est,ymin=lwb,ymax=upb))+
+      ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
       geom_ribbon(fill="blue",alpha=0.2)+
       geom_line(col="blue")
     
     age_bias_df %>% 
-      ggplot(aes(x=age_id))+
+      ggplot(aes(x=mother_age))+
       geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
       geom_line(aes(y=est),col="darkred")
     
@@ -202,15 +216,15 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
       geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
       geom_line(aes(y=est),col="darkred")+
       geom_point(aes(y=n_birth),size=2)+
-      facet_grid(age_id~.,scale="free_y")
+      facet_grid(mother_age~.,scale="free_y")
     
     pred_df %>% 
-      filter(age_id %in% ( c(27:35)-15)) %>% 
+      filter(age_id %in% ( c(27,29,31,33,35)-15)) %>% 
       ggplot(aes(x=year_id))+
       geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
       geom_line(aes(y=est),col="darkred")+
       geom_point(aes(y=n_birth),size=2)+
-      facet_grid(age_id~.,scale="free_y")+
+      facet_grid(mother_age~.,scale="free_y")+
       coord_cartesian(ylim=c(0,1000))
     
     pred_df %>% 
