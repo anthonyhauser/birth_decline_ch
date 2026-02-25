@@ -271,6 +271,11 @@ excess_birth_year_reg_df = readRDS(paste0("results/",save.date,"_",mod_name,"_",
 #excess_birth_year_month_reg_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_reg_df",".RDS"))
 #excess_birth_year_month_age_reg_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_reg_df",".RDS"))
 
+excess_birth_year_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
+excess_birth_year_age_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
+excess_birth_year_month_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
+#excess_birth_year_month_age_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_ctz_df",".RDS"))
+
 #load results
 par_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
 birth_prob_by_age_df=  readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
@@ -357,6 +362,32 @@ plot_df %>%
   facet_grid(var~.,scale="free_y")
 ```
 
+Citizenship
+
+```{r}
+#national, year
+plot_df = excess_birth_year_ctz_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+             n_exc_mean, n_exc_lwb, n_exc_upb,
+             rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|lwb|upb)",
+    values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  ggplot(aes(x = year, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df, var %in% c("Excess birth", "Relative excess")),
+    aes(yintercept = 0),
+    linetype = 2) +
+  geom_line(data = subset(plot_df, var %in% c("Expected birth")),
+    aes(y=n_birth),col="darkred",
+    linetype = 2 ) +
+  facet_grid(var~citizenship,scale="free_y")
+```
+
 #### national, year, month
 
 ```{r}
@@ -382,6 +413,34 @@ plot_df %>%
             aes(y=n_birth),col="darkred",
             linetype = 2 ) +
   facet_grid(var~.,scale="free_y")
+
+```
+
+Citizenship
+
+```{r}
+#national, year, month
+plot_df = excess_birth_year_month_ctz_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+                        n_exc_mean, n_exc_lwb, n_exc_upb,
+                        rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+               names_to = c("var", "stat"),
+               names_pattern = "(.*)_(mean|lwb|upb)",
+               values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  filter(year>=2020) %>% 
+  ggplot(aes(x = date, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df %>%  filter(year>=2020) , var %in% c("Excess birth", "Relative excess")),
+             aes(yintercept = 0),
+             linetype = 2) +
+  geom_line(data = subset(plot_df  %>%  filter(year>=2020), var %in% c("Expected birth")),
+            aes(y=n_birth),col="darkred",
+            linetype = 2 ) +
+  facet_grid(var~citizenship,scale="free_y")
 
 ```
 
@@ -424,6 +483,51 @@ plot_df %>%
              aes(yintercept = 0),
              linetype = 2) +
   geom_line(data = subset(plot_df  %>% filter(year %in% c(2020:2024)), var %in% c("Expected birth")),
+            aes(y=n_birth),col="darkred",
+            linetype = 2 ) +
+  facet_grid(var~year,scale="free_y")
+
+```
+
+Citizenship
+
+```{r}
+#national, age at given year
+plot_df = excess_birth_year_age_ctz_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+                        n_exc_mean, n_exc_lwb, n_exc_upb,
+                        rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+               names_to = c("var", "stat"),
+               names_pattern = "(.*)_(mean|lwb|upb)",
+               values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  filter(year %in% c(2016:2024),citizenship=="swiss") %>% 
+  ggplot(aes(x = age, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df %>% filter(year %in% c(2016:2024), citizenship=="swiss"), var %in% c("Excess birth", "Relative excess")),
+             aes(yintercept = 0),
+             linetype = 2) +
+  geom_line(data = subset(plot_df  %>% filter(year %in% c(2016:2024), citizenship=="swiss"),var %in% c("Expected birth")),
+            aes(y=n_birth),col="darkred",
+            linetype = 2 ) +
+  facet_grid(var~year,scale="free_y")
+
+```
+
+```{r}
+#national, age at given year
+plot_df %>% 
+  filter(year %in% c(2016:2024),citizenship=="non-swiss") %>% 
+  ggplot(aes(x = age, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df %>% filter(year %in% c(2016:2024),citizenship=="non-swiss") , var %in% c("Excess birth", "Relative excess")),
+             aes(yintercept = 0),
+             linetype = 2) +
+  geom_line(data = subset(plot_df  %>% filter(year %in% c(2016:2024),citizenship=="non-swiss"), var %in% c("Expected birth")),
             aes(y=n_birth),col="darkred",
             linetype = 2 ) +
   facet_grid(var~year,scale="free_y")

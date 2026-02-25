@@ -92,3 +92,19 @@ ctn_map <- tibble::tribble( ~ctn_abbr, ~region,
                             NA,        "Sans indication")
 
 
+canton_df <- data.frame(
+  ctn_name = c("Zurich", "Berne", "Lucerne", "Uri", "Schwyz", "Obwald", "Nidwald", "Glaris", 
+               "Zoug", "Fribourg", "Soleure", "Bâle-Ville", "Bâle-Campagne", "Schaffhouse", 
+               "Appenzell Rh.-Ext.", "Appenzell Rh.-Int.", "Saint-Gall", "Grisons", 
+               "Argovie", "Thurgovie", "Tessin", "Vaud", "Valais", "Neuchâtel", "Genève", "Jura"),
+  ctn = c("ZH", "BE", "LU", "UR", "SZ", "OW", "NW", "GL", 
+          "ZG", "FR", "SO", "BS", "BL", "SH", "AR", "AI", 
+          "SG", "GR", "AG", "TG", "TI", "VD", "VS", "NE", 
+          "GE", "JU"),
+  ctn_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+             17, 18, 19, 20, 21, 22, 23, 24, 25, 26)) %>%
+  left_join(data.frame(ctn = c("VD","VS","GE","BE","FR","SO","NE","JU","BS","BL","AG","ZH","GL",
+                               "SH","AR","AI","SG","GR","TG","LU","UR","SZ","OW","NW","ZG","TI"),
+                       NUTS2_id = c(rep(c(1:7),c(3,5,3,1,7,6,1))),
+                       NUTS2_name = rep(c("Lake Geneva","Mittelland","Northwest","Zurich","Eastern","Central","Ticino"),
+                                        c(3,5,3,1,7,6,1))))

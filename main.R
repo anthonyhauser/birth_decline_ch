@@ -27,6 +27,9 @@ if(FALSE){
   pop_dist_df = pop_mun_df %>% 
     group_by(dist_name,dist_id, year, month, age) %>% 
     dplyr::summarise(n=sum(n),.groups="drop") 
+  pop_ctz_df = pop_mun_df %>% 
+    group_by(citizenship, year, month, age) %>% 
+    dplyr::summarise(n=sum(n),.groups="drop") 
   #votation
   vote_dist_df = vote_mun_df %>% 
     group_by(vote_object,dist_name,dist_id) %>% 
@@ -38,7 +41,7 @@ if(FALSE){
                      urban_rural_type2   = sum(urban_rural_type2 * n_pop)/sum(n_pop),.groups="drop") 
   
   save(birth_agg_df,
-       pop_df, pop_mun_df, pop_dist_df,
+       pop_df, pop_mun_df, pop_dist_df, pop_ctz_df,
        rural_urban_df, rural_urban_dist_df,
        vote_mun_df, vote_dist_df,
        file="savepoint/cleaned_df.RData")
@@ -48,6 +51,53 @@ if(FALSE){
 birth_df = load_birth_data(mun_df = mun_df, rerun=FALSE)
 #load cleaned, aggregated data
 load("savepoint/cleaned_df.RData")
+
+
+
+
+
+
+
+
+
+d1 = pop_mun_df %>%
+  filter(year %in% c(2011,2015,2020,2024)) %>% 
+  group_by(year,citizenship,age) %>% 
+  dplyr::summarise(n=sum(n),.groups = "drop_last") %>% 
+  dplyr::mutate(p=n/sum(n)) %>% ungroup()
+d2 = pop_mun_df %>%
+  filter(year %in% c(2011,2015,2020,2024)) %>% 
+  group_by(year,age) %>% 
+  dplyr::summarise(n=sum(n),.groups = "drop_last") %>% 
+  dplyr::mutate(p=n/sum(n)) %>% ungroup()
+d1 %>% 
+  ggplot(aes(x=age,y=p))+
+  geom_bar(aes(fill=citizenship),stat = "identity",position = position_dodge(width=1))+
+  geom_line(data=d2,col="blue")+
+  scale_y_continuous(labels = scales::percent)+
+  facet_grid(year~.)
+
+
+
+
+
+
+save.date="20260214"
+mod_name = "mod5" #mod_name = "mod5_birthyear"
+seed_id=8 # seed_id = 1
+
+
+pred_n_birth_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
+
+
+#summarise excess birth nationally (fit level) or by region (using multinomial distribution to distribute over regions)
+excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
+                                                  save.date, mod_name, seed_id)
+
+
+
+
+
 
 #run model----------------------------------------------------------------------
 #stan model
@@ -74,17 +124,22 @@ list_pred_n_birth_draw_list = get_pred_birth_draw_by_dist(fit, #cmdstanr fit
                                                           seed_id)
 pred_n_birth_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_draw_df"]]
 pred_n_birth_reg_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_reg_draw_df"]]
+pred_n_birth_ctz_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_ctz_draw_df"]]
 
 #load draws
 if(FALSE){
   pred_n_birth_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
   pred_n_birth_reg_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
+  pred_n_birth_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
 }
 
-#summarise excess birth nationally (fit level) or by region (using multinomial distribution to distribute over regions)
+#summarise excess birth nationally (level at which model was fitted) or by region (using multinomial distribution to distribute over regions)
 excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
                                                   save.date, mod_name, seed_id)
 excess_birth_reg_res = summarise_excess_birth_reg(pred_n_birth_reg_draw_df,
+                                                  save.date, mod_name, seed_id)
+#national level but by citizenship (2 levels, swiss, non-swiss)
+excess_birth_reg_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
                                                   save.date, mod_name, seed_id)
 
 #---------------------------------------------------------------------

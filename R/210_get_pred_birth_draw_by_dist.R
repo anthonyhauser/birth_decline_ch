@@ -54,7 +54,6 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
       expand_limits(y=0)
   }
   
-
   #subset
   subset_draw_ids <- sample(seq_len(n_draws), n_draw_subset, replace = FALSE) %>% sort()
   pred_n_birth_draw_df = pred_n_birth_draw_df %>% 
@@ -63,6 +62,13 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
   #birth by reg, year, month, age
   birth_year_month_age_reg_df = birth_df %>% 
     group_by(year, month,age=mother_age,dist_id=mother_dist_id) %>% 
+    dplyr::summarise(n_birth=n(),.groups="drop")
+  
+  #birth by ctz, year, month, age
+  birth_year_month_age_ctz_df = birth_df %>% 
+    dplyr::mutate(citizenship = case_when(mother_citizenship==8100 ~ "swiss",
+                                          TRUE ~ "non-swiss")) %>% 
+    group_by(year, month,age=mother_age,citizenship) %>% 
     dplyr::summarise(n_birth=n(),.groups="drop")
 
   #distribute over region, only for 2011-2024
@@ -78,6 +84,19 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     left_join(birth_year_month_age_reg_df,by=c("year","month","age","dist_id"))  %>% 
     dplyr::mutate(n_birth = replace_na(n_birth,0))
   
+  #distribute over ctz, only for 2011-2024
+  pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>% 
+    dplyr::rename(n_pred_nat = n_pred) %>% 
+    dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
+    inner_join(pop_ctz_df %>% dplyr::rename(n_pop=n), by=c("year","month","age"),relationship = "many-to-many")  %>%
+    group_by(draw,year, month, age) %>%
+    dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
+    as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
+    ungroup() %>% 
+    #add n_birth
+    left_join(birth_year_month_age_ctz_df,by=c("year","month","age","citizenship"))  %>% 
+    dplyr::mutate(n_birth = replace_na(n_birth,0))
+  
   if(FALSE){
     #check dimension
     dim(pred_n_birth_reg_draw_df)
@@ -87,11 +106,18 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
       group_by(draw,year, month, age) %>%
       dplyr::summarise(n_pred_nat=n_pred_nat[1],
                        n_pred_region=sum(n_pred))
+    
+    pred_n_birth_ctz_draw_df %>% 
+      group_by(draw,year, month, age) %>%
+      dplyr::summarise(n_pred_nat=n_pred_nat[1],
+                       n_pred_region=sum(n_pred))
   }
   
-  saveRDS(pred_n_birth_draw_df, paste0("results/",save.date,"_",mod_name,"_","_seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
-  saveRDS(pred_n_birth_reg_draw_df, paste0("results/",save.date,"_",mod_name,"_","_seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
+  saveRDS(pred_n_birth_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
+  saveRDS(pred_n_birth_reg_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
+  saveRDS(pred_n_birth_ctz_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
   
   return(list(pred_n_birth_draw_df = pred_n_birth_draw_df,
-                     pred_n_birth_reg_draw_df = pred_n_birth_reg_draw_df))
+              pred_n_birth_reg_draw_df = pred_n_birth_reg_draw_df,
+              pred_n_birth_ctz_draw_df = pred_n_birth_ctz_draw_df))
 }
