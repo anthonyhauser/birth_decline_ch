@@ -7,7 +7,7 @@ load_pop_year_age_mun_ctz = function(mun_df){
                  #"pop_mun_age_36_50_nonpermanent.xlsx")
   
   # Prepend folder path
-  files <- file.path("data/population_data", file_names)
+  files <- file.path(paste0(code_root_path,"data/population_data"), file_names)
   
   
   data_list <- list()

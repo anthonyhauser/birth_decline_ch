@@ -1,0 +1,725 @@
+---
+title: "Birth decline in Switzerland"
+format:
+  html:
+    theme: cosmo
+    code-fold: true        # adds "Show/Hide Code" buttons
+    code-summary: "Code"   # customize button text
+    toc: true
+    toc-location: left  # place TOC on the left
+    number-sections: true  # number sections
+    toc-depth: 3      # show subsections up to 3 levels
+    toc-fold: true     # allow collapsing/expanding sections
+execute:
+  fig-width: 7
+  fig-height: 5
+  warning: false
+  message: true
+  comment: ""
+editor: visual
+---
+
+```{r,include=FALSE}
+source("../R/000_setup.R")
+
+#load individual birth data, 1987_2024
+#birth_df = load_birth_data(mun_df = mun_df, rerun=FALSE)
+#load cleaned, aggregated data
+load(paste0(code_root_path,"savepoint/cleaned_df.RData"))
+```
+
+# Objectives
+
+- Quantify Switzerland’s birth deficit over 2000–2024, adjusting for demographic changes and delayed childbearing
+- Examine temporal and geographical heterogeneity in birth deficits
+- Explore socio-economic and policy factors associated with variations in excess/deficit births
+
+# Data
+
+## Types of data
+
+- Birth data:
+  - Individual-level: year, month, municipality, maternal age  
+  - Period: 1987–2024 (analysis uses 2000–2024)  
+
+- Population data:
+  - Aggregated: year × canton, nationality (Swiss vs non-Swiss), 1987–2024  
+  - Optionally: municipality-level counts 2011–2024  
+
+- Socio-economic data (Explanatory variables)
+  - Votation data (municipality-level):
+    - family/education support
+    - paternity leave
+    - childcare tax reductions
+    - women’s suffrage  
+  - Swiss Household data (canton-level)  
+  - Socio-economic position (municipality-level)  
+  
+## Birth data
+
+```{r,fig.width=6,fig.height=8}
+birth_df1 = birth_agg_df %>% 
+  filter(mother_age %in% 15:50,year>=2000) %>% 
+  dplyr::mutate(age_group = cut(mother_age,c(15,25,35,Inf),  right = FALSE, labels = c("15-24", "25-34", "35-50"))) %>% 
+  group_by(year,age_group) %>% 
+  dplyr::summarise(n=sum(n), .groups="drop")
+
+birth_df2 = rbind(birth_df1 %>% dplyr::mutate(data="by age"),
+                  birth_df1 %>% 
+                    group_by(year)  %>% 
+                    dplyr::summarise(n=sum(n),.groups="drop") %>% 
+                    dplyr::mutate(age_group="All ages",data="All ages"))
+
+
+pop_df1 = pop_df %>% 
+  filter(age %in% 15:50,year>=2000) %>% 
+  dplyr::mutate(age_group = cut(age,c(15,25,35,Inf),  right = FALSE, labels = c("15-24", "25-34", "35-50"))) %>% 
+  group_by(year,age_group) %>% 
+  dplyr::summarise(n=sum(n), .groups="drop")
+
+pop_df2 = rbind(pop_df1 %>% dplyr::mutate(data="by age"),
+                pop_df1 %>% 
+                    group_by(year)  %>% 
+                    dplyr::summarise(n=sum(n),.groups="drop") %>% 
+                    dplyr::mutate(age_group="All ages",data="All ages"))
+
+
+scientific_10 <- function(x) {   ifelse(x==0,0,parse(text=gsub("e\\+*", " %*% 10^", scales::scientific_format()(x)))) }
+p1 = birth_df1 %>% 
+  dplyr::mutate(year = dmy(paste0("01-01-", year))) %>% 
+  ggplot(aes(x=year, y = n))+
+  geom_bar(stat="identity",alpha=0.5)+
+  scale_x_date(name="")+
+  scale_y_continuous(name="Number of births")
+p2 = pop_df1 %>% 
+  dplyr::mutate(year = dmy(paste0("01-01-", year))) %>% 
+  ggplot(aes(x=year, y = n))+
+  geom_bar(stat="identity",alpha=0.5)+
+  scale_x_date(name="")+
+  scale_y_continuous(name="Population size", label=scientific_10)
+
+p3 = birth_df2 %>% 
+  rename(n_birth = n) %>% 
+  left_join(pop_df2 %>% rename(n_pop = n),
+            by = c("year","age_group")) %>% 
+  dplyr::mutate(p_birth = n_birth / n_pop,
+                year = dmy(paste0("01-01-", year))) %>% 
+  ggplot(aes(x = year, y = p_birth,
+             colour = age_group,
+             linetype = age_group)) +
+  geom_line(,linewidth = 1) +
+  expand_limits(y = 0)+
+  scale_x_date(name="")+
+  scale_y_continuous(name="Birth rate",labels = scales::percent)+
+  scale_color_manual(name="Age groups",values=c("darkred","orange","darkblue","black"))+
+  scale_linetype_manual(name="Age groups",values = c("dashed","dashed","dashed","solid"))+
+  theme(legend.position = "bottom")
+
+cowplot::plot_grid(p1,
+                   p2,
+                   p3, ncol=1,rel_heights = c(1,1,1.2),labels = c("A.","B.","C."))
+
+```
+
+**Figure 1**: A. Number of births by year. B. Female population aged 15-50 by year. C. Birth rates by year and age group.
+
+# Methods
+
+## Birth prediction model
+
+We model age-specific births using a negative binomial regression with an overdispersion parameter. Let:
+
+- $y_{a,t}$ = number of births at maternal age $a$ in year $t$  
+- $N_{a,t}$ = population of women at age $a$ in year $t$  
+
+Then:
+
+$$
+y_{a,t} \sim \text{NegBinom}(\mu_{a,t}, \phi), \quad 
+\log\mu_{a,t} = f(a + \delta_t) + \gamma_m + \log N_{a,t},
+$$
+
+where:
+
+- $f(a)$ is the **age-specific fertility function** modeled with a Gaussian Process (GP),
+- $\delta_t$ is the **calendar-year-specific age shift** capturing delayed childbearing (also modeled with a GP),
+- $\gamma_m$ is a **fixed effect for calendar month** $m$,
+- $\phi$ is the negative binomial **overdispersion parameter**.  
+
+This formulation allows the fertility curve to shift over time while accounting for seasonality and overdispersion in birth counts.
+
+## Excess births
+
+### National-level
+
+Let $\hat{\mu}_{a,t}$ = posterior predicted births from the model, the excess is:
+
+$$
+\text{Excess}_{a,t} = y_{a,t} - \hat{\mu}_{a,t}, \quad
+\text{Relative Excess}_{a,t} = \frac{y_{a,t} - \hat{\mu}_{a,t}}{\hat{\mu}_{a,t}}.
+$$
+
+This gives the absolute and relative deviations between observed and expected births.
+
+### District-level
+
+Let $d$ denote a district and $y_{d,a,t}$ the observed births in district $d$ (unknown at prediction stage).
+We distribute the national posterior predicted births $\hat{\mu}_{a,t}$ across districts using a **multinomial distribution**:
+
+$$
+\hat{\mu}_{1\cdots D,a,t} \sim \text{Multinomial}\Big(\hat{\mu}_{a,t},p_{1\cdots D,a,t} \Big).
+$$
+
+Where $p_{d,a,t}$ is the proportion of women of age $a$ in district $d$ relative to the total national population of age $a$:
+
+$$
+p_{d,a,t} = \frac{N_{d,a,t}}{\sum_{d'} N_{d',a,t}}.
+$$
+
+The district-level excess is then:
+
+$$
+\text{Excess}_{d,a,t} = y_{d,a,t} - \hat{\mu}_{d,a,t}, \quad
+\text{Relative Excess}_{d,a,t} = \frac{y_{d,a,t} - \hat{\mu}_{d,a,t}}{\hat{\mu}_{d,a,t}}.
+$$
+
+This allows us to quantify deviations at a finer spatial scale while respecting the national posterior predictions.
+
+
+## Explaining heterogeneity
+
+- Temporal and geographical differences analyzed with covariates  
+- Focus on structural factors beyond age composition  
+
+# Results: excess
+
+## Model parameters
+
+```{r}
+#load data
+save.date="20260214"
+mod_name = "mod5"
+seed_id=8
+
+#load results
+par_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
+birth_prob_by_age_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
+gp_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
+gp_rel_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp_rel.RDS"))
+age_bias_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
+pred_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
+par_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
+
+#load excess
+excess_birth_year_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+excess_birth_year_age_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
+excess_birth_year_month_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
+excess_birth_year_reg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
+
+excess_birth_year_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
+excess_birth_year_age_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
+excess_birth_year_month_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
+```
+
+### Month effect
+
+```{r}
+par_df %>%
+  filter(str_detect(variable, "gamma_month")) %>% 
+  tidyr::extract(variable,into=c("variable","month_id"),
+                 regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>%
+  as_tibble() %>%
+  dplyr::select(month_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>%
+  dplyr::mutate(month_id=as.numeric(month_id)) %>% 
+  ggplot(aes(x=month_id,y=est,ymin=lwb,ymax=upb)) +
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")
+```
+
+### Fertility curve
+
+```{r}
+birth_prob_by_age_df %>% 
+    filter(year %in% c(2000,2010,2024)) %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+    geom_line(aes(col=factor(year)))
+```
+
+### Age shift
+
+```{r}
+gp_rel_df %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")+
+  scale_y_continuous(name="Change in age of fertility peak (relative to 2000)")
+```
+
+## Excess mortality
+
+### National level
+
+```{r}
+#national, year
+plot_df = excess_birth_year_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+             n_exc_mean, n_exc_lwb, n_exc_upb,
+             rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|lwb|upb)",
+    values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  ggplot(aes(x = year, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df, var %in% c("Excess birth", "Relative excess")),
+    aes(yintercept = 0),
+    linetype = 2) +
+  geom_line(data = subset(plot_df, var %in% c("Expected birth")),
+    aes(y=n_birth),col="darkred",
+    linetype = 2 ) +
+  facet_grid(var~.,scale="free_y")
+```
+
+### Monthly level (2020-24)
+
+```{r}
+#national, year, month
+plot_df = excess_birth_year_month_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+                        n_exc_mean, n_exc_lwb, n_exc_upb,
+                        rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+               names_to = c("var", "stat"),
+               names_pattern = "(.*)_(mean|lwb|upb)",
+               values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  filter(year>=2020) %>% 
+  ggplot(aes(x = date, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df %>%  filter(year>=2020) , var %in% c("Excess birth", "Relative excess")),
+             aes(yintercept = 0),
+             linetype = 2) +
+  geom_line(data = subset(plot_df  %>%  filter(year>=2020), var %in% c("Expected birth")),
+            aes(y=n_birth),col="darkred",
+            linetype = 2 ) +
+  facet_grid(var~.,scale="free_y")
+
+```
+
+### District-level
+
+```{r, fig.height=16,fig.width=12}
+#load region location
+regions_sf <- st_read(paste0(code_root_path,"data/boundary_data/Boundaries_K4_District_20260101.shp")) #source: https://www.agvchapp.bfs.admin.ch/fr/boundaries?SnapshotDate=01.01.2018&Unit=BAE2018
+regions_sf = regions_sf[,c(1,3,7)]
+names(regions_sf)[c(1,2)] <- c("dist_name2", "dist_id")
+
+excess_birth_year_reg_df %>% 
+  filter(year %in% 2017:2024) %>% 
+  left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill = rel_exc_mean)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")+
+  facet_wrap(year~.,ncol=2)
+
+```
+
+### Municipality-level
+
+#### By municipality, by year
+
+```{r, fig.height=16,fig.width=12}
+#load region location
+excess_birth_year_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_df",".RDS"))
+mun_sf <- st_read(paste0(code_root_path,"data/boundary_data/Boundaries_K4_Commune_20260101.shp")) #source: https://www.agvchapp.bfs.admin.ch/fr/boundaries?SnapshotDate=01.01.2018&Unit=BAE2018
+mun_sf = mun_sf[,c(1,3,7)]
+names(mun_sf)[c(1,2)] <- c("mun_name2", "mun_id")
+
+lake_sf <- st_read(paste0(code_root_path,"data/boundary_data/swissTLMRegio_Product_LV95/Hydrography/swissTLMRegio_Lake.shp"))
+mun_buffer <- st_buffer(mun_sf, dist = 1000)  # distance in CRS units (LV95 ~ meters)
+# keep lakes that intersect any municipality buffer
+lake_sf <- lake_sf %>% 
+  st_filter(mun_buffer, .predicate = st_intersects)
+
+excess_birth_year_mun_df %>% 
+  filter(year %in% 2017:2024) %>% 
+  dplyr::mutate(rel_exc_mean = case_when(rel_exc_mean>1 ~1,
+                                         TRUE ~ rel_exc_mean)) %>% 
+  left_join(mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>%
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = rel_exc_mean),color = "black") +
+  geom_sf(data=lake_sf,fill = "lightblue",color=NA,alpha=0.5) +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")+
+  facet_wrap(year~.,ncol=2)
+
+```
+
+#### Summed over adjacent municipality, by year
+
+```{r, fig.height=16,fig.width=12}
+#load region location
+excess_birth_year_adj_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj_mun_df",".RDS"))
+
+excess_birth_year_adj_mun_df %>% 
+  filter(year %in% 2017:2024) %>% 
+  dplyr::mutate(rel_exc_mean = case_when(rel_exc_lwb >0 | rel_exc_upb<0 ~ rel_exc_mean ,
+                                         TRUE ~ 0)) %>% 
+  left_join(mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
+  #left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  left_join(mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>%
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = rel_exc_mean),color = "black",size = 0.1) +
+  geom_sf(data=lake_sf,fill = "lightblue",color=NA,alpha=0.5) +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")+
+  facet_wrap(year~.,ncol=2)
+
+```
+
+
+#### Summed over adjacent municipalities, 2017-2024
+
+```{r, fig.height=6,fig.width=8}
+#load region location
+excess_birth_adj_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_adj_mun_df",".RDS"))
+
+excess_birth_adj_mun_df %>% 
+  dplyr::mutate(rel_exc_mean = case_when(rel_exc_lwb >0 | rel_exc_upb<0 ~ rel_exc_mean ,
+                                         TRUE ~ 0)) %>% 
+  left_join(mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
+  #left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  left_join(mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>%
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = rel_exc_mean),color = "black",size = 0.1) +
+  geom_sf(data=lake_sf,fill = "lightblue",color=NA,alpha=0.5) +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")
+```
+
+
+# Data: explanatory variables
+
+## Votation data
+
+```{r,fig.width=8,fig.height=8}
+#load region location
+regions_sf <- st_read(paste0(code_root_path,"data/boundary_data/Boundaries_K4_District_20260101.shp")) #source: https://www.agvchapp.bfs.admin.ch/fr/boundaries?SnapshotDate=01.01.2018&Unit=BAE2018
+regions_sf = regions_sf[,c(1,3,7)]
+names(regions_sf)[c(1,2)] <- c("dist_name2", "dist_id")
+
+vote_dist_df %>% 
+  left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill = yes_prop/100)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 0.5,
+    labels = scales::percent_format(accuracy = 1)
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")+
+  facet_wrap(vote_object~.,ncol=2)
+```
+
+**Figure 2**: Votation results by municipality for the four objects.
+
+## Rural/Urban data
+
+```{r,fig.width=6,fig.height=6}
+rural_urban_dist_df %>% 
+  left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill = urban_rural_type2)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient2(
+    name = "Rural level",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 20
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")
+```
+
+```{r,fig.width=6,fig.height=6}
+rural_urban_df %>% 
+   left_join(mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>%
+  dplyr::mutate(urban_rural_type2 =  dense_rank(urban_rural_type2)) %>% 
+  st_as_sf() %>%
+  ggplot(aes(fill = urban_rural_type2)) +
+  geom_sf(color = "black") +
+  scale_fill_gradient2(
+    name = "Rural level",
+    low = "red",        # negative
+    mid = "white",      # zero
+    high = "green",     # positive
+    midpoint = 5
+  )+
+  theme( legend.position = "bottom",
+         legend.direction = "horizontal")
+```
+
+**Figure XX**: Level of rurality.
+
+## Swiss Household Panel (SHP) data
+
+```{r,fig.width=10,fig.height=10}
+p_df = readRDS(paste0(code_root_path,"savepoint/cleaned_shp_p_df.RDS"))
+
+#variables
+  #personal data
+  variables_p_df = data.frame(var= c("idhous","year", "idpers", "filter","pdate", "status","plingu",#"idint",
+                                     "age","sex",
+                                     "pd80", "pd81", "pd82",
+                                     "pd90", "pd91", "pd92", "pd93", "pd94", "pd95",
+                                     "pp20", "pp21", "pp22", "pp23"),
+                              def =  c("Identification number of household",
+                                       "Year",
+                                       "identification number of the person",
+                                       "Identification of the survey",
+                                       "Date of personal interview",
+                                       "Type of interviews completed: grid, proxy, personal",
+                                       "Interview language",# "Identification number of interviewer",
+
+                                       "Age in year of interview",
+                                       "Sex",
+
+                                       "Total number children wanted",
+                                       "Child wanted in the next 24 months",
+                                       "Ideal family size",
+
+                                       "Opinion on family: marriage is an outdated institution",
+                                       "Opinion on family: job preserves independance",
+                                       "Opinion on family: child suffers with working mother",
+                                       "Opinion on family: child suffers with unmaried parents",
+                                       "Opinion on family: happiness of a child living with a single parent",
+                                       "Opinion on family: happiness of a child living with same-sex parents",
+
+                                       "Gender: Women in general penalized",
+                                       "Gender: Personnally penalized",
+                                       "Gender: In favour of measures",
+                                       "Gender: Personal action" ))
+  #household data
+  variables_h_df = data.frame(var= c("idhous","year", "refper", "filter", "hmode","hdate","stathh","sthhre",#"idint"
+                                     "nbkid",
+                                     "canton",
+                                     "ctn_abbr",
+                                     "hf52"),
+                              def =  c("Identification number of household",
+                                       "Year",
+                                       "Identification of reference person",
+                                       "Identification of the survey",
+                                       "Mode of data collection",
+                                       "Date of household interview with reference person",
+                                       "Status household questionnaire",
+                                       "Reason for not completing household questionnaire",#"Identification number of interviewer",
+                                       "Number of children in household: 0 to 17 years",
+                                       "Canton of residence",
+                                       "Canton of residence (abbr)",
+                                       "External help: Child care: Monthly expenses"))
+  #all variables
+  variables_df = rbind(variables_p_df,
+                       variables_h_df %>% filter(!(var %in% variables_p_df$var))) %>%
+    dplyr::mutate(group = dplyr::case_when(
+                            var %in% c("idhous", "idpers", "refper") ~ "identifiers",
+                            var %in% c("year", "pdate", "hdate") ~ "time",
+                            var %in% c("status", "hmode", "filter", "stathh", "sthhre") ~ "survey_process",
+                            var %in% c("age", "sex", "plingu", "canton") ~ "sociodemographics",
+                            var %in% c("pd80","nbkid") ~ "number_of_children",
+                            var %in% c("pd81") ~ "child_wanted",
+                            grepl("^pd", var) ~ "family_opinions_preferences",
+                            grepl("^pp", var) ~ "gender_attitudes",
+                            var %in% c("hf52") ~ "household_children_economics",
+                            TRUE ~ NA )) %>%
+    dplyr::mutate(is_reg_var = ifelse(group %in% c("family_opinions_preferences","gender_attitudes","household_children_economics",
+                                                   "number_of_children","child_wanted"), 1, 0),
+                 type = case_when(var %in% c("pd81") ~ "factor_2lev_n_y",
+                                   var %in% c("pd90", "pd91", "pd92", "pd93", "pp20", "pp21", "pp22", "pp23")  ~  "factor_11lev_0_10",
+                                   var %in% c("pd80", "pd82","nbkid")  ~ "numeric_max10",
+                                   var %in% c("pd94", "pd95")  ~ "factor_11lev_0_10",
+                                   var %in% c("hf52") ~ "numeric",
+                                   TRUE ~ NA))
+
+  df = p_df %>%
+    dplyr::mutate(dplyr::across(everything(), as.character)) %>%
+    dplyr::mutate(row_id = dplyr::row_number()) %>%
+    tidyr::pivot_longer(cols = -c(year,row_id), names_to = "var", values_to = "value") %>%
+    dplyr::group_by(var,year) %>%
+    dplyr::summarise(p_na = mean(is.na(value)),
+                     n_tot = n(),
+                     n_nna = sum(!is.na(value)), .groups = "drop") %>%
+    left_join(variables_df,by="var") %>%
+    filter(is_reg_var==1) %>%
+    dplyr::mutate(year = ymd(paste0(year,"-01-01")))
+  
+  df %>%
+    ggplot(aes(x=year,y=n_nna))+
+    geom_line(aes(x=year,y=n_tot),col="black",linetype = 2)+
+    geom_point(aes(col=var))+geom_line(aes(col=var))+
+    scale_y_continuous(name="Number of non-missing")+
+    scale_color_discrete(breaks=variables_df$var,labels=variables_df$def,
+                         guide = guide_legend(ncol = 2)) +
+    expand_limits(y=0)+
+    facet_wrap(group~.)+
+    theme(legend.position = "bottom")
+  
+```
+
+**Figure XX**: Number of responses.
+
+```{r,fig.width=10,fig.height=10}
+  df %>%
+    ggplot(aes(x=year,y=1-p_na,col=var))+
+    geom_point()+geom_line()+
+    scale_y_continuous(labels = scales::percent,name="Proportion of non-missing")+
+    scale_color_discrete(breaks=variables_df$var,labels=variables_df$def,
+                         guide = guide_legend(ncol = 2)) +
+    expand_limits(y=0)+
+    facet_wrap(group~.)+
+    theme(legend.position = "bottom")
+```
+
+**Figure XX**: Proportion of non-missing responses.
+
+```{r,fig.width=8,fig.height=4}
+  #number of new participants per year
+  p_df %>%
+    dplyr::mutate(is_woman_15_50 = factor(as.numeric(sex=="woman" & age>=15 & age<=50))) %>% 
+    group_by(year_start,is_woman_15_50) %>%
+    dplyr::summarise(n_new = length(unique(idpers)),.groups="drop") %>%
+    ggplot(aes(x=year_start,y=n_new,fill=is_woman_15_50))+
+    geom_bar(stat="identity",position = "stack")+
+    scale_y_continuous(name="Number of new participants")+
+    scale_fill_manual(name="Participants",values=c("gray","blue"),breaks = c(0,1),labels=c("All","Woman 15-50"))
+
+```
+
+**Figure XX**: Number of new participants per year
+
+```{r,fig.width=10,fig.height=16}
+  #mean
+  df = p_df %>%
+    filter(year_start %in% c(2010:2024),sex=="woman",age_start %in% 15:50) %>%
+    dplyr::mutate(dplyr::across(everything(), as.character)) %>%
+    dplyr::mutate(row_id = dplyr::row_number()) %>%
+    tidyr::pivot_longer(cols = -c(year,row_id), names_to = "var", values_to = "value") %>%
+    left_join(variables_df,by="var") %>%
+    filter(is_reg_var==1,!is.na(value)) %>%
+    dplyr::mutate(value=as.numeric(value)) %>%
+    group_by(year,var,def,group) %>%
+    dplyr::summarise(mean = mean(value),
+                     n_values = n(),.groups="drop") %>%
+    dplyr::mutate(year = ymd(paste0(year,"-01-01"))) %>%
+    group_by(year,group) %>%
+    dplyr::mutate(n_values_min = min(n_values),
+                  n_values_max = max(n_values),
+                  ymax=max(mean)*1.1) %>% ungroup() %>%
+    group_by(group) %>%
+    dplyr::mutate(ymax=max(mean)*1.1) %>% ungroup()
+
+  plots <- df %>%
+    filter(n_values>=10) %>%
+    dplyr::mutate(def = str_wrap(def, width = 20)) %>%
+    split(.$group) %>%
+    map(~ ggplot(.x, aes(x = year, y = mean)) +
+          geom_point(aes(col = def)) + geom_line(aes(col = def)) +
+          geom_text(aes(y = 0, label = n_values_min),
+                    vjust = 0, show.legend = FALSE) +
+          geom_text(aes(y = ymax, label = n_values_max),
+                    vjust = 0, show.legend = FALSE) +
+          expand_limits(y = 0) +
+          expand_limits(y = max(.x$ymax*1.05, na.rm = TRUE))+
+          ggtitle(unique(.x$group)) +
+          theme(legend.position = "bottom"))
+  cowplot::plot_grid(plotlist = plots, ncol = 1)
+```
+
+**Figure XX**: Responses from female participants aged 15-50.
+
+```{r,fig.width=8,fig.height=6}
+  p_df %>%
+    filter(year_start %in% c(2010:2015),sex=="woman",age_start %in% 15:50) %>%
+    dplyr::select(idhous,idpers,year,year_start,plingu,age,ctn_abbr,pp21) %>%
+    left_join(canton_df %>% dplyr::select(ctn_abbr=ctn,NUTS2_name),by="ctn_abbr") %>%
+    filter(!is.na(pp21),!is.na(ctn_abbr)) %>%
+    group_by(year,NUTS2_name) %>%
+    dplyr::summarise(mean = mean(pp21),
+                     n_values = n()) %>% ungroup() %>%
+    dplyr::mutate(year = ymd(paste0(year,"-01-01"))) %>%
+    ggplot(aes(x = year, y = mean)) +
+    geom_point(aes(col = NUTS2_name)) + geom_line(aes(col = NUTS2_name)) +
+    geom_text(aes(y = mean, label = n_values),
+              vjust = 0, show.legend = FALSE) +
+    scale_y_continuous(name="Gender: Personnally penalized")+
+    expand_limits(y = 0)
+```
+
+**Figure XX**: Variation over regions.
+
+
+
+
+
+
+
+# To do
+
+- SHP data: explore
+- Municipality level (by year): 25 * 2154: cluster/hotspot
+- urbanisation level
+
+# Conclusion
+
+- Persistent birth deficit in Switzerland after accounting for demographic shifts and delayed motherhood  
+- Stronger deficit in urban areas and among Swiss residents  
+- Monthly analysis suggests short-term pandemic effects  
+- Next steps: link heterogeneity to socio-economic and policy factors

@@ -1,6 +1,6 @@
 load_pop_year_age_ctn_ctz = function(){
-  if(file.exists("data/population_data/pop_year_age_nat_ctn.RDS")) {
-    pop_df = readRDS("data/population_data/pop_year_age_nat_ctn.RDS")
+  if(file.exists(paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))) {
+    pop_df = readRDS(paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))
    }else {
     pop_df = read_excel(paste0(data_folder, "population_data/pop_year_age_nat_ctn.xlsx"))
     
@@ -60,7 +60,7 @@ load_pop_year_age_ctn_ctz = function(){
                dplyr::select(year,month,ctn_abbr,citizenship,age,n) %>% 
      filter(!(year==2025 & month>1))
     
-    saveRDS(pop_df,"data/population_data/pop_year_age_nat_ctn.RDS")
+    saveRDS(pop_df,paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))
   }
   
   return(pop_df)

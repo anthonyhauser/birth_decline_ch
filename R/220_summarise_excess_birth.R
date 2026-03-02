@@ -13,7 +13,7 @@ summarise_excess_birth_nat = function(pred_n_birth_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -31,7 +31,7 @@ summarise_excess_birth_nat = function(pred_n_birth_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -53,7 +53,7 @@ summarise_excess_birth_nat = function(pred_n_birth_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -73,7 +73,7 @@ summarise_excess_birth_nat = function(pred_n_birth_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -108,7 +108,7 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -126,7 +126,7 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -148,7 +148,7 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -169,7 +169,7 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
                                 n_birth     = n_birth[1],
                                 n_exp_mean  = mean(n_pred),
                                 n_exp_lwb   = quantile(n_pred, 0.025),
-                                n_exp_upb   = quantile(n_pred, 0.9725)),by = .(dist_name, dist_id, year, month, age)][,
+                                n_exp_upb   = quantile(n_pred, 0.975)),by = .(dist_name, dist_id, year, month, age)][,
                               # excess mortality (mutate)
                               `:=`( n_exc_mean   = n_birth - n_exp_mean,
                                     n_exc_lwb    = n_birth - n_exp_lwb,
@@ -189,7 +189,7 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
   #                    n_birth = n_birth[1],
   #                    n_exp_mean = mean(n_pred),
   #                    n_exp_lwb = quantile(n_pred,probs=0.025),
-  #                    n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+  #                    n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
   #   dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
   #                 n_exc_lwb = n_birth- n_exp_lwb,
   #                 n_exc_upb = n_birth-n_exp_upb,
@@ -237,7 +237,7 @@ summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -255,7 +255,7 @@ summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -277,7 +277,7 @@ summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                      n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
-                     n_exp_upb = quantile(n_pred,probs=0.9725),.groups="drop") %>% 
+                     n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
     dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
                   n_exc_lwb = n_birth- n_exp_lwb,
                   n_exc_upb = n_birth-n_exp_upb,
@@ -298,7 +298,7 @@ summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                                n_birth     = n_birth[1],
                                n_exp_mean  = mean(n_pred),
                                n_exp_lwb   = quantile(n_pred, 0.025),
-                               n_exp_upb   = quantile(n_pred, 0.9725)),by = .(citizenship, year, month, age)][,
+                               n_exp_upb   = quantile(n_pred, 0.975)),by = .(citizenship, year, month, age)][,
                               # excess mortality (mutate)
                               `:=`( n_exc_mean   = n_birth - n_exp_mean,
                                     n_exc_lwb    = n_birth - n_exp_lwb,

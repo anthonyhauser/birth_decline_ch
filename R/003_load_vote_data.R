@@ -6,7 +6,7 @@ load_vote_data = function(mun_df, pop_mun_df){
                   "px-x-1703030000_101_20260127-171902.xlsx")
   
   # Prepend folder path
-  files <- file.path("data/municipality_var_data", file_names)
+  files <- file.path(paste0(code_root_path,"data/municipality_var_data"), file_names)
   
   # Read in a for loop
   data_list <- list()

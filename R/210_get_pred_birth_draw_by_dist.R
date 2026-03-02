@@ -15,9 +15,6 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
   }
   #number of draws
   n_draws = fit$num_chains() * fit$metadata()$iter_sampling
-  
-  
-  if(grepl("birthyear", mod_name))
 
   #prediction numbers at the national level (i.e., level at which data is fitted)
   pred_n_birth_draw_df = fit$draws("n_birth_pred",format = "df")  %>%

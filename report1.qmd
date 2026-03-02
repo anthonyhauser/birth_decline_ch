@@ -244,17 +244,13 @@ rural_urban_dist_df %>%
          legend.direction = "horizontal")
 ```
 
-
 # Models
 
 ## Model 5
 
 By age, year and months: $12\times 25 \times 36  = 10,800$ rows. Seasonal variation captured by a fixed month effect.
 
-
 ### Results: basic
-
-
 
 ```{r}
 #load data
@@ -285,7 +281,6 @@ pred_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_p
 par_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
 ```
 
-
 ```{r}
 par_df %>%
   filter(str_detect(variable, "gamma_month")) %>% 
@@ -298,7 +293,6 @@ par_df %>%
   geom_ribbon(fill="blue",alpha=0.2)+
   geom_line(col="blue")
 ```
-
 
 ```{r}
 birth_prob_by_age_df %>% 
@@ -332,7 +326,6 @@ pred_df %>%
   geom_point(aes(y=n_birth),size=2)+
   facet_grid(mother_age~.,scale="free_y")
 ```
-
 
 ### Excess mortality
 
@@ -563,7 +556,6 @@ excess_birth_year_reg_df %>%
 
 ```
 
-
 ```{r,include=FALSE}
 if(FALSE){
   #other
@@ -597,6 +589,4 @@ if(FALSE){
 
 ```
 
-increase subset (now 100)
-note that district level excess is only available from 2011 as district pop data only for 2011-2025
-
+increase subset (now 100) note that district level excess is only available from 2011 as district pop data only for 2011-2025
