@@ -144,7 +144,9 @@ load_birth_data = function(mun_df, rerun=FALSE){
                                        birth_2023,
                                        birth_2024) %>% 
       #filter on live birth and permanent mother
-      filter(live_birth==1,mother_permanent==1)
+      filter(live_birth==1,mother_permanent==1) %>% 
+      #categorical variable mother citizenship
+      dplyr::mutate(mother_citizenship2 = ifelse(mother_citizenship==8100,"swiss","non-swiss"))
     
     #assign a current mun_id from mother_municipality as well as its corresponding district and canton
     birth_1987_2024 = birth_1987_2024 %>% 

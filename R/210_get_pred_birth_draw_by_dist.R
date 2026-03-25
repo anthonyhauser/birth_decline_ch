@@ -13,6 +13,28 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     pop_dist_df
     birth_df
   }
+  
+  #define ctz population
+  ctz_name = case_when(grepl("non-swiss",mod_name) ~ "non-swiss",
+                       grepl("swiss",mod_name) ~ "swiss",
+                       TRUE ~ "")
+  if(ctz_name==""){
+    filter_ctz = c("swiss","non-swiss")
+  }else{
+    filter_ctz = ctz_name
+  }
+  
+  #parity
+  filter_parity = ifelse(grepl("first",mod_name),"first","all")
+  
+  #filter birth if parity is first
+  if(filter_parity=="first"){
+    birth_df = birth_df %>% 
+      filter(year>=2005,!is.na(parity),parity==1)
+  }
+  
+  print(birth_df %>% filter(year==2024) %>% dim())
+  
   #number of draws
   n_draws = fit$num_chains() * fit$metadata()$iter_sampling
 
@@ -58,8 +80,10 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
 
   #birth by reg, year, month, age
   birth_year_month_age_reg_df = birth_df %>% 
+    filter(mother_citizenship2 %in% filter_ctz) %>% 
     group_by(year, month,age=mother_age,dist_id=mother_dist_id) %>% 
     dplyr::summarise(n_birth=n(),.groups="drop")
+  print(birth_year_month_age_reg_df %>% filter(year==2024) %>%pull(n_birth) %>% sum)
   
   #birth by ctz, year, month, age
   birth_year_month_age_ctz_df = birth_df %>% 
@@ -67,6 +91,14 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
                                           TRUE ~ "non-swiss")) %>% 
     group_by(year, month,age=mother_age,citizenship) %>% 
     dplyr::summarise(n_birth=n(),.groups="drop")
+  print(birth_year_month_age_ctz_df %>% filter(year==2024) %>%pull(n_birth) %>% sum)
+  
+  #population by dist
+  pop_dist_df = pop_dist_df %>% 
+    filter(citizenship %in% filter_ctz) %>%  
+    group_by(dist_name,dist_id, year, month, age) %>% 
+    dplyr::summarise(n=sum(n),.groups="drop") 
+  print("---")
 
   #distribute over region, only for 2011-2024
   pred_n_birth_reg_draw_df = pred_n_birth_draw_df %>% 
@@ -80,19 +112,24 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     #add n_birth
     left_join(birth_year_month_age_reg_df,by=c("year","month","age","dist_id"))  %>% 
     dplyr::mutate(n_birth = replace_na(n_birth,0))
+  print("---")
   
   #distribute over ctz, only for 2011-2024
-  pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>% 
-    dplyr::rename(n_pred_nat = n_pred) %>% 
-    dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
-    inner_join(pop_ctz_df %>% dplyr::rename(n_pop=n), by=c("year","month","age"),relationship = "many-to-many")  %>%
-    group_by(draw,year, month, age) %>%
-    dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
-    as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
-    ungroup() %>% 
-    #add n_birth
-    left_join(birth_year_month_age_ctz_df,by=c("year","month","age","citizenship"))  %>% 
-    dplyr::mutate(n_birth = replace_na(n_birth,0))
+  if(ctz_name==""){
+    pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>% 
+      dplyr::rename(n_pred_nat = n_pred) %>% 
+      dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
+      inner_join(pop_ctz_df %>% dplyr::rename(n_pop=n), by=c("year","month","age"),relationship = "many-to-many")  %>%
+      group_by(draw,year, month, age) %>%
+      dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
+      as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
+      ungroup() %>% 
+      #add n_birth
+      left_join(birth_year_month_age_ctz_df,by=c("year","month","age","citizenship"))  %>% 
+      dplyr::mutate(n_birth = replace_na(n_birth,0)) 
+  }else{
+    pred_n_birth_ctz_draw_df = NA
+  }
   
   if(FALSE){
     #check dimension
@@ -112,7 +149,9 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
   
   saveRDS(pred_n_birth_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
   saveRDS(pred_n_birth_reg_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
-  saveRDS(pred_n_birth_ctz_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
+  if(ctz_name==""){
+    saveRDS(pred_n_birth_ctz_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
+  }
   
   return(list(pred_n_birth_draw_df = pred_n_birth_draw_df,
               pred_n_birth_reg_draw_df = pred_n_birth_reg_draw_df,

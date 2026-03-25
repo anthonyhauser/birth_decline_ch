@@ -5,11 +5,18 @@ source("R/000_setup.R")
 if(FALSE){
   #municipality data
   mun_df = load_municipality_data()
+  new_mun_df = rbind(mun_df %>% filter(!(mun_id %in% mun_ids_to_agg)),
+                     mun_df %>% filter(mun_id==3101) %>% 
+                       dplyr::mutate(mun_id=31010,mun_name="Appenzell (aggregated)"))
   
   #birth data
-  birth_df = load_birth_data(mun_df = mun_df, rerun=TRUE) #automatically saved
+  birth_df = load_birth_data(mun_df = new_mun_df, rerun=FALSE) #automatically saved
   birth_agg_df = birth_df %>% #by canton, as the minimum aggregation level for fit (it is even too detailled as we only run nationally)
-    group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr) %>% 
+    group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>% 
+    dplyr::summarise(n = n(),.groups="drop")
+  birth_agg_first_df = birth_df %>% 
+    filter(year>=2005,!is.na(parity),parity==1) %>% 
+    group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>% 
     dplyr::summarise(n = n(),.groups="drop")
   
   #population data
@@ -18,15 +25,16 @@ if(FALSE){
   pop_mun_df = pop_mun_df_list[["municipality"]]#reg_id is historical region id (e.g., for municipality levels it corresponds to hist_mun_id)
   
   #rural/urban, votation
+  sep_df3 = readRDS("savepoint/sep_df3.RDS")
   rural_urban_df = load_rural_urban_data(pop_mun_df = pop_mun_df)
-  pop_dens_df = load_population_density()
+  pop_dens_df = load_population_density_data(new_mun_df)
   vote_df_list = load_vote_data(mun_df,pop_mun_df)
   vote_mun_df = vote_df_list[["municipality"]]
   
   #District-level data----------------------------------------------------------
   #population
   pop_dist_df = pop_mun_df %>% 
-    group_by(dist_name,dist_id, year, month, age) %>% 
+    group_by(dist_name,dist_id, year, month, age, citizenship) %>% 
     dplyr::summarise(n=sum(n),.groups="drop") 
   pop_ctz_df = pop_mun_df %>% 
     group_by(citizenship, year, month, age) %>% 
@@ -41,8 +49,10 @@ if(FALSE){
     dplyr::summarise(urban_rural_type1   = sum(urban_rural_type1 * n_pop)/sum(n_pop),
                      urban_rural_type2   = sum(urban_rural_type2 * n_pop)/sum(n_pop),.groups="drop") 
   
-  save(birth_agg_df,
+  save(birth_agg_df, birth_agg_first_df,
        pop_df, pop_mun_df, pop_dist_df, pop_ctz_df,
+       new_mun_df,
+       sep_df3,
        rural_urban_df, rural_urban_dist_df,
        pop_dens_df,
        vote_mun_df, vote_dist_df,
@@ -50,31 +60,69 @@ if(FALSE){
 }
 
 #load individual birth data, 1987_2024
-birth_df = load_birth_data(mun_df = mun_df, rerun=FALSE)
+birth_df = load_birth_data(mun_df = mun_df, rerun = FALSE)
 #load cleaned, aggregated data
 load("savepoint/cleaned_df.RData")
 
+#group four mun_id from Appenzel district because birth are reported jointly by Appenzell municipality for some years
+new_pop_mun_df = pop_mun_df %>% 
+  dplyr::mutate(mun_name = if_else(mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mun_name),
+                mun_id = if_else(mun_id %in% mun_ids_to_agg, 31010,mun_id))
+new_birth_df = birth_df %>% 
+  dplyr::mutate(mother_mun_name = if_else(mother_mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mother_mun_name),
+                mother_mun_id = if_else(mother_mun_id %in% mun_ids_to_agg, 31010,mother_mun_id))
+
+
+
+
 #run model----------------------------------------------------------------------
 #stan model
+
+#old results
 save.date="20260214"
 mod5_res = cmstan_fit_mod5(pop_df, birth_agg_df,
                            mod_name ="mod5",
-                           stan_years=  2020:2024,
+                           stan_years=  2000:2024,
                            effect_on_age_shift = "cal_year",
                            save_draw = TRUE, save.date,
                            seed_id = 8)
+#current results
+save.date="20260309"
+mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
+                           mod_name ="mod8",
+                           stan_years=  2000:2024,
+                           effect_on_age_shift = "cal_year",
+                           save_draw = TRUE, save.date,
+                           seed_id = 1)
+
+#current results
+save.date="20260320"
+mod8_res = cmstan_fit_mod5(pop_df, birth_agg_first_df,
+                           mod_name ="mod8",
+                           stan_years=  2005:2024,
+                           effect_on_age_shift = "cal_year",
+                           save_draw = TRUE, save.date,
+                           filter_parity="first",
+                           seed_id = 1)
 
 #finer-level excess draws-------------------------------------------------------
-#post-processing: estimates by district
-save.date="20260214"
-mod_name = "mod5" #mod_name = "mod5_birthyear"
-seed_id=8 # seed_id = 1
+#post-processing: estimates by district and municipality
+save.date="20260309"
+save.date="20260320"
+filter_ctz =  c("swiss","non-swiss") #"non-swiss"
+filter_parity="first"
+effect_on_age_shift = "cal_year"
+seed_id=1 # seed_id = 1
+mod_name = "mod8" #mod_name = "mod5_birthyear"
+mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_birthyear")) #used as text to name saved results
+mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
+mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
 
 #load stan fit and stan_df
 fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name,"_seedid",seed_id, ".RDS"))
 stan_df = readRDS(paste0("results/",mod_name,"_standf.RDS"))
 
-#use multinomial to distribute prediction over regions (draws over regions, month, year, age)
+#use multinomial to distribute prediction over regions (draws over regions, month, year, age) and citizenship (swiss and non-swiss)
 list_pred_n_birth_draw_list = get_pred_birth_draw_by_dist(fit, #cmdstanr fit
                                                           stan_df,
                                                           pop_dist_df,#pop by district
@@ -89,15 +137,17 @@ pred_n_birth_ctz_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_ctz_draw_d
 
 #use multinomial to distribute prediction over municipality (slightly different from district, as, because they are more strata, we sum over month and age)
 list_pred_n_birth_mun_draw_list = get_pred_birth_draw_by_mun(fit, #cmdstanr fit
-                                                          stan_df,
-                                                          pop_dist_df,#pop by district
-                                                          birth_df, #birth_df (individual level)
-                                                          n_draw_subset = 100,
-                                                          save.date,
-                                                          mod_name,
-                                                          seed_id)
+                                                              stan_df,
+                                                              new_pop_mun_df,#pop by district
+                                                              new_birth_df, #birth_df (individual level)
+                                                              new_mun_sf = new_mun_sf,
+                                                              n_draw_subset = 100,
+                                                              save.date,
+                                                              mod_name,
+                                                              seed_id)
 excess_birth_year_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_mun_draw_df"]]
-excess_birth_year_adj_mun_draw_df = excess_birth_year_adj_mun_draw_df[["excess_birth_year_adj_mun_draw_df"]]
+excess_birth_year_adj_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj_mun_draw_df"]]
+excess_birth_year_adj2_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj2_mun_draw_df"]]
 
 #excess estimates with uncertainty----------------------------------------------
 #load draws
@@ -109,6 +159,7 @@ if(FALSE){
   #municipality (by year)
   excess_birth_year_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
   excess_birth_year_adj_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+  excess_birth_year_adj2_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
 }
 #summarise excess birth nationally (level at which model was fitted) or by region (using multinomial distribution to distribute over regions)
 excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
@@ -116,15 +167,14 @@ excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
 excess_birth_reg_res = summarise_excess_birth_reg(pred_n_birth_reg_draw_df,
                                                   save.date, mod_name, seed_id)
 #national level but by citizenship (2 levels, swiss, non-swiss)
-excess_birth_reg_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
+excess_birth_ctz_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
                                                   save.date, mod_name, seed_id)
 #municipality level
 excess_birth_mun = summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
-                             excess_birth_year_mun_draw_df)
+                                              excess_birth_year_adj2_mun_draw_df,
+                                              excess_birth_year_mun_draw_df)
 
-
-
-#---------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #check it's the same
 pop_dist_df %>%group_by(year,month,age) %>% dplyr::summarise(n=sum(n)) %>% filter(year==2011,month==1,age==15)
 pop_df %>%group_by(year,month,age) %>% dplyr::summarise(n=sum(n)) %>% filter(year==2011,month==1,age==15)

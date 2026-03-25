@@ -160,45 +160,27 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
   saveRDS(excess_birth_year_month_reg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_reg_df",".RDS"))
   
   #age (takes 8 minutes)
-  print("computing: excess_birth_year_month_age_reg_df")
-  setDT(pred_n_birth_reg_draw_df)
+  # print("computing: excess_birth_year_month_age_reg_df")
+  # setDT(pred_n_birth_reg_draw_df)
+  # 
+  # excess_birth_year_month_age_reg_df <- 
+  #   pred_n_birth_reg_draw_df[,# summarise (mean and quantiles)
+  #                             .(n_pop       = n_pop[1],
+  #                               n_birth     = n_birth[1],
+  #                               n_exp_mean  = mean(n_pred),
+  #                               n_exp_lwb   = quantile(n_pred, 0.025),
+  #                               n_exp_upb   = quantile(n_pred, 0.975)),by = .(dist_name, dist_id, year, month, age)][,
+  #                             # excess mortality (mutate)
+  #                             `:=`( n_exc_mean   = n_birth - n_exp_mean,
+  #                                   n_exc_lwb    = n_birth - n_exp_lwb,
+  #                                   n_exc_upb    = n_birth - n_exp_upb,
+  #                                   rel_exc_mean = (n_birth - n_exp_mean) / n_exp_mean,
+  #                                   rel_exc_lwb  = (n_birth - n_exp_lwb)  / n_exp_mean,
+  #                                   rel_exc_upb  = (n_birth - n_exp_upb)  / n_exp_mean,
+  #                                   date         = as.IDate(sprintf("%d-%02d-01", year, month)))]
   
-  excess_birth_year_month_age_reg_df <- 
-    pred_n_birth_reg_draw_df[,# summarise (mean and quantiles)
-                              .(n_pop       = n_pop[1],
-                                n_birth     = n_birth[1],
-                                n_exp_mean  = mean(n_pred),
-                                n_exp_lwb   = quantile(n_pred, 0.025),
-                                n_exp_upb   = quantile(n_pred, 0.975)),by = .(dist_name, dist_id, year, month, age)][,
-                              # excess mortality (mutate)
-                              `:=`( n_exc_mean   = n_birth - n_exp_mean,
-                                    n_exc_lwb    = n_birth - n_exp_lwb,
-                                    n_exc_upb    = n_birth - n_exp_upb,
-                                    rel_exc_mean = (n_birth - n_exp_mean) / n_exp_mean,
-                                    rel_exc_lwb  = (n_birth - n_exp_lwb)  / n_exp_mean,
-                                    rel_exc_upb  = (n_birth - n_exp_upb)  / n_exp_mean,
-                                    date         = as.IDate(sprintf("%d-%02d-01", year, month)))]
   
-  # excess_birth_year_month_age_reg_df  = pred_n_birth_reg_draw_df %>% 
-  #   #sum over age and month
-  #   group_by(dist_name,dist_id,year,month,age,draw) %>% 
-  #   dplyr::summarise(n_pop = sum(n_pop),
-  #                    n_birth = sum(n_birth),
-  #                    n_pred = sum(n_pred),.groups="drop_last") %>% 
-  #   dplyr::summarise(n_pop = n_pop[1],
-  #                    n_birth = n_birth[1],
-  #                    n_exp_mean = mean(n_pred),
-  #                    n_exp_lwb = quantile(n_pred,probs=0.025),
-  #                    n_exp_upb = quantile(n_pred,probs=0.975),.groups="drop") %>% 
-  #   dplyr::mutate(n_exc_mean = n_birth - n_exp_mean,
-  #                 n_exc_lwb = n_birth- n_exp_lwb,
-  #                 n_exc_upb = n_birth-n_exp_upb,
-  #                 rel_exc_mean = (n_birth - n_exp_mean)/n_exp_mean,
-  #                 rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
-  #                 rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean) %>% 
-  #   dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
-  
-  saveRDS(excess_birth_year_month_age_reg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_reg_df",".RDS"))
+  #saveRDS(excess_birth_year_month_age_reg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_reg_df",".RDS"))
   
   if(FALSE){
     save.date="20260214"
@@ -216,8 +198,7 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
   
   return(list(excess_birth_year_reg_df = excess_birth_year_reg_df,
               excess_birth_year_age_reg_df = excess_birth_year_age_reg_df,
-              excess_birth_year_month_reg_df = excess_birth_year_month_reg_df,
-              excess_birth_year_month_age_reg_df = excess_birth_year_month_age_reg_df))
+              excess_birth_year_month_reg_df = excess_birth_year_month_reg_df)) # excess_birth_year_month_age_reg_df = excess_birth_year_month_age_reg_df
 }
 
 

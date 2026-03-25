@@ -1,5 +1,3 @@
-
-
 library(pacman)
 pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr,purrr,ggplot2,stringr,zoo,ppcor,progress,
                xml2,
@@ -114,3 +112,37 @@ canton_df <- data.frame(
                        NUTS2_id = c(rep(c(1:7),c(3,5,3,1,7,6,1))),
                        NUTS2_name = rep(c("Lake Geneva","Mittelland","Northwest","Zurich","Eastern","Central","Ticino"),
                                         c(3,5,3,1,7,6,1))))
+
+#mun_ids to aggregate in Appenzell
+mun_ids_to_agg <- c(3101, 3102, 3104, 3112)
+
+
+#load sf data
+#districts
+regions_sf <- st_read(paste0(code_root_path,"data/boundary_data/Boundaries_K4_District_20260101.shp")) #source: https://www.agvchapp.bfs.admin.ch/fr/boundaries?SnapshotDate=01.01.2018&Unit=BAE2018
+regions_sf = regions_sf[,c(1,3,7)]
+names(regions_sf)[c(1,2)] <- c("dist_name2", "dist_id")
+
+#municipality
+mun_sf <- st_read(paste0(code_root_path,"data/boundary_data/Boundaries_K4_Commune_20260101.shp"))
+mun_sf = mun_sf[,c(1,3,7)]
+names(mun_sf)[c(1,2)] <- c("mun_name2", "mun_id")
+
+#aggregate four municipalities from Appenzel district
+new_mun_sf = bind_rows(mun_sf %>%
+                         filter(mun_id %in% mun_ids_to_agg) %>%
+                         dplyr::summarize(geometry = st_union(geometry)) %>%
+                         st_cast("MULTIPOLYGON") %>%
+                         dplyr::mutate(mun_id = 31010,
+                                       mun_name2 = "Appenzell (aggregated)"),
+                       mun_sf %>%
+                         filter(!(mun_id %in% mun_ids_to_agg)))
+
+#lake
+lake_sf <- st_read(paste0(code_root_path,"data/boundary_data/swissTLMRegio_Product_LV95/Hydrography/swissTLMRegio_Lake.shp"))
+mun_buffer <- st_buffer(mun_sf, dist = 1000)  # distance in CRS units (LV95 ~ meters)
+# keep lakes that intersect any municipality buffer
+lake_sf <- lake_sf %>% 
+  st_filter(mun_buffer, .predicate = st_intersects)
+
+
