@@ -17,7 +17,8 @@ get_excess_est = function(var_group,draw_df){
   return(excess_df)
 }
 
-summarise_excess_birth_mun = function(excess_birth_year_adj_mun_draw_df, excess_birth_year_adj2_mun_draw_df, excess_birth_year_mun_draw_df){
+summarise_excess_birth_mun = function(excess_birth_year_adj_mun_draw_df, excess_birth_year_adj2_mun_draw_df, excess_birth_year_mun_draw_df,
+                                      save.date, mod_name, seed_id){
   
   excess_birth_year_mun_df = get_excess_est(var_group=c("mun_id","mun_name","year"),excess_birth_year_mun_draw_df)
   excess_birth_year_adj_mun_df = get_excess_est(var_group=c("mun_id","mun_name","year"),excess_birth_year_adj_mun_draw_df)
@@ -37,4 +38,22 @@ summarise_excess_birth_mun = function(excess_birth_year_adj_mun_draw_df, excess_
               excess_birth_year_adj_mun_df = excess_birth_year_adj_mun_df,
               excess_birth_mun_df = excess_birth_mun_df,
               excess_birth_adj_mun_df = excess_birth_adj_mun_df))
+}
+
+summarise_excess_birth_ctzreg = function(excess_birth_year_ctz_draw_df){
+
+  excess_birth_year_ctzreg_ctn_df = get_excess_est(var_group=c("ctz_region","ctn_abbr","year"),excess_birth_year_ctz_draw_df)
+  excess_birth_year_ctzreg_df =  get_excess_est(var_group=c("ctz_region","year"),excess_birth_year_ctz_draw_df)
+  excess_birth_ctzreg_ctn_df =  get_excess_est(var_group=c("ctz_region","ctn_abbr"), excess_birth_year_ctz_draw_df %>% filter(year %in% 2017:2024))
+  excess_birth_ctzreg_df =  get_excess_est(var_group=c("ctz_region"), excess_birth_year_ctz_draw_df %>% filter(year %in% 2017:2024))
+  
+  saveRDS(excess_birth_year_ctzreg_ctn_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctzreg_ctn_df",".RDS"))
+  saveRDS(excess_birth_year_ctzreg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctzreg_df",".RDS"))
+  saveRDS(excess_birth_ctzreg_ctn_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_ctn_df",".RDS"))
+  saveRDS(excess_birth_ctzreg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_df",".RDS"))
+  
+  return(list(excess_birth_year_ctzreg_ctn_df = excess_birth_year_ctzreg_ctn_df,
+              excess_birth_year_ctzreg_df = excess_birth_year_ctzreg_df,
+              excess_birth_ctzreg_ctn_df = excess_birth_ctzreg_ctn_df,
+              excess_birth_ctzreg_df = excess_birth_ctzreg_df))
 }

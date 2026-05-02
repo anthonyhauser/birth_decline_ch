@@ -18,11 +18,20 @@ if(FALSE){
     filter(year>=2005,!is.na(parity),parity==1) %>% 
     group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>% 
     dplyr::summarise(n = n(),.groups="drop")
+  birth_agg_second_df = birth_df %>% 
+    filter(year>=2005,!is.na(parity),parity>1) %>% 
+    group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>% 
+    dplyr::summarise(n = n(),.groups="drop")
   
   #population data
   pop_df = load_pop_year_age_ctn_ctz() #population ctn 1987-2024
   pop_mun_df_list = load_pop_year_age_mun_ctz(mun_df = mun_df) #population mun 2011-2025, list of df, one for each aggregation level (national, canton, district, municipality)
   pop_mun_df = pop_mun_df_list[["municipality"]]#reg_id is historical region id (e.g., for municipality levels it corresponds to hist_mun_id)
+  pop_detctz_df = load_pop_year_age_ctn_detctz()
+  
+  new_pop_mun_df = pop_mun_df %>% 
+    dplyr::mutate(mun_name = if_else(mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mun_name),
+                  mun_id = if_else(mun_id %in% mun_ids_to_agg, 31010,mun_id))
   
   #rural/urban, votation
   sep_df3 = readRDS("savepoint/sep_df3.RDS")
@@ -30,6 +39,11 @@ if(FALSE){
   pop_dens_df = load_population_density_data(new_mun_df)
   vote_df_list = load_vote_data(mun_df,pop_mun_df)
   vote_mun_df = vote_df_list[["municipality"]]
+  
+  #load childcare institutions
+  childcare_mun_df = load_childcare_institutions_data(new_pop_mun_df, new_mun_df)
+  childcare_institutions_df = childcare_mun_df$childcare_institutions_df
+  childcare_institutions_adj_df = childcare_mun_df$childcare_institutions_adj_df
   
   #District-level data----------------------------------------------------------
   #population
@@ -49,30 +63,26 @@ if(FALSE){
     dplyr::summarise(urban_rural_type1   = sum(urban_rural_type1 * n_pop)/sum(n_pop),
                      urban_rural_type2   = sum(urban_rural_type2 * n_pop)/sum(n_pop),.groups="drop") 
   
-  save(birth_agg_df, birth_agg_first_df,
-       pop_df, pop_mun_df, pop_dist_df, pop_ctz_df,
+  save(birth_agg_df, birth_agg_first_df, birth_agg_second_df,
+       pop_df, pop_mun_df, new_pop_mun_df, pop_dist_df, pop_ctz_df, pop_detctz_df,
        new_mun_df,
        sep_df3,
        rural_urban_df, rural_urban_dist_df,
        pop_dens_df,
        vote_mun_df, vote_dist_df,
+       childcare_institutions_df, childcare_institutions_adj_df,
        file="savepoint/cleaned_df.RData")
 }
 
 #load individual birth data, 1987_2024
 birth_df = load_birth_data(mun_df = mun_df, rerun = FALSE)
-#load cleaned, aggregated data
-load("savepoint/cleaned_df.RData")
-
 #group four mun_id from Appenzel district because birth are reported jointly by Appenzell municipality for some years
-new_pop_mun_df = pop_mun_df %>% 
-  dplyr::mutate(mun_name = if_else(mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mun_name),
-                mun_id = if_else(mun_id %in% mun_ids_to_agg, 31010,mun_id))
 new_birth_df = birth_df %>% 
   dplyr::mutate(mother_mun_name = if_else(mother_mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mother_mun_name),
                 mother_mun_id = if_else(mother_mun_id %in% mun_ids_to_agg, 31010,mother_mun_id))
 
-
+#load cleaned, aggregated data
+load("savepoint/cleaned_df.RData")
 
 
 #run model----------------------------------------------------------------------
@@ -104,19 +114,28 @@ mod8_res = cmstan_fit_mod5(pop_df, birth_agg_first_df,
                            save_draw = TRUE, save.date,
                            filter_parity="first",
                            seed_id = 1)
+save.date="20260320"
+mod8_res = cmstan_fit_mod5(pop_df, birth_agg_second_df,
+                           mod_name ="mod8",
+                           stan_years=  2005:2024,
+                           effect_on_age_shift = "cal_year",
+                           save_draw = TRUE, save.date,
+                           filter_parity="second",
+                           seed_id = 1)
+mod8_res$stan_diag_df
 
 #finer-level excess draws-------------------------------------------------------
 #post-processing: estimates by district and municipality
-save.date="20260309"
-save.date="20260320"
-filter_ctz =  c("swiss","non-swiss") #"non-swiss"
-filter_parity="first"
+filter_ctz =  c("swiss","non-swiss") #c("swiss","non-swiss") #c("swiss","non-swiss"), "swiss", "non-swiss"
+filter_parity="all" #"all", "first", "second"
 effect_on_age_shift = "cal_year"
 seed_id=1 # seed_id = 1
 mod_name = "mod8" #mod_name = "mod5_birthyear"
 mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_birthyear")) #used as text to name saved results
 mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
 mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
+use.p_childless_v = if (filter_parity != "all") c(FALSE, TRUE) else FALSE
+save.date = if (filter_parity != "all") "20260320" else "20260309"
 
 #load stan fit and stan_df
 fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name,"_seedid",seed_id, ".RDS"))
@@ -135,19 +154,63 @@ pred_n_birth_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_draw_df"]]
 pred_n_birth_reg_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_reg_draw_df"]]
 pred_n_birth_ctz_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_ctz_draw_df"]]
 
+
+pred_n_birth_draw_df %>% 
+  filter(year==2024, month==1) %>% 
+  group_by(draw) %>% 
+  dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
+
+
+pred_n_birth_reg_draw_df %>% 
+  filter(year==2024, month==1) %>% 
+  group_by(draw) %>% 
+  dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
+
 #use multinomial to distribute prediction over municipality (slightly different from district, as, because they are more strata, we sum over month and age)
-list_pred_n_birth_mun_draw_list = get_pred_birth_draw_by_mun(fit, #cmdstanr fit
-                                                              stan_df,
-                                                              new_pop_mun_df,#pop by district
-                                                              new_birth_df, #birth_df (individual level)
-                                                              new_mun_sf = new_mun_sf,
-                                                              n_draw_subset = 100,
-                                                              save.date,
-                                                              mod_name,
-                                                              seed_id)
-excess_birth_year_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_mun_draw_df"]]
-excess_birth_year_adj_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj_mun_draw_df"]]
-excess_birth_year_adj2_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj2_mun_draw_df"]]
+for(use.p_childless in use.p_childless_v){
+  list_pred_n_birth_mun_draw_list = get_pred_birth_draw_by_mun(fit, #cmdstanr fit
+                                                               stan_df,
+                                                               new_pop_mun_df,#pop by district
+                                                               new_birth_df, #birth_df (individual level)
+                                                               new_mun_sf = new_mun_sf,
+                                                               n_draw_subset = 100,
+                                                               save.date,
+                                                               mod_name,
+                                                               use.p_childless,
+                                                               seed_id)
+  excess_birth_year_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_mun_draw_df"]]
+  excess_birth_year_adj_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj_mun_draw_df"]]
+  excess_birth_year_adj2_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj2_mun_draw_df"]]
+}
+
+excess_birth_year_mun_draw_df %>% 
+  filter(year==2011) %>% 
+  group_by(draw) %>% 
+  dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
+
+
+pred_n_birth_reg_draw_df %>% 
+  filter(year==2024, month==1) %>% 
+  group_by(draw) %>% 
+  dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
+
+#use multinomial to distribute over ctz_reg and ctn_abbr
+list_pred_n_birth_ctzreg_draw_list = get_pred_birth_draw_by_ctzreg(fit, #cmdstanr fit
+                                                                   stan_df,
+                                                                   pop_detctz_df,#pop by year ctn_abbr and detctz
+                                                                   new_birth_df, #birth_df (individual level)
+                                                                   n_draw_subset = 100,
+                                                                   save.date,
+                                                                   mod_name,
+                                                                   seed_id)
+excess_birth_year_ctz_draw_df = list_pred_n_birth_ctzreg_draw_list[["excess_birth_year_ctz_draw_df"]]
+
+
+excess_birth_year_ctz_draw_df %>% 
+  filter(year==2011) %>% 
+  group_by(draw) %>% 
+  dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
+
 
 #excess estimates with uncertainty----------------------------------------------
 #load draws
@@ -157,22 +220,152 @@ if(FALSE){
   pred_n_birth_reg_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
   pred_n_birth_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
   #municipality (by year)
-  excess_birth_year_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-  excess_birth_year_adj_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-  excess_birth_year_adj2_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+  use.p_childless=TRUE
+  excess_birth_year_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
+  excess_birth_year_adj_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+  excess_birth_year_adj2_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+  
+  #ctz region (by year and ctn_abbr)
+  excess_birth_year_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
 }
-#summarise excess birth nationally (level at which model was fitted) or by region (using multinomial distribution to distribute over regions)
+
+#Summarise excess birth 
+#1) nationally (level at which model was fitted)
+pred_n_birth_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
 excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
                                                   save.date, mod_name, seed_id)
+#2) by region (using multinomial distribution to distribute over regions)
+pred_n_birth_reg_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
 excess_birth_reg_res = summarise_excess_birth_reg(pred_n_birth_reg_draw_df,
                                                   save.date, mod_name, seed_id)
-#national level but by citizenship (2 levels, swiss, non-swiss)
-excess_birth_ctz_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
-                                                  save.date, mod_name, seed_id)
-#municipality level
-excess_birth_mun = summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
-                                              excess_birth_year_adj2_mun_draw_df,
-                                              excess_birth_year_mun_draw_df)
+#3) by citizenship (2 levels, swiss, non-swiss), using multinomial
+#only if not already restricted to swiss or non-swiss
+if(length(filter_ctz)==2){
+  pred_n_birth_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
+  excess_birth_ctz_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
+                                                    save.date, mod_name, seed_id) 
+}
+#4) municipality level, using multinomial
+for(use.p_childless in use.p_childless_v){
+  excess_birth_year_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
+  excess_birth_year_adj_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+  excess_birth_year_adj2_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+  excess_birth_mun = summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
+                                                          excess_birth_year_adj2_mun_draw_df,
+                                                          excess_birth_year_mun_draw_df,
+                                                          save.date,  paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id)
+}
+#5) ctz region, using multinomial
+#needs to do it for all
+excess_birth_year_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
+excess_birth_ctzreg = summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df)
+
+
+################################################################################
+#excess birth by ntiles---------------------------------------------------------
+ctz_name =  c("swiss","non-swiss","") #c("swiss","non-swiss") #c("swiss","non-swiss"), "swiss", "non-swiss"
+filter_parity=c("all", "first", "second")
+
+mod_df = expand.grid(ctz_name = ctz_name,
+                     filter_parity = filter_parity,stringsAsFactors = FALSE) %>% 
+  filter(ctz_name=="" | filter_parity=="all") %>% .[3,]
+
+mod_df <- mod_df %>%
+  pmap(function(ctz_name, filter_parity) {
+    print("---")
+    filter_ctz = if (ctz_name == "") c("swiss","non-swiss") else ctz_name
+    print(filter_ctz)
+    effect_on_age_shift <- "cal_year"
+    seed_id <- 1
+    mod_name0 <- "mod8"
+    mod_name <- if_else(effect_on_age_shift == "cal_year", mod_name0,
+                        paste0(mod_name0, "_birthyear"))
+    mod_name <- paste0(mod_name,
+                       ifelse(length(filter_ctz) == 2, "", paste0("_", filter_ctz)))
+    mod_name <- if_else(filter_parity == "all", mod_name,
+                        paste0(mod_name, "_", filter_parity))
+    save.date <- if (filter_parity != "all") "20260320" else "20260309"
+    
+    data.frame(ctz_name = ctz_name,
+               filter_parity = filter_parity,
+               mod_name = mod_name,
+               save.date = save.date,
+               seed_id = seed_id)
+  }) %>% rbindlist()
+    
+results <- mod_df %>%
+  pmap(function(ctz_name,filter_parity, mod_name, save.date, seed_id) {
+    use.p_childless_v <- if (filter_parity != "all") c(FALSE, TRUE) else FALSE
+    
+    excess_by_ntiles(save.date, mod_name, seed_id,
+                     use.p_childless_v,
+                     new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df)
+  })
+
+
+
+
+
+################################################################################
+#report
+
+mod_df %>%
+  pmap(function(ctz_name,filter_parity, mod_name, save.date, seed_id) {
+    quarto::quarto_render(input = "reports/report1_pres.qmd",
+                          output_file = paste0("report1_pres_",save.date,"_",mod_name,"_","seedid",seed_id,".html"),
+                          execute_params = list(save.date = save.date,
+                                                mod_name = mod_name,
+                                                seed_id = seed_id))
+  })
+
+
+
+
+p_childless_df =  get_prob_childless_by_mun(new_birth_df, new_pop_mun_df, filter_ctz, p_mun_changes = 0.06)
+age_childless=30
+p_childless_pos_mid = p_childless_df %>% filter(age==age_childless) %>% 
+  left_join(new_pop_mun_df %>% dplyr::filter(year==2024,reg_agg_level=="municipality",age==35,month==1) %>%
+              group_by(mun_id) %>% dplyr::summarise(n=sum(n),.groups="drop"),by="mun_id") %>% 
+  dplyr::summarise(p_childless_pos=sum(n*p_childless_pos2)/sum(n)) %>% pull(p_childless_pos)
+
+p_childless_df %>% filter(age==age_childless) %>% 
+  left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
+  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
+  st_as_sf() %>%
+    ggplot() +
+    geom_sf(aes(fill = 1-p_childless_pos2 ), color = NA) +  # communes sans bordure
+    geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
+            fill = NA, color = "black", size = 0.3) +  # contours districts
+    geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
+    scale_fill_gradient2(
+      name = paste0("Proportion of women with child at ",age_childless),
+      low = "red",
+      mid = "lightyellow",
+      high = "green",
+      midpoint=1-p_childless_pos_mid,
+      labels = scales::percent_format(accuracy = 1),
+      #limits=c(-0.4,0.4)
+    ) +
+    theme(legend.position = "bottom",
+          legend.direction = "horizontal")
+
+
+
+excess_birth_adj2_mun_childless_df
+
+excess_birth_adj2_mun_childless_df = readRDS(paste0(code_root_path,"results/","20260320","_","mod8_first","_childless","_","seedid",1,"_","excess_birth_adj2_mun_df",".RDS"))
+excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,"results/","20260320","_","mod8_first","_","seedid",1,"_","excess_birth_adj2_mun_df",".RDS"))
+
+excess_birth_adj2_mun_childless_df %>% arrange(-rel_exc_mean)
+excess_birth_adj2_mun_childless_df %>% filter(mun_id==5755)
+excess_birth_adj2_mun_df %>% filter(mun_id==5755)
+
+p_childless_df %>% 
+  ggplot(aes(x=age,y=p_childless_pos2,group=mun_id))+
+  geom_line(alpha=0.1)+
+  geom_line(data=p_childless_df %>% filter(mun_id==5755),col="violet",linewidth = 2)
+
+
 
 #-------------------------------------------------------------------------------
 #check it's the same

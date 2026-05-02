@@ -25,12 +25,17 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
   }
   
   #parity
-  filter_parity = ifelse(grepl("first",mod_name),"first","all")
+  filter_parity = case_when(grepl("first",mod_name) ~ "first",
+                            grepl("second",mod_name) ~ "second",
+                            TRUE ~ "all")
   
   #filter birth if parity is first
   if(filter_parity=="first"){
     birth_df = birth_df %>% 
       filter(year>=2005,!is.na(parity),parity==1)
+  }else if(filter_parity=="second"){
+    birth_df = birth_df %>% 
+      filter(year>=2005,!is.na(parity),parity>1)
   }
   
   print(birth_df %>% filter(year==2024) %>% dim())

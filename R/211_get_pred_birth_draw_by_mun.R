@@ -1,13 +1,14 @@
 #draws by year (and not month) for 2011:2024, by municipality
 get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
-                                       stan_df,
-                                       pop_mun_df,#pop by district
-                                       birth_df, #birth_df (individual level)
-                                       new_mun_sf,
-                                       n_draw_subset = 100,
-                                       save.date,
-                                       mod_name,
-                                       seed_id){
+                                      stan_df,
+                                      pop_mun_df,#pop by dmunicipality
+                                      birth_df, #birth_df (individual level)
+                                      new_mun_sf,
+                                      n_draw_subset = 100,
+                                      save.date,
+                                      mod_name,
+                                      use.p_childless = FALSE,
+                                      seed_id){
   
   if(FALSE){
     fit = fit5_month
@@ -27,12 +28,31 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   }
   
   #parity
-  filter_parity = ifelse(grepl("first",mod_name),"first","all")
+  filter_parity = case_when(grepl("first",mod_name) ~ "first",
+                            grepl("second",mod_name) ~ "second",
+                            TRUE ~ "all")
+  
+  #load probability of childlessness
+  p_childless_df =  get_prob_childless_by_mun(birth_df, pop_mun_df, filter_ctz,   p_mun_changes = 0.06)
+  if(use.p_childless & filter_parity!="all"){
+    mod_name = paste0(mod_name,"_childless") #adapt name to save
+    if(filter_parity=="first"){
+      p_childless_df$p_susc = p_childless_df$p_childless_pos2
+    }else if(filter_parity=="second"){
+      p_childless_df$p_susc = 1 - p_childless_df$p_childless_pos2
+    }
+  }else{
+    p_childless_df$p_susc = 1
+  }
+  print(p_childless_df %>% filter(is.na(p_susc) | (!is.na(p_susc) & (p_susc<=0 | p_susc>=1))))
   
   #filter birth if parity is first
-  if(filter_parity=="first"){
+  if(grepl("first",filter_parity)){
     birth_df = birth_df %>% 
       filter(year>=2005,!is.na(parity),parity==1)
+  }else if(grepl("second",filter_parity)){
+    birth_df = birth_df %>% 
+      filter(year>=2005,!is.na(parity),parity>1)
   }
   
   ##############################################################################
@@ -53,7 +73,7 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   #draws by year and age
   pred_n_birth_draw_df = pred_n_birth_draw_df %>% 
     filter(year %in% 2011:2024) %>% 
-    group_by(year,age,draw) %>% #sum over age and month
+    group_by(year,age,draw) %>% #sum over month
     dplyr::summarise(n_pred = sum(n_pred),.groups = "drop")
   print("---")
   #subset
@@ -75,7 +95,10 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
     filter(citizenship %in% filter_ctz) %>% 
     filter(month==1) %>% 
     group_by(year,age,mun_id,mun_name) %>% 
-    dplyr::summarise(n_pop=sum(n),.groups="drop")
+    dplyr::summarise(n_pop=sum(n),.groups="drop") %>% 
+    left_join(p_childless_df %>% dplyr::select(age,mun_id,mun_name,p_susc),by=c("age","mun_id","mun_name")) %>% 
+    dplyr::mutate(n_pop=n_pop*p_susc) %>% dplyr::select(-p_susc)
+  print(p_childless_df %>% filter(is.na(p_susc)))
   print("---trying---")
   #calculate adjacent municipalities--------------------------------------------
   nb <- poly2nb(new_mun_sf, queen = TRUE) #create neighbor list (Queen contiguity)
@@ -108,7 +131,7 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
     left_join(birth_year_mun_df,by=c("year","mun_id")) %>% 
     dplyr::mutate(n_birth = replace_na(n_birth,0),
                   n_exc = n_birth - n_pred)
-
+  
   #adjacent municipality, by year-----------------------------------------------
   df = adj_table %>% 
     #add mun_name
@@ -118,7 +141,7 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
     left_join(excess_birth_year_mun_draw_df %>% dplyr::select(adj_mun_id=mun_id,year,draw,
                                                               adj_n_pred = n_pred, adj_n_exc = n_exc, adj_n_birth = n_birth),
               by="adj_mun_id", relationship = "many-to-many")
-   
+  
   #sum of expected and excess births over adjacent municipalities: equal weights
   excess_birth_year_adj_mun_draw_df = df %>% 
     dplyr::mutate(w=1) %>% 

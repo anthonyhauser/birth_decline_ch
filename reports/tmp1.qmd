@@ -1,0 +1,285 @@
+### Fertility curve
+
+```{r}
+rbind(birth_prob_by_age_df2 %>% filter(year==2000) %>% dplyr::mutate(ctz="swiss"),
+      birth_prob_by_age_df3 %>% filter(year==2000) %>% dplyr::mutate(ctz="non-swiss")) %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(ctz)),alpha=0.2)+
+    geom_line(aes(col=factor(ctz)))+
+    scale_y_continuous(labels = scales::percent)
+```
+
+
+### Age shift
+
+```{r}
+rbind(gp_rel_df2 %>% dplyr::mutate(ctz="swiss"),
+      gp_rel_df3 %>% dplyr::mutate(ctz="non-swiss")) %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(aes(fill=ctz),alpha=0.2)+
+  geom_line(aes(col=ctz))+
+  scale_y_continuous(name="Change in age of fertility peak (relative to 2000)")
+```
+
+```{r}
+rbind(gamma_month_df2 %>% dplyr::mutate(ctz="swiss"),
+      gamma_month_df3 %>% dplyr::mutate(ctz="non-swiss")) %>% 
+  ggplot(aes(x=month_id,y=est,ymin=lwb,ymax=upb,fill=ctz)) +
+  geom_ribbon(alpha=0.2)+
+  geom_line(aes(col=ctz))
+```
+
+#### Swiss
+
+```{r}
+#national, year
+plot_df = excess_birth_year_df2 %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+             n_exc_mean, n_exc_lwb, n_exc_upb,
+             rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|lwb|upb)",
+    values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  ggplot(aes(x = year, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df, var %in% c("Excess birth", "Relative excess")),
+    aes(yintercept = 0),
+    linetype = 2) +
+  geom_line(data = subset(plot_df, var %in% c("Expected birth")),
+    aes(y=n_birth),col="darkred",
+    linetype = 2 ) +
+  facet_grid(var~.,scale="free_y")
+```
+
+#### Non-wiss
+
+```{r}
+#national, year
+plot_df = excess_birth_year_df3 %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+             n_exc_mean, n_exc_lwb, n_exc_upb,
+             rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|lwb|upb)",
+    values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+plot_df %>% 
+  ggplot(aes(x = year, y = mean))+
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line() +
+  geom_hline(data = subset(plot_df, var %in% c("Excess birth", "Relative excess")),
+    aes(yintercept = 0),
+    linetype = 2) +
+  geom_line(data = subset(plot_df, var %in% c("Expected birth")),
+    aes(y=n_birth),col="darkred",
+    linetype = 2 ) +
+  facet_grid(var~.,scale="free_y")
+```
+
+
+
+#### Swiss
+
+```{r, fig.height=6,fig.width=8}
+excess_birth_adj2_mun_df2 %>% 
+  left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
+  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = rel_exc_mean), color = NA) +  # communes sans bordure
+  geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
+          fill = NA, color = "black", size = 0.3) +  # contours districts
+  geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",
+    mid = "lightyellow",
+    high = "green",
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1),
+    #limits=c(-0.4,0.4)
+  ) +
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal")
+```
+
+**Figure XX**: Smoothed estimates of excess birth by municipality for 2017-2024.
+
+#### Non-Swiss
+
+```{r, fig.height=6,fig.width=8}
+excess_birth_adj2_mun_df3 %>% 
+  left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
+  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = rel_exc_mean), color = NA) +  # communes sans bordure
+  geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
+          fill = NA, color = "black", size = 0.3) +  # contours districts
+  geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",
+    mid = "lightyellow",
+    high = "green",
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1),
+    #limits=c(-0.4,0.4)
+  ) +
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal")
+```
+
+**Figure XX**: Smoothed estimates of excess birth by municipality for 2017-2024.
+
+
+
+
+
+
+### Swiss
+
+```{r,fig.width=8,fig.height=6}
+df_var = excess_birth_year_mun_draw_df2 %>% dplyr::select(mun_id,mun_name) %>% distinct() %>% 
+  left_join(new_pop_mun_df %>% filter(year==2024,month==1) %>% 
+              group_by(mun_id) %>% dplyr::summarise(n_pop = sum(n),.groups="drop"), by=c("mun_id")) %>% 
+  left_join(rural_urban_df %>% dplyr::select(mun_id,urban_rural_type2),by="mun_id") %>% 
+  left_join(pop_dens_df %>% pivot_wider(id_cols = mun_id,names_from = "variable",values_from = "value"),by="mun_id") %>% 
+  left_join(sep_df3 %>% dplyr::select(mun_id,sep=ssep3_d_mean),by="mun_id")
+
+
+make_pop_ntile <- function(data, var, n = 5) {
+  total_pop = sum(data$n_pop)
+  data %>%
+    arrange({{ var }}) %>%
+    dplyr::mutate(cum_pop = cumsum(n_pop),
+                  group = cut(cum_pop,breaks = seq(0, total_pop, length.out = n+1),labels = FALSE,  include.lowest = TRUE )) %>% 
+    dplyr::select(-cum_pop) %>% 
+    arrange(mun_id) %>%
+    pull(group)
+}
+
+vars <- setdiff(names(df_var), c("urban_rural_type2", "mun_id", "mun_name"))
+
+for (v in vars) {
+  df_var[[paste0(v, "_ntile")]] <-make_pop_ntile(df_var, !!rlang::sym(v), 10)
+}
+df_var$urban_rural_type2_ntile = dense_rank(df_var$urban_rural_type2)
+
+if(FALSE){
+  #check that the number of pop is more or less the same between groups (except for urban_rural_type2)
+  df_var %>% group_by(n_pop_ntile) %>% 
+    dplyr::summarise(n_pop = sum(n_pop),
+                     n=n())
+}
+
+#aggregate excess by group
+excess_df = list()
+for(v in paste0(c("urban_rural_type2",vars), "_ntile")){
+  excess_df[[v]] = get_excess_est(var_group=c("ntile"),
+                                  excess_birth_year_mun_draw_df2 %>% 
+                                    filter(year %in% 2017:2024) %>% 
+                                    left_join(df_var %>% dplyr::select(mun_id,ntile = !!v),by="mun_id")) %>% 
+    dplyr::mutate(explanatory_var=!!v)
+}
+excess_df = rbindlist(excess_df)
+
+
+#plot
+plot_df = excess_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+                        n_exc_mean, n_exc_lwb, n_exc_upb,
+                        rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+               names_to = c("var", "stat"),
+               names_pattern = "(.*)_(mean|lwb|upb)",
+               values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+excess_df %>% 
+  filter(explanatory_var %in% c("n_pop_ntile","pop_dens_building_ntile", "prop_building_ntile", "prop_individual_houses_ntile","sep_ntile","urban_rural_type2_ntile")) %>% 
+  ggplot(aes(x = ntile, y = rel_exc_mean, ymin = rel_exc_lwb, ymax = rel_exc_upb))+
+  geom_ribbon(aes(),alpha = 0.2) +
+  geom_line() +
+  geom_point() +
+  geom_hline(aes(yintercept = 0), linetype = 2)+
+  scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
+  facet_wrap(explanatory_var~.,ncol=2)
+```
+
+**Figure XX**: Relative excess birth estimates by decile of explanatory variables.
+
+### Non-Swiss
+
+```{r,fig.width=8,fig.height=6}
+df_var = excess_birth_year_mun_draw_df3 %>% dplyr::select(mun_id,mun_name) %>% distinct() %>% 
+  left_join(new_pop_mun_df %>% filter(year==2024,month==1) %>% 
+              group_by(mun_id) %>% dplyr::summarise(n_pop = sum(n),.groups="drop"), by=c("mun_id")) %>% 
+  left_join(rural_urban_df %>% dplyr::select(mun_id,urban_rural_type2),by="mun_id") %>% 
+  left_join(pop_dens_df %>% pivot_wider(id_cols = mun_id,names_from = "variable",values_from = "value"),by="mun_id") %>% 
+  left_join(sep_df3 %>% dplyr::select(mun_id,sep=ssep3_d_mean),by="mun_id")
+
+
+make_pop_ntile <- function(data, var, n = 5) {
+  total_pop = sum(data$n_pop)
+  data %>%
+    arrange({{ var }}) %>%
+    dplyr::mutate(cum_pop = cumsum(n_pop),
+                  group = cut(cum_pop,breaks = seq(0, total_pop, length.out = n+1),labels = FALSE,  include.lowest = TRUE )) %>% 
+    dplyr::select(-cum_pop) %>% 
+    arrange(mun_id) %>%
+    pull(group)
+}
+
+vars <- setdiff(names(df_var), c("urban_rural_type2", "mun_id", "mun_name"))
+
+for (v in vars) {
+  df_var[[paste0(v, "_ntile")]] <-make_pop_ntile(df_var, !!rlang::sym(v), 10)
+}
+df_var$urban_rural_type2_ntile = dense_rank(df_var$urban_rural_type2)
+
+if(FALSE){
+  #check that the number of pop is more or less the same between groups (except for urban_rural_type2)
+  df_var %>% group_by(n_pop_ntile) %>% 
+    dplyr::summarise(n_pop = sum(n_pop),
+                     n=n())
+}
+
+#aggregate excess by group
+excess_df = list()
+for(v in paste0(c("urban_rural_type2",vars), "_ntile")){
+  excess_df[[v]] = get_excess_est(var_group=c("ntile"),
+                                  excess_birth_year_mun_draw_df3 %>% 
+                                    filter(year %in% 2017:2024) %>% 
+                                    left_join(df_var %>% dplyr::select(mun_id,ntile = !!v),by="mun_id")) %>% 
+    dplyr::mutate(explanatory_var=!!v)
+}
+excess_df = rbindlist(excess_df)
+
+
+#plot
+plot_df = excess_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+                        n_exc_mean, n_exc_lwb, n_exc_upb,
+                        rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+               names_to = c("var", "stat"),
+               names_pattern = "(.*)_(mean|lwb|upb)",
+               values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+excess_df %>% 
+  filter(explanatory_var %in% c("n_pop_ntile","pop_dens_building_ntile", "prop_building_ntile", "prop_individual_houses_ntile","sep_ntile","urban_rural_type2_ntile")) %>% 
+  ggplot(aes(x = ntile, y = rel_exc_mean, ymin = rel_exc_lwb, ymax = rel_exc_upb))+
+  geom_ribbon(aes(),alpha = 0.2) +
+  geom_line() +
+  geom_point() +
+  geom_hline(aes(yintercept = 0), linetype = 2)+
+  scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
+  facet_wrap(explanatory_var~.,ncol=2)
+```
+
+**Figure XX**: Relative excess birth estimates by decile of explanatory variables.

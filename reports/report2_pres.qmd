@@ -31,33 +31,31 @@ load(paste0(code_root_path,"savepoint/cleaned_df.RData"))
 
 # Objectives
 
-- Quantify Switzerland’s birth deficit over 2000–2024, adjusting for demographic changes and delayed childbearing
-- Examine temporal and geographical heterogeneity in birth deficits
-- Explore socio-economic factors associated with variations in excess/deficit births
+-   Quantify Switzerland’s birth deficit over 2000–2024, adjusting for demographic changes and delayed childbearing
+-   Examine temporal and geographical heterogeneity in birth deficits
+-   Explore socio-economic factors associated with variations in excess/deficit births
 
 # Data
 
 ## Types of data
 
-- Birth data:
-  - Individual-level: year, month, municipality, maternal age  
-  - Period: 1987–2024 (analysis uses 2000–2024)  
+-   Birth data:
+    -   Individual-level: year, month, municipality, maternal age\
+    -   Period: 1987–2024 (analysis uses 2000–2024)
+-   Population data:
+    -   Aggregated: year × canton, nationality (Swiss vs non-Swiss), 1987–2024\
+    -   Optionally: municipality-level counts 2011–2024
+-   Socio-economic data (Explanatory variables)
+    -   Votation data (municipality-level):
+        -   family/education support
+        -   paternity leave
+        -   childcare tax reductions
+        -   women’s suffrage\
+    -   Swiss Household data (canton-level)\
+    -   Socio-economic position (municipality-level)\
+    -   Socio-demographic data:
+        -   population density
 
-- Population data:
-  - Aggregated: year × canton, nationality (Swiss vs non-Swiss), 1987–2024  
-  - Optionally: municipality-level counts 2011–2024  
-
-- Socio-economic data (Explanatory variables)
-  - Votation data (municipality-level):
-    - family/education support
-    - paternity leave
-    - childcare tax reductions
-    - women’s suffrage  
-  - Swiss Household data (canton-level)  
-  - Socio-economic position (municipality-level)  
-  - Socio-demographic data: 
-    - population density
-  
 ## Birth data
 
 ```{r,fig.width=6,fig.height=8}
@@ -132,8 +130,8 @@ cowplot::plot_grid(p1,
 
 We model age-specific births using a negative binomial regression with an overdispersion parameter. Let:
 
-- $y_{a,t}$ = number of births at maternal age $a$ in year $t$  
-- $N_{a,t}$ = population of women at age $a$ in year $t$  
+-   $y_{a,t}$ = number of births at maternal age $a$ in year $t$\
+-   $N_{a,t}$ = population of women at age $a$ in year $t$
 
 Then:
 
@@ -144,11 +142,11 @@ $$
 
 where:
 
-- $f(a)$ is the **age-specific fertility function** modeled with a Gaussian Process (GP),
-- $\delta_t$ is the **calendar-year-specific age shift** capturing delayed childbearing (also modeled with a GP),
-- $\gamma_m$ is a **fixed effect for calendar month** $m$,
-- $\gamma_y\sim \text{N}(0,\sigma_y^2)$ is a **random effect for calendar year** $y(t)$ of standard deviation $\sigma_y$,
-- $\phi$ is the negative binomial **overdispersion parameter**.  
+-   $f(a)$ is the **age-specific fertility function** modeled with a Gaussian Process (GP),
+-   $\delta_t$ is the **calendar-year-specific age shift** capturing delayed childbearing (also modeled with a GP),
+-   $\gamma_m$ is a **fixed effect for calendar month** $m$,
+-   $\gamma_y\sim \text{N}(0,\sigma_y^2)$ is a **random effect for calendar year** $y(t)$ of standard deviation $\sigma_y$,
+-   $\phi$ is the negative binomial **overdispersion parameter**.
 
 This formulation allows the fertility curve to shift over time while accounting for seasonality and overdispersion in birth counts.
 
@@ -157,8 +155,7 @@ We can then define the predicted number of birth:
 $$
 \hat{\mu}_{a,t} \sim \text{NegBinom}(\mu_{a,t}, \phi), \quad 
 \log\mu_{a,t} = f(a + \delta_t) + \gamma_m + \hat{\gamma}_y + \log N_{a,t},
-$$
-where $\hat{\gamma}_y$ is the distributed random effect of year, $\hat{\gamma}_y \sim \text{N}(0,\sigma_y^2)$.
+$$ where $\hat{\gamma}_y$ is the distributed random effect of year, $\hat{\gamma}_y \sim \text{N}(0,\sigma_y^2)$.
 
 ## Excess births
 
@@ -175,8 +172,7 @@ This gives the absolute and relative deviations between observed and expected bi
 
 ### District-level
 
-Let $d$ denote a district and $y_{d,a,t}$ the observed births in district $d$ (unknown at prediction stage).
-We distribute the national posterior predicted births $\hat{\mu}_{a,t}$ across districts using a **multinomial distribution**:
+Let $d$ denote a district and $y_{d,a,t}$ the observed births in district $d$ (unknown at prediction stage). We distribute the national posterior predicted births $\hat{\mu}_{a,t}$ across districts using a **multinomial distribution**:
 
 $$
 \hat{\mu}_{1\cdots D,a,t} \sim \text{Multinomial}\Big(\hat{\mu}_{a,t},p_{1\cdots D,a,t} \Big).
@@ -197,11 +193,10 @@ $$
 
 This allows us to quantify deviations at a finer spatial scale while respecting the national posterior predictions.
 
-
 ## Explaining heterogeneity
 
-- Temporal and geographical differences analyzed with covariates  
-- Focus on structural factors beyond age composition  
+-   Temporal and geographical differences analyzed with covariates\
+-   Focus on structural factors beyond age composition
 
 # Results: excess
 
@@ -255,7 +250,6 @@ gamma_month_df1 %>%
   geom_line(col="blue")
 ```
 
-
 ```{r}
 rbind(gamma_month_df2 %>% dplyr::mutate(ctz="swiss"),
       gamma_month_df3 %>% dplyr::mutate(ctz="non-swiss")) %>% 
@@ -272,7 +266,6 @@ b_year_df1 %>%
   geom_ribbon(fill="blue",alpha=0.2)+
   geom_line(col="blue")
 ```
-
 
 ```{r}
 rbind(b_year_df2 %>% dplyr::mutate(ctz="swiss"),
@@ -301,7 +294,6 @@ rbind(birth_prob_by_age_df2 %>% filter(year==2000) %>% dplyr::mutate(ctz="swiss"
     geom_line(aes(col=factor(ctz)))+
     scale_y_continuous(labels = scales::percent)
 ```
-
 
 ### Age shift
 
@@ -351,7 +343,6 @@ plot_df %>%
     linetype = 2 ) +
   facet_grid(var~.,scale="free_y")
 ```
-
 
 #### Swiss
 
@@ -463,8 +454,6 @@ plot_df %>%
 
 **Figure `r fig_i`**: Excess birth by municipality for 2017-2024.
 
-
-
 ### Municipality-level
 
 #### All citizenship
@@ -473,10 +462,10 @@ plot_df %>%
 
 **Smoothed**
 
-- For each municipality, we smooth estimates by computing a weighted sum of excess births over Queen neighbors (i.e., regions sharing a boundary).  
-- We use **hybrid weighting**: 50% weight for the municipality itself and 50% distributed among neighbors, as in spatial mixing models (e.g., BYM).  
-- Conceptually similar to Getis–Ord Gi\*, computing the averaged deviation between local (observed births) and global (predicted births) values, but **Bayesian**: posterior draws directly provide distributions of local deviation.  
-- Two key differences in weighting: 1) not standardized, giving more influence to municipalities with high number of births, 2)the municipality itself has the same weight as all neighbors combined, unlike Gi\* where it has the same weight as any single neighbor.
+-   For each municipality, we smooth estimates by computing a weighted sum of excess births over Queen neighbors (i.e., regions sharing a boundary).\
+-   We use **hybrid weighting**: 50% weight for the municipality itself and 50% distributed among neighbors, as in spatial mixing models (e.g., BYM).\
+-   Conceptually similar to Getis–Ord Gi\*, computing the averaged deviation between local (observed births) and global (predicted births) values, but **Bayesian**: posterior draws directly provide distributions of local deviation.\
+-   Two key differences in weighting: 1) not standardized, giving more influence to municipalities with high number of births, 2)the municipality itself has the same weight as all neighbors combined, unlike Gi\* where it has the same weight as any single neighbor.
 
 ```{r, fig.height=6,fig.width=8}
 excess_birth_adj2_mun_df1 %>% 
@@ -558,7 +547,6 @@ excess_birth_adj2_mun_df3 %>%
 **Figure XX**: Smoothed estimates of excess birth by municipality for 2017-2024.
 
 ## Results
-
 
 ### All citizenship
 
@@ -781,22 +769,6 @@ excess_df %>%
 
 **Figure XX**: Relative excess birth estimates by decile of explanatory variables.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Data: explanatory variables
 
 ## Demographic data (population density)
@@ -821,7 +793,6 @@ excess_df %>%
     
     wrap_plots(plots, ncol = 2)
 ```
-
 
 ## Votation data
 
@@ -849,7 +820,6 @@ vote_dist_df %>%
 
 ## Rural/Urban data
 
-
 ```{r,fig.width=6,fig.height=6}
 rural_urban_df %>% 
   left_join(mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>%
@@ -867,7 +837,6 @@ rural_urban_df %>%
 **Figure XX**: Level of rurality.
 
 ## SEP
-
 
 ```{r,fig.width=6,fig.height=6}
 sep_df3 %>% 
@@ -1082,18 +1051,15 @@ p_df = readRDS(paste0(code_root_path,"savepoint/cleaned_shp_p_df.RDS"))
 
 **Figure XX**: Variation over regions.
 
-
-
-
 # To do
 
-- SHP data: explore
-- Municipality level (by year): 25 * 2154: cluster/hotspot
-- urbanisation level
+-   SHP data: explore
+-   Municipality level (by year): 25 \* 2154: cluster/hotspot
+-   urbanisation level
 
 # Conclusion
 
-- Persistent birth deficit in Switzerland after accounting for demographic shifts and delayed motherhood  
-- Stronger deficit in urban areas and among Swiss residents  
-- Monthly analysis suggests short-term pandemic effects  
-- Next steps: link heterogeneity to socio-economic and policy factors
+-   Persistent birth deficit in Switzerland after accounting for demographic shifts and delayed motherhood\
+-   Stronger deficit in urban areas and among Swiss residents\
+-   Monthly analysis suggests short-term pandemic effects\
+-   Next steps: link heterogeneity to socio-economic and policy factors
