@@ -1,0 +1,541 @@
+---
+title: "Birth decline in Switzerland"
+format:
+  html:
+    theme: cosmo
+    code-fold: true        # adds "Show/Hide Code" buttons
+    code-summary: "Code"   # customize button text
+    toc: true
+    toc-location: left  # place TOC on the left
+    number-sections: true  # number sections
+    toc-depth: 3      # show subsections up to 3 levels
+    self-contained: true
+    toc-fold: true     # allow collapsing/expanding sections
+execute:
+  echo: false
+  fig-width: 7
+  fig-height: 5
+  warning: false
+  message: true
+  comment: ""
+    
+editor: visual
+---
+
+
+```{r,include=FALSE}
+source("../R/000_setup.R")
+
+#define models
+mod_name = "mod8"
+save.date = "20260309"
+save.date2 = "20260320"
+seed_id = 1
+
+effect_on_age_shift = ifelse(grepl("birthyear", mod_name), "birth_year", "cal_year")
+  
+filter_parity = dplyr::case_when(grepl("second", mod_name) ~ "second",
+                                 grepl("first", mod_name)  ~ "first",
+                                 TRUE ~ "all")
+  
+filter_ctz2 = dplyr::case_when(grepl("non-swiss", mod_name) ~ "non-swiss",
+                               grepl("swiss", mod_name) ~ "swiss",
+                               TRUE ~ "all")
+include_ctz = TRUE #filter_ctz2!="swiss"
+```
+
+```{r}
+
+#load results
+#stan_diag_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
+#par_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
+#gamma_month_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gammamonth.RDS"))
+#b_year_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_byear.RDS"))
+#sigma_year_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_sigmayear.RDS"))
+birth_prob_by_age_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
+birth_prob_by_age_swiss_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","swiss","_seedid",seed_id,"_birthprob.RDS"))
+birth_prob_by_age_nonswiss_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","non-swiss","_seedid",seed_id,"_birthprob.RDS"))
+
+#gp_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
+gp_rel_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp_rel.RDS"))
+#age_bias_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
+#pred_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
+
+#load excess
+excess_birth_year_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+excess_birth_year_swiss_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","swiss","_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+excess_birth_year_nonswiss_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","non-swiss","_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+excess_birth_year_first_df = readRDS(paste0(code_root_path,"results/",save.date2,"_",mod_name,"_","first","_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+excess_birth_year_second_df = readRDS(paste0(code_root_path,"results/",save.date2,"_",mod_name,"_","second","_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+#excess_birth_year_age_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
+excess_birth_year_month_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
+#excess_birth_reg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_reg_df",".RDS"))
+#excess_birth_year_reg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
+
+#excess by citizenship
+if(filter_ctz2=="all"){
+  excess_birth_year_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
+  #excess_birth_year_age_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
+  #excess_birth_year_month_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
+}
+
+#excess by municipality
+#excess_birth_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_mun_df",".RDS"))
+excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
+if(filter_parity!="all"){
+  excess_birth_adj2_mun_childless_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_childless","_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
+}
+#excess_birth_year_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_df",".RDS"))
+#excess_birth_year_adj2_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_df",".RDS"))
+
+#excess by citizenship region
+excess_birth_ctzreg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_df",".RDS"))
+excess_birth_year_ctzreg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctzreg_df",".RDS"))
+#excess_birth_ctzreg_ctn_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_ctn_df",".RDS"))
+
+#population (women 15-50) by country
+pop_detctz_df = readRDS(paste0(code_root_path,"savepoint/","pop_detctz_country_df.RDS"))
+
+#decile analysis
+excess_by_ntiles_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
+excess_by_ntiles_swiss_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","swiss","_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
+excess_by_ntiles_nonswiss_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","non-swiss","_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
+excess_by_ntiles_first_df = readRDS(paste0(code_root_path,"results/",save.date2,"_",mod_name,"_","first","_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
+excess_by_ntiles_second_df = readRDS(paste0(code_root_path,"results/",save.date2,"_",mod_name,"_","second","_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
+```
+
+# Figures
+
+::: {#fig-myfig}
+
+```{r,  fig.height=6,fig.width=10}
+p1 = excess_birth_year_month_df %>% 
+  ggplot(aes(x=date))+
+  geom_ribbon(aes(ymin=n_exp_lwb, ymax=n_exp_upb),alpha=0.2)+
+  geom_line(aes(y=n_exp_mean)) +
+  geom_point(aes(y=n_birth), alpha=0.6,col="darkred")+
+  scale_x_date(name="", expand = c(0.01, 0.01),limits=dmy(c("01-01-2000","01-01-2025")))+
+  scale_y_continuous(name="Monthly births")
+
+#fertility
+p2 = birth_prob_by_age_df %>% 
+    filter(year %in% c(2000,2010,2024)) %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
+    geom_line(aes(col=factor(year)))+
+    scale_x_continuous(name="Maternal age")+
+    scale_y_continuous(name="Probability of having a child\n(by month)",labels = scales::percent)+
+    scale_color_discrete(name="Calendar year")+
+    scale_fill_discrete(name="Calendar year")
+
+
+#calculate peak age
+df <- birth_prob_by_age_df %>% filter(year==2000) %>%  arrange(mother_age)
+idx <- which.max(df$est)
+y1 <- df$est[idx - 1]
+y2 <- df$est[idx]
+y3 <- df$est[idx + 1]
+x0 <- df$mother_age[idx]
+delta <- (y1 - y3) / (2 * (y1 - 2 * y2 + y3))
+peak_age <- x0 + delta
+
+p3 = gp_rel_df %>% 
+  dplyr::mutate(est = est + peak_age,
+                lwb = lwb + peak_age,
+                upb = upb + peak_age) %>% 
+  ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
+  geom_ribbon(fill="black",alpha=0.2)+
+  geom_line(col="black")+
+  scale_y_continuous(name="Age of fertility peak")+
+  scale_x_continuous(name="Calendar year")
+
+cowplot::plot_grid(p1,
+                   cowplot::plot_grid(p2,p3,rel_widths = c(1.4,1),ncol=2,labels = c("B.","C.")),
+                   rel_heights = c(1,1),labels = c("A.",""),
+                   nrow = 2)
+```
+
+**Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and 2024). C. Age of fertility peak according to calendar year.
+:::
+
+
+::: {#fig-myfig}
+
+```{r,  fig.height=8,fig.width=12}
+#national, year
+plot_df = excess_birth_year_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+             n_exc_mean, n_exc_lwb, n_exc_upb,
+             rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|lwb|upb)",
+    values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+
+p1 = plot_df %>% 
+  filter(var %in% c("Expected birth")) %>% 
+  ggplot(aes(x = year)) +
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line(aes(y = mean)) +
+  geom_point(aes(y=n_birth),col="darkred" ) +
+  scale_x_continuous(name="Year")+
+  scale_y_continuous(name="Annual birth")
+
+p2 = plot_df %>% 
+  filter(var %in% c("Relative excess")) %>% 
+  ggplot(aes(x = year)) +
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line(aes(y = mean))+
+  geom_hline( aes(yintercept = 0),    linetype = 2) +
+  scale_x_continuous(name="Year")+
+  scale_y_continuous(name="Relative excess birth",labels=scales::percent)
+
+#national, year, month
+plot_df = excess_birth_year_month_df %>% 
+  pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
+                        n_exc_mean, n_exc_lwb, n_exc_upb,
+                        rel_exc_mean, rel_exc_lwb, rel_exc_upb),
+               names_to = c("var", "stat"),
+               names_pattern = "(.*)_(mean|lwb|upb)",
+               values_to = "value" ) %>% 
+  pivot_wider(names_from = "stat",values_from = "value") %>% 
+  dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
+p3 = plot_df %>% 
+  filter(year>=2020, var=="Relative excess") %>% 
+    ggplot(aes(x = date)) +
+  geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
+  geom_line(aes(y = mean))+
+  geom_hline( aes(yintercept = 0),    linetype = 2) +
+  scale_x_date(name="")+
+  scale_y_continuous(name="Relative excess birth",labels=scales::percent)
+
+
+#-------------------------------------------------------------------------------
+rel_pop_detctz_df = pop_detctz_df %>% 
+  left_join(ctz_map,by="ctz_name") %>% 
+  group_by(ctz_region,year) %>% 
+  dplyr::summarise(n=sum(n),.groups="drop_last") %>% 
+  dplyr::summarise(n=mean(n),.groups="drop") %>% 
+  dplyr::mutate(p=n/sum(n))
+region_levels <- excess_birth_year_ctzreg_df %>%
+  left_join(rel_pop_detctz_df, by="ctz_region") %>%
+  distinct(ctz_region, p) %>%
+  arrange(-p) %>%
+  mutate(ctz_region2 = paste0(ctz_region, " (", round(p*100, 1), "%)")) %>%
+  pull(ctz_region2)
+
+n=15
+cols <- scales::hue_pal()(n)
+eu_colors <- cols[c(1,3,5)] #scales::seq_gradient_pal("darkblue", "#ABD9E9")(seq(0,1,length.out=3))
+rest_colors <- cols[c(7,8,9,10,14,15)]# scales::seq_gradient_pal("#D7191C", "#FDAE61")(seq(0,1,length.out=6))
+
+world_reg_name = c("Switzerland", "Western Europe", "Eastern Europe",
+                   "South America", "North America", "Central America",
+                   "Africa", "Asia", "Oceania")
+
+rel_pop_detctz_df <- rel_pop_detctz_df %>%
+  mutate(ctz_region2 = paste0(ctz_region, " (", round(p*100, 1), "%)"),
+         ctz_region2 = factor(ctz_region2, levels = region_levels)) %>%
+  #sort so that colors are in right orders
+   mutate(ctz_region = factor(ctz_region, levels = world_reg_name),
+          ctz_region3 = gsub(" ", "\n", ctz_region),
+          ctz_region4 = gsub(" ", "\n", ctz_region2)) %>% 
+  arrange(ctz_region)
+rel_pop_detctz_df$fill_col = c(eu_colors,rest_colors)
+
+p4 = excess_birth_ctzreg_df %>%
+  left_join(rel_pop_detctz_df,by="ctz_region") %>% 
+  ggplot(aes(x=ctz_region4,y=rel_exc_mean,ymin=rel_exc_lwb,ymax=rel_exc_upb,col=ctz_region4))+
+  geom_hline(yintercept = 0, lty=2)+
+  geom_pointrange()+
+  scale_x_discrete(name="",
+                   limits = rel_pop_detctz_df$ctz_region4)+
+  scale_y_continuous(name = "Relative excess birth",breaks=c(-0.2,0,0.2,0.4,0.6,0.8,1),labels = scales::percent)+
+  scale_color_manual( name = "Region",
+                        values = rel_pop_detctz_df$fill_col,
+                        breaks = rel_pop_detctz_df$ctz_region4) +
+  theme(legend.position = "none")
+p5 = excess_birth_year_ctzreg_df %>%
+  left_join(rel_pop_detctz_df, by="ctz_region") %>%
+  mutate(region_group = if_else(ctz_region %in% c("Switzerland", "Western Europe", "Eastern Europe"),
+                                "Europe", "Other")) %>% 
+  filter(p>0.01) %>% 
+  ggplot(aes(x=year, y=rel_exc_mean, ymin=rel_exc_lwb, ymax=rel_exc_upb)) +
+  geom_ribbon(aes(fill=ctz_region), alpha=0.1) +
+  geom_line(aes(col=ctz_region)) +
+  facet_wrap(region_group~.,nrow=2,scales="free_y") +
+  geom_hline(yintercept = 0, lty=2) +
+   scale_y_continuous(name = "Relative excess birth",breaks=c(-0.2,0,0.2,0.4,0.6,0.8,1),labels = scales::percent)+
+  scale_x_continuous(name="",breaks=c(2011,2015,2020,2024))+
+  scale_color_manual( name = "",
+                        values = rel_pop_detctz_df$fill_col,
+                        breaks = rel_pop_detctz_df$ctz_region)+
+  scale_fill_manual( name = "",
+                        values = rel_pop_detctz_df$fill_col,
+                        breaks = rel_pop_detctz_df$ctz_region)+
+  theme(legend.position = "bottom",
+        legend.box.margin = margin(t = -18))
+
+
+#plot
+cowplot::plot_grid(cowplot::plot_grid(p1,
+                                      p2,
+                                      p3,
+                                      nrow=3,labels=c("A.","B.","C.")),
+                   cowplot::plot_grid(p4,
+                                      p5+theme(legend.position = "none"),
+                                      get_legend2(p5),
+                                      nrow=3,labels=c("D.","E.",""),rel_heights = c(1,1.8,0.2)),
+                   ncol=2,rel_widths = c(1.2,1))
+```
+
+**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Relative excess birth by year from 2000 to 2024. C. Relative excess birth by month between 2020 and 2024. D. Relative excess birth by citizenship aggregated by region of the world in 2011-2024. E. Relative excess birth by citizenship over years.
+:::
+
+::: {#fig-myfig}
+
+```{r,  fig.height=8,fig.width=10}
+excess_birth_adj2_mun_df %>% 
+  #left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
+  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = rel_exc_mean), color = NA) +  # communes sans bordure
+  geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
+          fill = NA, color = "black", size = 0.3) +  # contours districts
+  geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",
+    mid = "lightyellow",
+    high = "green",
+    midpoint = 0,
+    labels = scales::percent_format(accuracy = 1),
+    #limits=c(-0.4,0.4)
+  ) +
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal")
+```
+
+**Excess birth by municipality**. Relative excess birth by municipality between 2017 and 2024.
+:::
+
+
+
+::: {#fig-myfig}
+
+```{r,  fig.height=6,fig.width=10}
+#plot
+p1 = excess_by_ntiles_df %>% 
+  left_join(data.frame(explanatory_var  = c("pop_dens_building_ntile", "rel_empl_mean_ntile", "sep_ntile","votation_paternity_leave_ntile"),
+                       explanatory_var2 =  c("Population density", "Childcare service density","Socio-economic position (SEP)","Share of votes in favour of paternity leave extension")),by="explanatory_var") %>% 
+   filter(!is.na(explanatory_var2)) %>% 
+  dplyr::mutate(explanatory_var2 = factor(explanatory_var2, levels = c("Population density", "Childcare service density","Socio-economic position (SEP)","Share of votes in favour of paternity leave extension"))) %>% 
+  ggplot(aes(x = ntile, y = rel_exc_mean, ymin = rel_exc_lwb, ymax = rel_exc_upb))+
+  geom_ribbon(alpha = 0.2) +
+  geom_line() +
+  geom_point() +
+  geom_hline(aes(yintercept = 0), linetype = 2)+
+  scale_x_continuous(name="Population decile",breaks=c(1:10))+
+  scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
+  facet_wrap(explanatory_var2~.,ncol=2)
+p1
+```
+
+**Relative excess birth stratified by variable deciles**
+:::
+
+::: {#fig-myfig}
+
+```{r,  fig.height=8,fig.width=10}
+
+subgroup_col = c("black", "darkred", "darkorange", "darkgreen","darkblue")
+subgroup_names = c("all", "swiss","non-swiss","first","second")
+subgroup_names2 = c("All", "Swiss","Non-Swiss","1st births","2nd+ births")
+
+
+#birth prob
+birth_prob_by_age_subgroup_df = rbind(birth_prob_by_age_df %>% filter(year==2000) %>% dplyr::mutate(subgroup="all"),
+                                   birth_prob_by_age_swiss_df %>% filter(year==2000) %>% dplyr::mutate(subgroup="swiss"),
+                                   birth_prob_by_age_nonswiss_df %>% filter(year==2000) %>% dplyr::mutate(subgroup="non-swiss"))
+birth_prob_by_age_subgroup_df = birth_prob_by_age_subgroup_df %>% 
+  left_join(birth_prob_by_age_subgroup_df %>% 
+              filter(subgroup=="all") %>% 
+              dplyr::select(mother_age,est_all = est),by="mother_age")
+
+#excess
+excess_birth_year_subgroup_df = rbind(excess_birth_year_df %>% dplyr::mutate(subgroup="all"),
+                                      excess_birth_year_swiss_df  %>% dplyr::mutate(subgroup="swiss"),
+                                      excess_birth_year_nonswiss_df  %>% dplyr::mutate(subgroup="non-swiss"),
+                                      excess_birth_year_first_df  %>% dplyr::mutate(subgroup="first"),
+                                      excess_birth_year_second_df  %>% dplyr::mutate(subgroup="second"))
+excess_birth_year_subgroup_df = excess_birth_year_subgroup_df %>% 
+  left_join(excess_birth_year_subgroup_df %>% 
+              filter(subgroup=="all") %>% 
+              dplyr::select(year,rel_exc_mean_all = rel_exc_mean),by="year")
+
+
+#excess
+excess_by_ntiles_subgroup_df = rbind(excess_by_ntiles_df %>% dplyr::mutate(subgroup="all"),
+                                      excess_by_ntiles_swiss_df  %>% dplyr::mutate(subgroup="swiss"),
+                                      excess_by_ntiles_nonswiss_df  %>% dplyr::mutate(subgroup="non-swiss"),
+                                      excess_by_ntiles_first_df %>% filter(childless==TRUE)  %>% dplyr::mutate(subgroup="first"),
+                                      excess_by_ntiles_second_df  %>% filter(childless==TRUE)  %>% dplyr::mutate(subgroup="second"))
+excess_by_ntiles_subgroup_df = excess_by_ntiles_subgroup_df %>% 
+  left_join(excess_by_ntiles_subgroup_df %>% 
+              filter(subgroup=="all") %>% 
+              dplyr::select(ntile,explanatory_var,rel_exc_mean_all = rel_exc_mean),by=c("ntile","explanatory_var"))
+
+#plot
+p1 = birth_prob_by_age_subgroup_df %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(subgroup)),alpha=0.2)+
+    geom_line(aes(col=factor(subgroup)))+
+    scale_x_continuous(name="Maternal age")+
+    scale_y_continuous(name="Probability of having a child\n(by month)", labels = scales::percent)+
+    scale_color_manual(name = "",
+                       values = subgroup_col,
+                       breaks =subgroup_names)+
+    scale_fill_manual(name = "",
+                      values = subgroup_col,
+                       breaks =subgroup_names)+
+  theme(legend.position = "none")
+
+p2 = excess_birth_year_subgroup_df %>% 
+  filter(subgroup %in% c("swiss","non-swiss")) %>% 
+  ggplot(aes(x = year)) +
+  geom_ribbon(aes(ymin = rel_exc_lwb ,ymax=rel_exc_upb ,fill=subgroup),alpha = 0.2) +
+  geom_line(aes(y = rel_exc_mean , col=subgroup))+
+  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_hline( aes(yintercept = 0),    linetype = 2) +
+  scale_x_continuous(name="Year")+
+  scale_y_continuous(name="Relative excess birth",labels=scales::percent)+
+  scale_color_manual(name = "",
+                       values = subgroup_col,
+                       breaks =subgroup_names)+
+    scale_fill_manual(name = "",
+                      values = subgroup_col,
+                       breaks =subgroup_names)+
+   theme(legend.position = "none")
+
+p3 = excess_by_ntiles_subgroup_df %>% 
+  filter(subgroup %in% c("swiss","non-swiss")) %>% 
+  left_join(data.frame(explanatory_var  = c("pop_dens_building_ntile"),
+                       explanatory_var2 =  c("Population density")),by="explanatory_var") %>% 
+   filter(!is.na(explanatory_var2)) %>% 
+  dplyr::mutate(explanatory_var2 = factor(explanatory_var2, levels = c("Population density"))) %>% 
+  ggplot(aes(x = ntile, y = rel_exc_mean, ymin = rel_exc_lwb, ymax = rel_exc_upb))+
+  geom_ribbon(aes(fill=subgroup),alpha = 0.2) +
+  geom_line(aes(col=subgroup)) +
+  geom_point(aes(col=subgroup)) +
+  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_hline(aes(yintercept = 0), linetype = 2)+
+  scale_x_continuous(name="Population decile",breaks=c(1:10))+
+  scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
+  facet_wrap(explanatory_var2~.,ncol=2)+
+    scale_color_manual(name = "",
+                       values = subgroup_col,
+                       breaks =subgroup_names)+
+    scale_fill_manual(name = "",
+                      values = subgroup_col,
+                       breaks =subgroup_names)+
+   theme(legend.position = "none")
+
+p4 = excess_birth_year_subgroup_df %>% 
+  filter(subgroup %in% c("first","second")) %>% 
+  ggplot(aes(x = year)) +
+  geom_ribbon(aes(ymin = rel_exc_lwb ,ymax=rel_exc_upb ,fill=subgroup),alpha = 0.2) +
+  geom_line(aes(y = rel_exc_mean , col=subgroup))+
+  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_hline( aes(yintercept = 0),    linetype = 2) +
+  scale_x_continuous(name="Year")+
+  scale_y_continuous(name="Relative excess birth",labels=scales::percent)+
+    scale_color_manual(name = "",
+                       values = subgroup_col,
+                       breaks =subgroup_names)+
+    scale_fill_manual(name = "",
+                      values = subgroup_col,
+                       breaks =subgroup_names)+
+   theme(legend.position = "none")
+  
+
+p5 = excess_by_ntiles_subgroup_df %>% 
+   filter(subgroup %in% c("first","second")) %>% 
+  left_join(data.frame(explanatory_var  = c("pop_dens_building_ntile"),
+                       explanatory_var2 =  c("Population density")),by="explanatory_var") %>% 
+   filter(!is.na(explanatory_var2)) %>% 
+  dplyr::mutate(explanatory_var2 = factor(explanatory_var2, levels = c("Population density"))) %>% 
+  ggplot(aes(x = ntile, y = rel_exc_mean, ymin = rel_exc_lwb, ymax = rel_exc_upb))+
+  geom_ribbon(aes(fill=subgroup),alpha = 0.2) +
+  geom_line(aes(col=subgroup)) +
+  geom_point(aes(col=subgroup)) +
+  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_hline(aes(yintercept = 0), linetype = 2)+
+  scale_x_continuous(name="Population decile",breaks=c(1:10))+
+  scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
+  facet_wrap(explanatory_var2~.,ncol=2)+
+    scale_color_manual(name = "",
+                       values = subgroup_col,
+                       breaks =subgroup_names)+
+    scale_fill_manual(name = "",
+                      values = subgroup_col,
+                       breaks =subgroup_names)+
+   theme(legend.position = "none")
+
+legend_plot = get_legend2(data.frame(year=2000:2001,
+           mean = 1:2,
+           lwb = 1:2,
+           upb = 1:2) %>% 
+   crossing(subgroup = subgroup_names) %>% 
+  ggplot(aes(x = year, y = mean, ymin=lwb, ymax = upb))+
+  geom_ribbon(aes(fill=subgroup),alpha = 0.2) +
+  geom_line(aes(col=subgroup)) +
+  geom_point(aes(col=subgroup)) +
+  scale_color_manual(name = "",
+                     labels = subgroup_names2,
+                       values = subgroup_col,
+                       breaks =subgroup_names,
+                     guide = guide_legend(nrow = 3))+
+    scale_fill_manual(name = "",
+                      labels = subgroup_names2,
+                      values = subgroup_col,
+                       breaks =subgroup_names,guide = guide_legend(nrow = 3))+
+    theme(legend.position = "bottom"))
+
+
+cowplot::plot_grid(cowplot::plot_grid(p1,p2,p4,
+                                      labels = c("A.","B.","D."),nrow=3,rel_heights = c(1,1,1)),
+                   cowplot::plot_grid(legend_plot,p3,p5,
+                                      labels = c("","C.","E."),nrow=3,rel_heights = c(1,1,1)),
+                   ncol=2,rel_widths = c(1,1))
+
+```
+
+**Sub-group excess births**: 
+:::
+
+
+
+
+```{r, include=FALSE}
+
+#graph to compare fertility curves including any child or first child only
+if(FALSE){
+  supp_p1 = gamma_month_df %>% 
+  ggplot(aes(x=month_id,y=est,ymin=lwb,ymax=upb)) +
+  geom_ribbon(fill="blue",alpha=0.2)+
+  geom_line(col="blue")
+  
+  birth_prob_by_age_df1=  readRDS(paste0(code_root_path,"results/","20260309","_","mod8","_seedid",1,"_birthprob.RDS"))
+  birth_prob_by_age_df2=  readRDS(paste0(code_root_path,"results/","20260320","_","mod8_first","_seedid",1,"_birthprob.RDS"))
+  rbind( birth_prob_by_age_df1 %>% dplyr::mutate(data="all"),
+         birth_prob_by_age_df2 %>% dplyr::mutate(data="first")) %>% 
+    filter(year %in% c(2024)) %>% 
+    #group_by(data) %>% dplyr::mutate(lwb=lwb/max(est),upb=upb/max(est),est=est/max(est)) %>% ungroup() %>% 
+    ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
+    geom_ribbon(aes(fill=factor(data)),alpha=0.2)+
+    geom_line(aes(col=factor(data)))+
+    scale_y_continuous(labels = scales::percent)
+}
+```

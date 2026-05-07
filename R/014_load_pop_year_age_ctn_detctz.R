@@ -70,5 +70,7 @@ load_pop_year_age_ctn_detctz = function(){
     pop_df %>% filter(ctz_id==8543)
   }
   
+  saveRDS(pop_df,paste0(code_root_path,"savepoint/","pop_detctz_country_df.RDS"))
+  
   return(pop_df)
 }

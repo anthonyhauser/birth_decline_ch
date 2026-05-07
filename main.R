@@ -37,7 +37,7 @@ if(FALSE){
   sep_df3 = readRDS("savepoint/sep_df3.RDS")
   rural_urban_df = load_rural_urban_data(pop_mun_df = pop_mun_df)
   pop_dens_df = load_population_density_data(new_mun_df)
-  vote_df_list = load_vote_data(mun_df,pop_mun_df)
+  vote_df_list = load_vote_data(new_mun_df,new_pop_mun_df)
   vote_mun_df = vote_df_list[["municipality"]]
   
   #load childcare institutions
@@ -268,7 +268,7 @@ filter_parity=c("all", "first", "second")
 
 mod_df = expand.grid(ctz_name = ctz_name,
                      filter_parity = filter_parity,stringsAsFactors = FALSE) %>% 
-  filter(ctz_name=="" | filter_parity=="all") %>% .[3,]
+  filter(ctz_name=="" | filter_parity=="all") #%>% .[3,]
 
 mod_df <- mod_df %>%
   pmap(function(ctz_name, filter_parity) {
@@ -299,17 +299,14 @@ results <- mod_df %>%
     
     excess_by_ntiles(save.date, mod_name, seed_id,
                      use.p_childless_v,
-                     new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df)
+                     new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df)
   })
-
-
-
 
 
 ################################################################################
 #report
 
-mod_df %>%
+mod_df[3,] %>%
   pmap(function(ctz_name,filter_parity, mod_name, save.date, seed_id) {
     quarto::quarto_render(input = "reports/report1_pres.qmd",
                           output_file = paste0("report1_pres_",save.date,"_",mod_name,"_","seedid",seed_id,".html"),
@@ -318,7 +315,9 @@ mod_df %>%
                                                 seed_id = seed_id))
   })
 
-
+mod_name = "mod8_swiss"
+seed_id=1
+save.date="20260309"
 
 
 p_childless_df =  get_prob_childless_by_mun(new_birth_df, new_pop_mun_df, filter_ctz, p_mun_changes = 0.06)

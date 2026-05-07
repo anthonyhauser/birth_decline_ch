@@ -45,7 +45,7 @@ theme_set(theme_bw())
 wd = getwd()
 code_root_path = paste0(strsplit(wd, split="reports|/cluster|/manuscript")[[1]][1],"/")
 path_functions = list.files(pattern="[.]R$", path=paste0(code_root_path,"/R/"), full.names=TRUE)
-path_functions = path_functions[!grepl("000",path_functions)]
+path_functions = path_functions[!grepl("000_setup",path_functions)]
 print(path_functions)
 sapply(path_functions, source)
 

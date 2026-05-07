@@ -553,7 +553,8 @@ excess_birth_ctzreg_ctn_df = readRDS(paste0(code_root_path,"results/",save.date,
 
 
 #load population dataset (used for citizenship region to have pop by ctzreg)
-load(paste0(code_root_path,"savepoint/cleaned_df.RData"))
+#load(paste0(code_root_path,"savepoint/cleaned_df.RData"))
+pop_detctz_df = readRDS(paste0(code_root_path,"savepoint/","pop_detctz_country_df.RDS"))
 ```
 
 ### Month effect
@@ -953,6 +954,8 @@ if(filter_ctz2=="all"){
 ### By region of the world
 
 ```{r, fig.height=6,fig.width=8, include=include_ctz}
+  
+pop_detctz_df = readRDS(paste0(code_root_path,"savepoint/","pop_detctz_country_df.RDS"))
 rel_pop_detctz_df = pop_detctz_df %>% 
   left_join(ctz_map,by="ctz_name") %>% 
   group_by(ctz_region,year) %>% 
