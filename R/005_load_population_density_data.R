@@ -8,8 +8,8 @@ load_population_density_data = function(mun_df){
                   hist_mun_name = `Libellé`,
                   pop_dens = `Densité de la population (surface productive) 2024`,
                   pop_dens_tot = `Densité de la population (surface totale) 2024`,
-                  prop_infrastructure = `Habitat et infrastructure 2013/18`, #usage du sol lié aux zones habitées, de transport et d’infrastructures
-                  prop_building = `Aires de bâtiments 2013/18`, #surface occupée par les bâtiments et leurs terrains immédiats
+                  prop_infrastructure = `Habitat et infrastructure 2013/18`, #Part des surfaces d'habitat et d'infrastructure dans la superficie totale (%)
+                  prop_building = `Aires de bâtiments 2013/18`, #Part des aires de bâtiments dans la superficie totale 
                   prop_individual_houses = `Part des maisons individuelles 2024`) %>%
     # clean types
     dplyr::mutate(hist_mun_id = as.integer(hist_mun_id)) %>% 

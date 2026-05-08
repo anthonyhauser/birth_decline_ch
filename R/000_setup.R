@@ -60,6 +60,38 @@ controls=list(load.encrypted.data=FALSE)
 #file directories
 data_folder = "L:/UNISANTE_DESS/S_SUMAC/DIVERS_PROJETS/03_data/kaspar_staub_birth_data/"
 
+#variable definitions
+explanatory_var_df <- data.frame(
+  explanatory_var = c(
+    "pop_dens_building",
+    "pop_dens",
+    "pop_dens_tot",
+    "prop_infrastructure",
+    "prop_building",
+    "prop_individual_houses",
+    "rel_empl_mean",
+    "sep",
+    "votation_paternity_leave",
+    "votation_reduce_childcare_tax",
+    "votation_family_tax_education_support",
+    "votation_womens_suffrage"
+  ),
+  explanatory_var2 = c(
+    "Population density",
+    "Population density (productive area)",  # Densité de la population (surface productive) 2024,
+    "Population density (total area)",  # Densité de la population (surface totale) 2024,
+    "Share of housing and infrastructure land use",  # Part des surfaces d'habitat et d'infrastructure dans la superficie totale (%)
+    "Share of built-up areas in total land area",  # Part des aires de bâtiments dans la superficie totale (%)
+    "Share of single-family houses",  # Part des maisons individuelles 2024
+    "Childcare service density",
+    "Socio-economic position (SEP)",
+    "Share of votes in favour of paternity leave extension (2020)",
+    "Share of votes in favour of childcare tax deduction (2020)",
+    "Share of votes in favour of family tax and education allowance initiative (2015)",
+    "Share of votes in favour of women's suffrage (1971)"
+  )
+)
+
 #canton names
 ctn_map <- tibble::tribble( ~ctn_abbr, ~region,
                             "CH",      "Suisse",

@@ -74,7 +74,7 @@ excess_birth_year_month_df = readRDS(paste0(code_root_path,"results/",save.date,
 
 #excess by citizenship
 if(filter_ctz2=="all"){
-  excess_birth_year_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
+  #excess_birth_year_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
   #excess_birth_year_age_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
   #excess_birth_year_month_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
 }
@@ -82,9 +82,9 @@ if(filter_ctz2=="all"){
 #excess by municipality
 #excess_birth_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_mun_df",".RDS"))
 excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
-if(filter_parity!="all"){
-  excess_birth_adj2_mun_childless_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_childless","_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
-}
+# if(filter_parity!="all"){
+#   excess_birth_adj2_mun_childless_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_childless","_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
+# }
 #excess_birth_year_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_df",".RDS"))
 #excess_birth_year_adj2_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_df",".RDS"))
 
@@ -163,7 +163,7 @@ cowplot::plot_grid(p1,
 
 ```{r,  fig.height=8,fig.width=12}
 #national, year
-plot_df = excess_birth_year_df %>% 
+plot_df1 = excess_birth_year_df %>% 
   pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
              n_exc_mean, n_exc_lwb, n_exc_upb,
              rel_exc_mean, rel_exc_lwb, rel_exc_upb),
@@ -173,7 +173,7 @@ plot_df = excess_birth_year_df %>%
   pivot_wider(names_from = "stat",values_from = "value") %>% 
   dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
 
-p1 = plot_df %>% 
+p1 = plot_df1 %>% 
   filter(var %in% c("Expected birth")) %>% 
   ggplot(aes(x = year)) +
   geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
@@ -182,7 +182,7 @@ p1 = plot_df %>%
   scale_x_continuous(name="Year")+
   scale_y_continuous(name="Annual birth")
 
-p2 = plot_df %>% 
+p2 = plot_df1 %>% 
   filter(var %in% c("Relative excess")) %>% 
   ggplot(aes(x = year)) +
   geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
@@ -192,7 +192,7 @@ p2 = plot_df %>%
   scale_y_continuous(name="Relative excess birth",labels=scales::percent)
 
 #national, year, month
-plot_df = excess_birth_year_month_df %>% 
+plot_df2 = excess_birth_year_month_df %>% 
   pivot_longer(cols = c(n_exp_mean, n_exp_lwb, n_exp_upb,
                         n_exc_mean, n_exc_lwb, n_exc_upb,
                         rel_exc_mean, rel_exc_lwb, rel_exc_upb),
@@ -201,7 +201,7 @@ plot_df = excess_birth_year_month_df %>%
                values_to = "value" ) %>% 
   pivot_wider(names_from = "stat",values_from = "value") %>% 
   dplyr::mutate(var = factor(var,levels=c("n_exp","n_exc","rel_exc"),labels=c("Expected birth","Excess birth","Relative excess")))
-p3 = plot_df %>% 
+p3 = plot_df2 %>% 
   filter(year>=2020, var=="Relative excess") %>% 
     ggplot(aes(x = date)) +
   geom_ribbon(aes(ymin = lwb,ymax=upb),alpha = 0.2) +
@@ -295,7 +295,7 @@ cowplot::plot_grid(cowplot::plot_grid(p1,
 
 ::: {#fig-myfig}
 
-```{r,  fig.height=8,fig.width=10}
+```{r,  fig.height=6,fig.width=10}
 excess_birth_adj2_mun_df %>% 
   #left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
   left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
@@ -327,11 +327,11 @@ excess_birth_adj2_mun_df %>%
 
 ```{r,  fig.height=6,fig.width=10}
 #plot
-p1 = excess_by_ntiles_df %>% 
-  left_join(data.frame(explanatory_var  = c("pop_dens_building_ntile", "rel_empl_mean_ntile", "sep_ntile","votation_paternity_leave_ntile"),
-                       explanatory_var2 =  c("Population density", "Childcare service density","Socio-economic position (SEP)","Share of votes in favour of paternity leave extension")),by="explanatory_var") %>% 
-   filter(!is.na(explanatory_var2)) %>% 
-  dplyr::mutate(explanatory_var2 = factor(explanatory_var2, levels = c("Population density", "Childcare service density","Socio-economic position (SEP)","Share of votes in favour of paternity leave extension"))) %>% 
+p1 = excess_by_ntiles_df[[1]] %>% 
+  left_join(explanatory_var_df %>% 
+              dplyr::mutate(explanatory_var = paste0(explanatory_var,"_ntile")),by="explanatory_var") %>% 
+  filter(explanatory_var %in% c("pop_dens_building_ntile", "rel_empl_mean_ntile", "sep_ntile","votation_paternity_leave_ntile")) %>% 
+  dplyr::mutate(explanatory_var2 = factor(explanatory_var2, levels = explanatory_var_df$explanatory_var2)) %>% 
   ggplot(aes(x = ntile, y = rel_exc_mean, ymin = rel_exc_lwb, ymax = rel_exc_upb))+
   geom_ribbon(alpha = 0.2) +
   geom_line() +
