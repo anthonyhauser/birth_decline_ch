@@ -147,12 +147,17 @@ p3 = gp_rel_df %>%
   geom_ribbon(fill="black",alpha=0.2)+
   geom_line(col="black")+
   scale_y_continuous(name="Age of fertility peak")+
-  scale_x_continuous(name="Calendar year")
+  scale_x_continuous(name="Calendar year")+
+  theme(plot.margin = margin(5.5, 9, 5.5, 5.5))
 
-cowplot::plot_grid(p1,
+fig1 = cowplot::plot_grid(p1,
                    cowplot::plot_grid(p2,p3,rel_widths = c(1.4,1),ncol=2,labels = c("B.","C.")),
                    rel_heights = c(1,1),labels = c("A.",""),
                    nrow = 2)
+fig1
+ggsave(filename = paste0(code_root_path,"figure/fig1.png"),
+       plot = fig1,
+       width = 10, height = 6,units = "in", dpi = 600)
 ```
 
 **Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and 2024). C. Age of fertility peak according to calendar year.
@@ -279,7 +284,7 @@ p5 = excess_birth_year_ctzreg_df %>%
 
 
 #plot
-cowplot::plot_grid(cowplot::plot_grid(p1,
+fig2 = cowplot::plot_grid(cowplot::plot_grid(p1,
                                       p2,
                                       p3,
                                       nrow=3,labels=c("A.","B.","C.")),
@@ -287,7 +292,16 @@ cowplot::plot_grid(cowplot::plot_grid(p1,
                                       p5+theme(legend.position = "none"),
                                       get_legend2(p5),
                                       nrow=3,labels=c("D.","E.",""),rel_heights = c(1,1.8,0.2)),
-                   ncol=2,rel_widths = c(1.2,1))
+                   ncol=2,rel_widths = c(1,1))
+fig2
+ggsave(filename = paste0(code_root_path,"figure/fig2.tiff"),
+       dpi = 600,
+       compression = "lzw",
+       plot = fig2,
+       width = 12, height = 8, units = "in")
+ggsave(filename = paste0(code_root_path,"figure/fig2.pdf"),
+       plot = fig2,
+       width = 12, height = 8, units = "in")
 ```
 
 **Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Relative excess birth by year from 2000 to 2024. C. Relative excess birth by month between 2020 and 2024. D. Relative excess birth by citizenship aggregated by region of the world in 2011-2024. E. Relative excess birth by citizenship over years.
@@ -296,7 +310,7 @@ cowplot::plot_grid(cowplot::plot_grid(p1,
 ::: {#fig-myfig}
 
 ```{r,  fig.height=6,fig.width=10}
-excess_birth_adj2_mun_df %>% 
+fig3 = excess_birth_adj2_mun_df %>% 
   #left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
   left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
   st_as_sf() %>%
@@ -316,6 +330,10 @@ excess_birth_adj2_mun_df %>%
   ) +
   theme(legend.position = "bottom",
         legend.direction = "horizontal")
+fig3
+ggsave(filename = paste0(code_root_path,"figure/fig3.png"),
+       plot = fig3,
+       width = 10, height = 6,units = "in", dpi = 600)
 ```
 
 **Excess birth by municipality**. Relative excess birth by municipality between 2017 and 2024.
@@ -327,7 +345,7 @@ excess_birth_adj2_mun_df %>%
 
 ```{r,  fig.height=6,fig.width=10}
 #plot
-p1 = excess_by_ntiles_df[[1]] %>% 
+fig4 = excess_by_ntiles_df %>% 
   left_join(explanatory_var_df %>% 
               dplyr::mutate(explanatory_var = paste0(explanatory_var,"_ntile")),by="explanatory_var") %>% 
   filter(explanatory_var %in% c("pop_dens_building_ntile", "rel_empl_mean_ntile", "sep_ntile","votation_paternity_leave_ntile")) %>% 
@@ -340,7 +358,10 @@ p1 = excess_by_ntiles_df[[1]] %>%
   scale_x_continuous(name="Population decile",breaks=c(1:10))+
   scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
   facet_wrap(explanatory_var2~.,ncol=2)
-p1
+fig4 
+ggsave(filename = paste0(code_root_path,"figure/fig4.png"),
+       plot = fig4,
+       width = 10, height = 6,units = "in", dpi = 600)
 ```
 
 **Relative excess birth stratified by variable deciles**
@@ -504,12 +525,15 @@ legend_plot = get_legend2(data.frame(year=2000:2001,
     theme(legend.position = "bottom"))
 
 
-cowplot::plot_grid(cowplot::plot_grid(p1,p2,p4,
+fig5 = cowplot::plot_grid(cowplot::plot_grid(p1,p2,p4,
                                       labels = c("A.","B.","D."),nrow=3,rel_heights = c(1,1,1)),
                    cowplot::plot_grid(legend_plot,p3,p5,
                                       labels = c("","C.","E."),nrow=3,rel_heights = c(1,1,1)),
                    ncol=2,rel_widths = c(1,1))
-
+fig5
+ggsave(filename = paste0(code_root_path,"figure/fig5.png"),
+       plot = fig5,
+       width = 10, height = 8,units = "in", dpi = 600)
 ```
 
 **Sub-group excess births**: 
