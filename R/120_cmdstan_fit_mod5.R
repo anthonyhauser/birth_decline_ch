@@ -90,9 +90,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   
   
   
-  saveRDS(stan_df, paste0("results/",mod_name,
-                          ifelse(last_year==2025,2025,""),
-                          "_standf.RDS"))
+  saveRDS(stan_df, paste0("results/", mod_name, "_standf.RDS"))
   
   if(FALSE){
     stan_df %>% group_by(birth_year) %>% dplyr::summarise(min_age = min(mother_age),
