@@ -148,12 +148,13 @@ mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_bi
 mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
 mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
 mod_name = if_else(last_year!=2025,mod_name,paste0(mod_name,"_",last_year))
+res_path = paste0("results/", ifelse(last_year==2025, "2025/", ""))
 use.p_childless_v = if (filter_parity != "all") c(FALSE, TRUE) else FALSE
 #save.date = if (filter_parity != "all") "20260320" else "20260309"
 
 #load stan fit and stan_df
 fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name,"_seedid",seed_id, ".RDS"))
-stan_df = readRDS(paste0("results/",mod_name,"_standf.RDS"))
+stan_df = readRDS(paste0(res_path, mod_name,"_standf.RDS"))
 
 #use multinomial to distribute prediction over regions (draws over regions, month, year, age) and citizenship (swiss and non-swiss)
 list_pred_n_birth_draw_list = get_pred_birth_draw_by_dist(fit, #cmdstanr fit

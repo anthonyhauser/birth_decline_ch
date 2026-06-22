@@ -50,7 +50,9 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
   mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
   mod_name = if_else(last_year!=2025,mod_name,paste0(mod_name,"_",last_year))
-  
+  res_path  = paste0("results/", ifelse(last_year==2025, "2025/", ""))
+  if(!dir.exists(res_path)) dir.create(res_path, recursive=TRUE)
+
   #Load data--------------------------------------------------------------------
   #population
   pop_mod_df = pop_df %>% 
@@ -90,7 +92,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   
   
   
-  saveRDS(stan_df, paste0("results/", mod_name, "_standf.RDS"))
+  saveRDS(stan_df, paste0(res_path, mod_name, "_standf.RDS"))
   
   if(FALSE){
     stan_df %>% group_by(birth_year) %>% dplyr::summarise(min_age = min(mother_age),
@@ -318,16 +320,17 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     left_join(stan_df %>% dplyr::select(year,mother_age,birth_year,age_id,year_id=year_id1) %>% distinct(),by=c("age_id","year_id")) %>% 
     dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
   
-  saveRDS(stan_diag_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
-  saveRDS(par_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
-  saveRDS(gamma_month_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gammamonth.RDS"))
-  saveRDS(b_year_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_byear.RDS"))
-  saveRDS(sigma_year_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_sigmayear.RDS"))
-  saveRDS(birth_prob_by_age_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
-  saveRDS(gp_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
-  saveRDS(gp_rel_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp_rel.RDS"))
-  saveRDS(age_bias_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
-  saveRDS(pred_df, paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
+  rds = function(obj, suffix) saveRDS(obj, paste0(res_path, save.date,"_",mod_name,"_seedid",seed_id,"_",suffix,".RDS"))
+  rds(stan_diag_df,        "standiag")
+  rds(par_df,              "par")
+  rds(gamma_month_df,      "gammamonth")
+  rds(b_year_df,           "byear")
+  rds(sigma_year_df,       "sigmayear")
+  rds(birth_prob_by_age_df,"birthprob")
+  rds(gp_df,               "gp")
+  rds(gp_rel_df,           "gp_rel")
+  rds(age_bias_df,         "agebias")
+  rds(pred_df,             "pred")
   
   return(list(stan_diag_df = stan_diag_df,
               gamma_month_df = gamma_month_df,
@@ -341,16 +344,17 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
               par_df = par_df))
   
   if(FALSE){
-    stan_diag_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
-    par_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
-    gamma_month_df=  readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gammamonth.RDS"))
-    b_year_df=  readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_byear.RDS"))
-    sigma_year_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_sigmayear.RDS"))
-    birth_prob_by_age_df=  readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
-    gp_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
-    gp_rel_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp_rel.RDS"))
-    age_bias_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
-    pred_df = readRDS(paste0("results/",save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
+    rds_load = function(suffix) readRDS(paste0(res_path, save.date,"_",mod_name,"_seedid",seed_id,"_",suffix,".RDS"))
+    stan_diag_df        = rds_load("standiag")
+    par_df              = rds_load("par")
+    gamma_month_df      = rds_load("gammamonth")
+    b_year_df           = rds_load("byear")
+    sigma_year_df       = rds_load("sigmayear")
+    birth_prob_by_age_df= rds_load("birthprob")
+    gp_df               = rds_load("gp")
+    gp_rel_df           = rds_load("gp_rel")
+    age_bias_df         = rds_load("agebias")
+    pred_df             = rds_load("pred")
     
     b_year_df %>% 
       ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb)) +
