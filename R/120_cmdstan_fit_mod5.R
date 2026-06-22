@@ -7,6 +7,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
                            filter_ctz = c("swiss","non-swiss"),
                            filter_parity = "all",#filter_parity="first"
                            seed_id = 123,
+                           quick_run = FALSE,
                            use_cmdstanr = get("use_cmdstanr", envir=.GlobalEnv)){
   
   if(FALSE){
@@ -155,15 +156,19 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   stan_month_data$N
   
   #Stan model-------------------------------------------------------------------
+  n_chains       = if(quick_run) 1 else 4
+  n_iter_warmup  = if(quick_run) 50  else 1000
+  n_iter_sample  = if(quick_run) 50  else 500
+
   if(use_cmdstanr){
     mod5 <- cmdstan_model(paste0("stan/",mod_name0,".stan"))
     fit  <- mod5$sample(data = stan_month_data,
                         init = 0,
                         metric = "dense_e",
-                        chains = 4,
-                        parallel_chains = 4,
-                        iter_sampling = 500,
-                        iter_warmup = 1000,
+                        chains = n_chains,
+                        parallel_chains = n_chains,
+                        iter_sampling = n_iter_sample,
+                        iter_warmup = n_iter_warmup,
                         adapt_delta = 0.99,
                         refresh = 10,
                         seed = seed_id)
@@ -172,10 +177,10 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     fit  <- rstan::sampling(mod5,
                             data    = stan_month_data,
                             init    = 0,
-                            chains  = 4,
-                            cores   = 4,
-                            warmup  = 1000,
-                            iter    = 1500,
+                            chains  = n_chains,
+                            cores   = n_chains,
+                            warmup  = n_iter_warmup,
+                            iter    = n_iter_warmup + n_iter_sample,
                             control = list(adapt_delta=0.99, metric="dense_e"),
                             refresh = 10,
                             seed    = seed_id)
