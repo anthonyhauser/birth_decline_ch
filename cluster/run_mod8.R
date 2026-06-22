@@ -1,6 +1,7 @@
 ##########################################
 #Setting up paths
 is.sim.cluster = TRUE
+quick_run = TRUE
 wd = getwd()
 code_root_path = paste0(strsplit(wd, split="/cluster")[[1]][1],"/")
 source(paste0(code_root_path,"R/000_setup.R"))
@@ -47,4 +48,5 @@ res = cmstan_fit_mod5(pop_df, birth_agg_df,
                       save.date         = save.date,
                       filter_parity     = cfg$filter_parity,
                       filter_ctz        = cfg$filter_ctz,
-                      seed_id           = 1)
+                      seed_id           = 1,
+                      quick_run         = quick_run)
