@@ -240,10 +240,10 @@ if(FALSE){
   pred_n_birth_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
   #municipality (by year)
   use.p_childless=TRUE
-  excess_birth_year_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-  excess_birth_year_adj_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-  excess_birth_year_adj2_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
-  
+  excess_birth_year_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
+  excess_birth_year_adj_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+  excess_birth_year_adj2_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+
   #ctz region (by year and ctn_abbr)
   excess_birth_year_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
 }
@@ -266,9 +266,9 @@ if(length(filter_ctz)==2){
 }
 #4) municipality level, using multinomial
 for(use.p_childless in use.p_childless_v){
-  excess_birth_year_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-  excess_birth_year_adj_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-  excess_birth_year_adj2_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+  excess_birth_year_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
+  excess_birth_year_adj_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+  excess_birth_year_adj2_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
   excess_birth_mun = summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
                                                           excess_birth_year_adj2_mun_draw_df,
                                                           excess_birth_year_mun_draw_df,
