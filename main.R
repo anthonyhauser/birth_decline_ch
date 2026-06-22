@@ -499,17 +499,6 @@ rural_urban_dist_df %>%
 pop_ctz_df = load_pop_10year_agegp_mun_ctz()
 
 
-birth_agg_df = birth_df %>%
-  group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>%
-  dplyr::summarise(n = n(),.groups="drop")
-
-#save for cluster
-saveRDS(birth_agg_df,file="cluster/cluster_data/birth_agg_df.RDS")
-saveRDS(birth_agg_first_df,file="cluster/cluster_data/birth_agg_first_df.RDS")
-saveRDS(birth_agg_second_df,file="cluster/cluster_data/birth_agg_second_df.RDS")
-saveRDS(pop_df,file="cluster/cluster_data/pop_agg_df.RDS")
-
-
 birth_df = birth_agg_df
 
 ###############################################################################################################################################################
