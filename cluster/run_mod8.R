@@ -36,8 +36,8 @@ cfg = configs[[job_id]]
 ##########################################
 #Load data
 load(ifelse(last_year==2024,
-            paste0(code_root_path,"savepoint/cleaned_df.RData"),
-            paste0(code_root_path,"savepoint/cleaned2025_df.RData")))
+            paste0(code_root_path,"savepoint/cleaned_cluster_df.RData"),
+            paste0(code_root_path,"savepoint/cleaned2025_cluster_df.RData")))
 
 birth_agg_df = get(cfg$birth_data)
 
