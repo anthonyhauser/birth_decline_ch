@@ -5,7 +5,8 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
                                        n_draw_subset = 100,
                                        save.date,
                                        mod_name,
-                                       seed_id){
+                                       seed_id,
+                                       res_path = "results/"){
   
   if(FALSE){
     fit = fit5_month
@@ -152,10 +153,10 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
                        n_pred_region=sum(n_pred))
   }
   
-  saveRDS(pred_n_birth_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
-  saveRDS(pred_n_birth_reg_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
+  saveRDS(pred_n_birth_draw_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
+  saveRDS(pred_n_birth_reg_draw_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
   if(ctz_name==""){
-    saveRDS(pred_n_birth_ctz_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
+    saveRDS(pred_n_birth_ctz_draw_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
   }
   
   return(list(pred_n_birth_draw_df = pred_n_birth_draw_df,

@@ -6,7 +6,8 @@ get_pred_birth_draw_by_ctzreg = function(fit, #cmdstanr fit
                                       n_draw_subset = 100,
                                       save.date,
                                       mod_name,
-                                      seed_id){
+                                      seed_id,
+                                      res_path = "results/"){
   
   if(FALSE){
     fit = fit5_month
@@ -151,10 +152,10 @@ get_pred_birth_draw_by_ctzreg = function(fit, #cmdstanr fit
  
   
   #save
-  saveRDS(excess_birth_year_ctz_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
+  saveRDS(excess_birth_year_ctz_draw_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
   
   if(FALSE){
-    excess_birth_year_ctz_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
+    excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
   }
   
   return(list(excess_birth_year_ctz_draw_df = excess_birth_year_ctz_draw_df))

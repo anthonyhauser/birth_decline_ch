@@ -9,12 +9,13 @@
 
 excess_by_ntiles = function(save.date, mod_name, seed_id,
                             use.p_childless_v,
-                            pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df){
+                            pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
+                            res_path = "results/"){
   
   #load data
   excess_birth_year_mun_draw_df = list()
   for(w in use.p_childless_v){
-    excess_birth_year_mun_draw_df[[as.character(w)]] = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_childless"[w],"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS")) %>% 
+    excess_birth_year_mun_draw_df[[as.character(w)]] = readRDS(paste0(code_root_path, res_path,save.date,"_",mod_name,"_childless"[w],"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS")) %>% 
                                           dplyr::mutate(childless = w)
   }
   excess_birth_year_mun_draw_df = rbindlist(excess_birth_year_mun_draw_df)
@@ -167,8 +168,8 @@ excess_by_ntiles = function(save.date, mod_name, seed_id,
       scale_y_continuous(name="Relative excess birth",labels = scales::percent)
   }
   
-  saveRDS(excess_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
-  saveRDS(excess_year_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_year_df",".RDS"))
+  saveRDS(excess_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
+  saveRDS(excess_year_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_year_df",".RDS"))
   
   return(excess_df)
 }

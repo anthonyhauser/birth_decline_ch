@@ -1,7 +1,8 @@
 summarise_excess_birth_nat = function(pred_n_birth_draw_df,
                                   save.date,
                                   mod_name,
-                                  seed_id){
+                                  seed_id,
+                                  res_path = "results/"){
   #national, by year--------------------------------------------------------------
   excess_birth_year_df = pred_n_birth_draw_df %>% 
     #sum over age and month
@@ -39,8 +40,8 @@ summarise_excess_birth_nat = function(pred_n_birth_draw_df,
                   rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
                   rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean)
   
-  saveRDS(excess_birth_year_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
-  saveRDS(excess_birth_year_age_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
+  saveRDS(excess_birth_year_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+  saveRDS(excess_birth_year_age_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
   
   #national, by year and month----------------------------------------------------
   excess_birth_year_month_df = pred_n_birth_draw_df %>% 
@@ -82,8 +83,8 @@ summarise_excess_birth_nat = function(pred_n_birth_draw_df,
                   rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean) %>% 
     dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
   
-  saveRDS(excess_birth_year_month_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
-  saveRDS(excess_birth_year_month_age_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_df",".RDS"))
+  saveRDS(excess_birth_year_month_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
+  saveRDS(excess_birth_year_month_age_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_df",".RDS"))
   
  
   return(list(excess_birth_year_df = excess_birth_year_df,
@@ -95,7 +96,8 @@ summarise_excess_birth_nat = function(pred_n_birth_draw_df,
 summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
                                   save.date,
                                   mod_name,
-                                  seed_id){
+                                  seed_id,
+                                  res_path = "results/"){
   
   #by region and year-------------------------------------------------------------
   excess_birth_year_reg_df  = pred_n_birth_reg_draw_df %>% 
@@ -134,8 +136,8 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
                   rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
                   rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean)
   
-  saveRDS(excess_birth_year_reg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
-  saveRDS(excess_birth_year_age_reg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_reg_df",".RDS"))
+  saveRDS(excess_birth_year_reg_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
+  saveRDS(excess_birth_year_age_reg_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_reg_df",".RDS"))
   
   #by region, by year and month---------------------------------------------------
   excess_birth_year_month_reg_df  = pred_n_birth_reg_draw_df %>% 
@@ -157,7 +159,7 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
                   rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean) %>% 
     dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
   
-  saveRDS(excess_birth_year_month_reg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_reg_df",".RDS"))
+  saveRDS(excess_birth_year_month_reg_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_reg_df",".RDS"))
   
   #age (takes 8 minutes)
   # print("computing: excess_birth_year_month_age_reg_df")
@@ -180,20 +182,20 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
   #                                   date         = as.IDate(sprintf("%d-%02d-01", year, month)))]
   
   
-  #saveRDS(excess_birth_year_month_age_reg_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_reg_df",".RDS"))
+  #saveRDS(excess_birth_year_month_age_reg_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_reg_df",".RDS"))
   
   if(FALSE){
     save.date="20260214"
     mod_name = "mod5"
     seed_id=8
-    excess_birth_year_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
-    excess_birth_year_age_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
-    excess_birth_year_month_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
-    excess_birth_year_month_age_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_df",".RDS"))
-    excess_birth_year_reg_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
-    excess_birth_year_age_reg_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_reg_df",".RDS"))
-    excess_birth_year_month_reg_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_reg_df",".RDS"))
-    excess_birth_year_month_age_reg_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_reg_df",".RDS"))
+    excess_birth_year_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+    excess_birth_year_age_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
+    excess_birth_year_month_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
+    excess_birth_year_month_age_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_df",".RDS"))
+    excess_birth_year_reg_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
+    excess_birth_year_age_reg_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_reg_df",".RDS"))
+    excess_birth_year_month_reg_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_reg_df",".RDS"))
+    excess_birth_year_month_age_reg_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_reg_df",".RDS"))
   }
   
   return(list(excess_birth_year_reg_df = excess_birth_year_reg_df,
@@ -205,7 +207,8 @@ summarise_excess_birth_reg = function(pred_n_birth_reg_draw_df,
 summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                                       save.date,
                                       mod_name,
-                                      seed_id){
+                                      seed_id,
+                                      res_path = "results/"){
   
   #by ctz and year-------------------------------------------------------------
   excess_birth_year_ctz_df  = pred_n_birth_ctz_draw_df %>% 
@@ -244,8 +247,8 @@ summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                   rel_exc_lwb = (n_birth- n_exp_lwb)/n_exp_mean,
                   rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean)
   
-  saveRDS(excess_birth_year_ctz_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
-  saveRDS(excess_birth_year_age_ctz_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
+  saveRDS(excess_birth_year_ctz_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
+  saveRDS(excess_birth_year_age_ctz_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
   
   #by citizenship, by year and month---------------------------------------------------
   excess_birth_year_month_ctz_df  = pred_n_birth_ctz_draw_df %>% 
@@ -267,7 +270,7 @@ summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                   rel_exc_upb = (n_birth-n_exp_upb)/n_exp_mean) %>% 
     dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
   
-  saveRDS(excess_birth_year_month_ctz_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
+  saveRDS(excess_birth_year_month_ctz_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
   
   #age (takes 8 minutes)
   print("computing: excess_birth_year_month_age_ctz_df")
@@ -289,16 +292,16 @@ summarise_excess_birth_ctz = function(pred_n_birth_ctz_draw_df,
                                     rel_exc_upb  = (n_birth - n_exp_upb)  / n_exp_mean,
                                     date         = as.IDate(sprintf("%d-%02d-01", year, month)))]
 
-  saveRDS(excess_birth_year_month_age_ctz_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_ctz_df",".RDS"))
+  saveRDS(excess_birth_year_month_age_ctz_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_ctz_df",".RDS"))
   
   if(FALSE){
     save.date="20260214"
     mod_name = "mod5"
     seed_id=8
-    excess_birth_year_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
-    excess_birth_year_age_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
-    excess_birth_year_month_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
-    excess_birth_year_month_age_ctz_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_ctz_df",".RDS"))
+    excess_birth_year_ctz_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
+    excess_birth_year_age_ctz_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
+    excess_birth_year_month_ctz_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
+    excess_birth_year_month_age_ctz_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_age_ctz_df",".RDS"))
   }
   
   return(list(excess_birth_year_ctz_df = excess_birth_year_ctz_df,

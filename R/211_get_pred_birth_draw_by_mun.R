@@ -8,7 +8,8 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
                                       save.date,
                                       mod_name,
                                       use.p_childless = FALSE,
-                                      seed_id){
+                                      seed_id,
+                                      res_path = "results/"){
   
   if(FALSE){
     fit = fit5_month
@@ -158,14 +159,14 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
                      n_exc = sum(adj_n_exc*w)/sum(w),.groups="drop_last")
   
   #save
-  saveRDS(excess_birth_year_mun_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-  saveRDS(excess_birth_year_adj_mun_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-  saveRDS(excess_birth_year_adj2_mun_draw_df, paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+  saveRDS(excess_birth_year_mun_draw_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
+  saveRDS(excess_birth_year_adj_mun_draw_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+  saveRDS(excess_birth_year_adj2_mun_draw_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
   
   if(FALSE){
-    excess_birth_year_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-    excess_birth_year_adj_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-    excess_birth_year_adj2_mun_draw_df = readRDS(paste0("results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+    excess_birth_year_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
+    excess_birth_year_adj_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+    excess_birth_year_adj2_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
   }
   
   return(list(excess_birth_year_mun_draw_df = excess_birth_year_mun_draw_df,
