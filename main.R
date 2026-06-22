@@ -499,9 +499,8 @@ rural_urban_dist_df %>%
 pop_ctz_df = load_pop_10year_agegp_mun_ctz()
 
 
-birth_agg_df = birth_df %>% 
-  filter(!is.na(mother_mun_id)) %>% #remove foreigners (and 1 row with missing mun_id)
-  group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr) %>% #we could add mother_citizenship (but needs to be binary),other_ctn_id,mother_dist_name
+birth_agg_df = birth_df %>%
+  group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>%
   dplyr::summarise(n = n(),.groups="drop")
 
 #save for cluster
