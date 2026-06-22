@@ -104,7 +104,7 @@ parameters {
   vector[N_month-1] gamma_month0;
   //real delta0;
   
-  sum_to_zero_vector[N_year2] b_year;
+  vector[N_year2] b_year;
   real<lower=0> sigma_year;
   
   // GPs
@@ -153,6 +153,7 @@ model {
   //priors
   inv_sigma ~ exponential(p_inv_sigma);
   b_year ~ normal(0, s_year * sigma_year);//random effect
+  sum(b_year) ~ normal(0, 0.001 * N_year2);//soft sum-to-zero constraint
   sigma_year ~ normal(0, p_sigma_year);
   //delta0 ~normal(p_delta0[1], p_delta0[2]);
   
