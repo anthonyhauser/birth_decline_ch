@@ -10,7 +10,7 @@ if(FALSE){
                        dplyr::mutate(mun_id=31010,mun_name="Appenzell (aggregated)"))
   
   #birth data
-  birth_df = load_birth_data(mun_df = new_mun_df, rerun=FALSE) #automatically saved
+  birth_df = load_birth_data(mun_df = new_mun_df, rerun=FALSE,last_year=last_year) #automatically saved
   birth_agg_df = birth_df %>% #by canton, as the minimum aggregation level for fit (it is even too detailled as we only run nationally)
     group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>% 
     dplyr::summarise(n = n(),.groups="drop")
@@ -24,7 +24,7 @@ if(FALSE){
     dplyr::summarise(n = n(),.groups="drop")
   
   #population data
-  pop_df = load_pop_year_age_ctn_ctz() #population ctn 1987-2024
+  pop_df = load_pop_year_age_ctn_ctz(last_year = last_year) #population ctn 1987-2024 or 1987-2025
   pop_mun_df_list = load_pop_year_age_mun_ctz(mun_df = mun_df) #population mun 2011-2025, list of df, one for each aggregation level (national, canton, district, municipality)
   pop_mun_df = pop_mun_df_list[["municipality"]]#reg_id is historical region id (e.g., for municipality levels it corresponds to hist_mun_id)
   pop_detctz_df = load_pop_year_age_ctn_detctz()
@@ -71,41 +71,39 @@ if(FALSE){
        pop_dens_df,
        vote_mun_df, vote_dist_df,
        childcare_institutions_df, childcare_institutions_adj_df,
-       file="savepoint/cleaned_df.RData")
+       file=ifelse(last_year==2024,"savepoint/cleaned_df.RData","savepoint/cleaned2025_df.RData"))
 }
 
-#load individual birth data, 1987_2024
-birth_df = load_birth_data(mun_df = mun_df, rerun = FALSE)
+#load cleaned, aggregated data
+load(ifelse(last_year==2024,"savepoint/cleaned_df.RData","savepoint/cleaned2025_df.RData"))
 #group four mun_id from Appenzel district because birth are reported jointly by Appenzell municipality for some years
 new_birth_df = birth_df %>% 
   dplyr::mutate(mother_mun_name = if_else(mother_mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mother_mun_name),
                 mother_mun_id = if_else(mother_mun_id %in% mun_ids_to_agg, 31010,mother_mun_id))
 
-#load cleaned, aggregated data
-load("savepoint/cleaned_df.RData")
-
-
 #run model----------------------------------------------------------------------
 #stan model
 
-#old results
-save.date="20260214"
-mod5_res = cmstan_fit_mod5(pop_df, birth_agg_df,
-                           mod_name ="mod5",
-                           stan_years=  2000:2024,
-                           effect_on_age_shift = "cal_year",
-                           save_draw = TRUE, save.date,
-                           seed_id = 8)
-#current results
-save.date="20260309"
+#main analysis
+save.date="20260622"#"20260309"
 mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
                            mod_name ="mod8",
-                           stan_years=  2000:2024,
+                           stan_years=  2000:last_year,
                            effect_on_age_shift = "cal_year",
                            save_draw = TRUE, save.date,
                            seed_id = 1)
 
-#current results
+pop_df
+birth_agg_df
+mod_name ="mod8"
+stan_years=  2000:last_year
+effect_on_age_shift = "cal_year"
+save_draw = TRUE
+save.date
+seed_id = 1
+
+
+#parity
 save.date="20260320"
 mod8_res = cmstan_fit_mod5(pop_df, birth_agg_first_df,
                            mod_name ="mod8",

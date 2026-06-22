@@ -39,7 +39,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   
   #bind pop and birth
   stan_df = pop_mod_df %>% 
-    filter(year<=2024) %>% 
+    filter(year<=last_year) %>% 
     left_join(birth_mod_df,by=c("year","mother_age","month")) %>% 
     dplyr::mutate(n_birth = replace_na(n_birth,0),
                   birth_year = year - mother_age,
@@ -63,7 +63,9 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   
   
   
-  saveRDS(stan_df, paste0("results/",mod_name,"_standf.RDS"))
+  saveRDS(stan_df, paste0("results/",mod_name,
+                          ifelse(last_year==2025,2025,""),
+                          "_standf.RDS"))
   
   if(FALSE){
     stan_df %>% group_by(birth_year) %>% dplyr::summarise(min_age = min(mother_age),

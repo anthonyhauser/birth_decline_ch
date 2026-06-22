@@ -1,6 +1,7 @@
-load_birth_data = function(mun_df, rerun=FALSE){
-  if (file.exists(paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS")) & !rerun) {
-    birth_1987_2024 = readRDS(paste0(code_root_path,"data/birth_data/birth_1987_2024.RDS"))
+load_birth_data = function(mun_df, rerun=FALSE, last_year=2024){
+  file_name = paste0("birth_1987_",last_year,".RDS")
+  if (file.exists(paste0(code_root_path,"data/birth_data/",file_name)) & !rerun) {
+    birth_1987_lastyear = readRDS(paste0(code_root_path,"data/birth_data/",file_name,".RDS"))
   } else {
   
     #1987-2015
@@ -111,6 +112,28 @@ load_birth_data = function(mun_df, rerun=FALSE){
       dplyr::select(year, iso_year, month, mother_age2, birth_loc, birth_state, mother_citizenship,
                     mother_municipality, parity, mother_permanent, mother_age, live_birth)
     
+    #2025
+    if(last_year==2025){
+      birth_2025 = read.csv(paste0(data_folder,"birth_data/BIRTHS_UNIZH_IEM_2025.csv"),
+                            sep=";") %>% 
+        dplyr::mutate(year = as.numeric(Ereignisjahr),
+                      iso_year = as.numeric(Statistikjahr),
+                      month = as.numeric(Ereignismonat),
+                      mother_age=as.numeric(Mutter..Alter.in.erfüllten.Jahren),
+                      birth_loc = as.numeric(Geburtsort),#will introduce NA because Geburtsort = "" (empty)
+                      birth_state = as.numeric(Geburtsstaat),
+                      mother_citizenship = as.numeric(Mutter..Staatsangehörigkeit),
+                      mother_municipality = as.numeric(Mutter..Wohngemeinde...Wohnstaat),
+                      parity = as.numeric(Kind..biologischer.Rang),
+                      mother_permanent = Mutter..ständiger.oder.nicht.ständiger.Wohnsitz,
+                      mother_age2 = as.numeric(Mutter..Alter.in.erreichten.Jahren),
+                      live_birth = as.numeric(Art.der.Geburt..Lebend..Totgeburt.)) %>% 
+        dplyr::select(year, iso_year, month, mother_age2, birth_loc, birth_state, mother_citizenship,
+                      mother_municipality, parity, mother_permanent, mother_age, live_birth)
+    }else{
+      birth_2025=NULL
+    }
+    
     
     if(FALSE){
       #in years 2007-2015, births are reported by birth_1987_2015 and birth_2007_2020 (some discrepancies)
@@ -137,19 +160,20 @@ load_birth_data = function(mun_df, rerun=FALSE){
       na_by_col(birth_2024)
     }
     
-    birth_1987_2024 = dplyr::bind_rows(birth_1987_2015 %>% filter(year<2007),
-                                       birth_2007_2020,
-                                       birth_2021,
-                                       birth_2022,
-                                       birth_2023,
-                                       birth_2024) %>% 
+    birth_1987_lastyear = dplyr::bind_rows(birth_1987_2015 %>% filter(year<2007),
+                                           birth_2007_2020,
+                                           birth_2021,
+                                           birth_2022,
+                                           birth_2023,
+                                           birth_2024,
+                                           birth_2025) %>% 
       #filter on live birth and permanent mother
       filter(live_birth==1,mother_permanent==1) %>% 
       #categorical variable mother citizenship
       dplyr::mutate(mother_citizenship2 = ifelse(mother_citizenship==8100,"swiss","non-swiss"))
     
     #assign a current mun_id from mother_municipality as well as its corresponding district and canton
-    birth_1987_2024 = birth_1987_2024 %>% 
+    birth_1987_lastyear = birth_1987_lastyear %>% 
       left_join(mun_df %>% dplyr::select(mother_ctn_abbr = ctn_abbr, mother_ctn_id = ctn_id,
                                          mother_dist_name = dist_name, mother_dist_id = dist_id,
                                          mother_mun_id = mun_id, mother_mun_name = mun_name,
@@ -157,17 +181,17 @@ load_birth_data = function(mun_df, rerun=FALSE){
     
     if(FALSE){
       #check Swiss mother (i.e., mother_municipality 8100), with missing mun_id
-      birth_1987_2024 %>% 
+      birth_1987_lastyear %>% 
         filter(is.na(mother_mun_id),mother_municipality==8100)
     }
     #remove foreigners (not missing mother_mun_id from 2000)
-    birth_1987_2024 = birth_1987_2024 %>% 
+    birth_1987_lastyear = birth_1987_lastyear %>% 
       filter(!is.na(mother_mun_id))
     
-    saveRDS(birth_1987_2024,"data/birth_data/birth_1987_2024.RDS")
+    saveRDS(birth_1987_lastyear, paste0("data/birth_data/",file_name,".RDS"))
   }
   
-  return(birth_1987_2024)
+  return(birth_1987_lastyear)
 }
 
 

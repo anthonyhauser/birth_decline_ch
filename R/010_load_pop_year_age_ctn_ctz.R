@@ -1,10 +1,16 @@
-load_pop_year_age_ctn_ctz = function(){
+load_pop_year_age_ctn_ctz = function(last_year = 2024){
   if(file.exists(paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))) {
     pop_df = readRDS(paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))
    }else {
     pop_df = read_excel(paste0(data_folder, "population_data/pop_year_age_nat_ctn.xlsx"))
+    pop_list = list(pop_df)
+    if(last_year==2025){
+      pop2025_df = read_excel(paste0(data_folder, "population_data/pop2025_year_age_nat_ctn.xlsx"))
+      pop_list = list(pop_df, pop2025_df)
+    }
     
-    pop_df0 = pop_df[3:325586,-1] %>% as_tibble() %>% 
+    pop_df0 = lapply(pop_list, function(x){
+      x[3:325586,-1] %>% as_tibble() %>% 
       rename( year = 1,
               region = 2,
               citizenship = 3,
@@ -32,16 +38,17 @@ load_pop_year_age_ctn_ctz = function(){
                     n_start = as.numeric(n_start),
                     n_end = as.numeric(n_end)) %>% 
       dplyr::select(-sex)
+      }) %>% rbindlist()
     
    
    pop_df =  rbind(
-                   #1987-2024
+                   #1987-2024 or 1987-2025
                    pop_df0 %>% 
                       filter(age %in% 15:50) %>% 
                       dplyr::select(year,ctn_abbr,citizenship,age,n=n_start),
-                   #add 2025 to extrapolate pop during 2024 months
+                   #add 2025 to extrapolate pop during 2024 or 2025 months
                     pop_df0 %>% 
-                      filter(age %in% 14:49,year==2024) %>% 
+                      filter(age %in% 14:49,year==last_year) %>% 
                       dplyr::mutate(age=age+1,
                                     year=year+1) %>% 
                       dplyr::select(year,ctn_abbr,citizenship,age,n=n_end)) %>% 
@@ -58,9 +65,13 @@ load_pop_year_age_ctn_ctz = function(){
                               rule = 2)$y) %>%
                 ungroup() %>% 
                dplyr::select(year,month,ctn_abbr,citizenship,age,n) %>% 
-     filter(!(year==2025 & month>1))
+     filter(!(year==last_year+1 & month>1))
     
-    saveRDS(pop_df,paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))
+   if(last_year==2024){
+     saveRDS(pop_df,paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))
+   }else if(last_year==2025){
+     saveRDS(pop_df,paste0(code_root_path,"data/population_data/pop",last_year,"_year_age_nat_ctn.RDS"))
+   }
   }
   
   return(pop_df)
