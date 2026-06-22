@@ -1,23 +1,25 @@
 use_cmdstanr = FALSE
 
-library(pacman)
-pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr,purrr,ggplot2,stringr,zoo,ppcor,progress,
-               xml2,
-               boot,janitor,posterior)
+#detect cluster environment (run_mod8.R sets is.sim.cluster=TRUE before sourcing this file)
+sim_cluster = exists("is.sim.cluster") && isTRUE(is.sim.cluster)
 
-#stan backend
-if(use_cmdstanr){
+library(pacman)
+
+if(sim_cluster){
+  #minimal packages needed for model fitting
+  pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr, purrr, stringr, zoo, posterior)
   library(cmdstanr)
   cmdstan_path()
 } else {
-  library(rstan)
-}
-
-print(getwd())
-print(grepl("ahauser6",getwd()))
-
-if(!grepl("ahauser6",getwd())){
-  if(use_cmdstanr) set_cmdstan_path("C:/TEMP/.cmdstan/cmdstan-2.36.0")
+  pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr, purrr, ggplot2, stringr, zoo, ppcor, progress,
+                 xml2, boot, janitor, posterior)
+  if(use_cmdstanr){
+    library(cmdstanr)
+    cmdstan_path()
+    if(startsWith(getwd(), "C:/TEMP")) set_cmdstan_path("C:/TEMP/.cmdstan/cmdstan-2.36.0")
+  } else {
+    library(rstan)
+  }
   library(tidyverse)
   library(flextable)
   library(officer)
@@ -27,6 +29,7 @@ if(!grepl("ahauser6",getwd())){
   library(sf)
   library(foreign)
   library(spdep)
+  theme_set(theme_bw())
 }
 
 if(FALSE){#check cmdstan
@@ -42,10 +45,8 @@ if(FALSE){#check cmdstan
     parallel_chains = 4,
     refresh = 500 # print update every 500 iters
   )
-  
-}
 
-theme_set(theme_bw())
+}
 
 #load R files
 wd = getwd()
@@ -157,6 +158,8 @@ canton_df <- data.frame(
 #mun_ids to aggregate in Appenzell
 mun_ids_to_agg <- c(3101, 3102, 3104, 3112)
 
+
+if(!sim_cluster){
 
 #load sf data
 #districts
@@ -403,4 +406,6 @@ ctz_map <- tribble(
   "Îles Cook", "Oceania",
   "Tibet","Asia"
 )
+
+} #end if(!sim_cluster)
 
