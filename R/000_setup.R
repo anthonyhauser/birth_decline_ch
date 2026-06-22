@@ -1,7 +1,7 @@
 use_cmdstanr = FALSE
 
 #detect cluster environment (run_mod8.R sets is.sim.cluster=TRUE before sourcing this file)
-sim_cluster = exists("is.sim.cluster") && isTRUE(is.sim.cluster)
+sim_cluster = exists("is.sim.cluster") && isTRUE(is.sim.cluster) && !startsWith(getwd(), "C:/TEMP")
 
 library(pacman)
 
