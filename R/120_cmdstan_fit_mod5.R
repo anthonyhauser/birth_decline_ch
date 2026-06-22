@@ -49,6 +49,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_birthyear")) #used as text to name saved results
   mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
   mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
+  mod_name = if_else(last_year!=2025,mod_name,paste0(mod_name,"_",last_year))
   
   #Load data--------------------------------------------------------------------
   #population
