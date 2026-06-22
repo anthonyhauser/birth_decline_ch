@@ -7,7 +7,7 @@ library(pacman)
 
 if(sim_cluster){
   #minimal packages needed for model fitting
-  pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr, purrr, stringr, zoo, posterior)
+  pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr, purrr, ggplot2, stringr, zoo, posterior)
   library(cmdstanr)
   cmdstan_path()
 } else {
