@@ -10,6 +10,7 @@
 excess_by_ntiles = function(save.date, mod_name, seed_id,
                             use.p_childless_v,
                             pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
+                            year_range = 2017:2024,
                             res_path = "results/"){
   
   #load data
@@ -111,7 +112,7 @@ excess_by_ntiles = function(save.date, mod_name, seed_id,
       print(w)
       excess_df[[paste0(v,"_",w)]] = get_excess_est(var_group = "ntile",
                                                     excess_birth_year_mun_draw_df %>% 
-                                                      filter(year %in% 2017:2024,
+                                                      filter(year %in% year_range,
                                                              childless==w) %>% 
                                                       left_join(df_var %>% dplyr::select(mun_id,ntile = !!v),by="mun_id")) %>% 
         dplyr::mutate(explanatory_var=!!v,
@@ -119,7 +120,7 @@ excess_by_ntiles = function(save.date, mod_name, seed_id,
       
       excess_year_df[[paste0(v,"_",w)]] = get_excess_est(var_group = c("year","ntile"),
                                                     excess_birth_year_mun_draw_df %>% 
-                                                      filter(year %in% 2017:2024,
+                                                      filter(year %in% year_range,
                                                              childless==w) %>% 
                                                       left_join(df_var %>% dplyr::select(mun_id,ntile = !!v),by="mun_id")) %>% 
         dplyr::mutate(explanatory_var=!!v,
@@ -168,8 +169,9 @@ excess_by_ntiles = function(save.date, mod_name, seed_id,
       scale_y_continuous(name="Relative excess birth",labels = scales::percent)
   }
   
-  saveRDS(excess_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
-  saveRDS(excess_year_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_year_df",".RDS"))
+  year_suffix = paste0("_",min(year_range),"_",max(year_range))
+  saveRDS(excess_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,year_suffix,"_","excess_birth_ntiles_df",".RDS"))
+  saveRDS(excess_year_df, paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,year_suffix,"_","excess_birth_ntiles_year_df",".RDS"))
   
   return(excess_df)
 }
