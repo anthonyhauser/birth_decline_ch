@@ -1,17 +1,23 @@
+use_cmdstanr = FALSE
+
 library(pacman)
 pacman::p_load(ISOweek, lubridate, data.table, tidyfast, tidyr, dplyr,purrr,ggplot2,stringr,zoo,ppcor,progress,
                xml2,
-               boot,janitor)
+               boot,janitor,posterior)
 
-#cmdstanr
-library(cmdstanr)
-cmdstan_path()
+#stan backend
+if(use_cmdstanr){
+  library(cmdstanr)
+  cmdstan_path()
+} else {
+  library(rstan)
+}
 
 print(getwd())
 print(grepl("ahauser6",getwd()))
 
 if(!grepl("ahauser6",getwd())){
-  set_cmdstan_path("C:/TEMP/.cmdstan/cmdstan-2.36.0")
+  if(use_cmdstanr) set_cmdstan_path("C:/TEMP/.cmdstan/cmdstan-2.36.0")
   library(tidyverse)
   library(flextable)
   library(officer)

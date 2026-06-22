@@ -6,7 +6,8 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
                            N_add_age = 4,
                            filter_ctz = c("swiss","non-swiss"),
                            filter_parity = "all",#filter_parity="first"
-                           seed_id = 123){
+                           seed_id = 123,
+                           use_cmdstanr = get("use_cmdstanr", envir=.GlobalEnv)){
   
   if(FALSE){
     mod_name ="mod8"
@@ -19,6 +20,31 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     filter_parity = "all"
     N_add_age = 4
   }
+  # backend-agnostic helpers
+  if(use_cmdstanr){
+    fit_summary = function(fit, vars){
+      fit$summary(variables = vars, "mean", ~quantile(.x, probs = c(0.025, 0.975))) %>%
+        as.data.frame() %>%
+        dplyr::rename(lwb = `2.5%`, upb = `97.5%`)
+    }
+    get_draws_df = function(fit, var){
+      fit$draws(var, format="df") %>%
+        dplyr::rename(chain=.chain, iter=.iteration, draw=.draw)
+    }
+  } else {
+    fit_summary = function(fit, vars){
+      rstan::summary(fit, pars=vars)$summary %>%
+        as.data.frame() %>%
+        dplyr::mutate(variable=rownames(.)) %>%
+        dplyr::rename(lwb=`2.5%`, upb=`97.5%`)
+    }
+    get_draws_df = function(fit, var){
+      draws_mat = rstan::extract(fit, pars=var, permuted=TRUE)[[var]]  # n_draws x N_year
+      colnames(draws_mat) = paste0(var, "[", seq_len(ncol(draws_mat)), "]")
+      as.data.frame(draws_mat) %>% dplyr::mutate(draw=dplyr::row_number())
+    }
+  }
+
   mod_name0 = mod_name#used to compile model
   mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_birthyear")) #used as text to name saved results
   mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
@@ -128,20 +154,38 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   stan_month_data$N
   
   #Stan model-------------------------------------------------------------------
-  mod5 <- cmdstan_model(paste0("stan/",mod_name0,".stan"))
-  fit <- mod5$sample(data = stan_month_data,
-                            init=0, #this needs to be relaxed later on
-                            metric = "dense_e",
-                            chains = 4,
-                            parallel_chains = 4,
-                            iter_sampling = 500,
-                            iter_warmup = 1000,
-                            adapt_delta = 0.99,
+  if(use_cmdstanr){
+    mod5 <- cmdstan_model(paste0("stan/",mod_name0,".stan"))
+    fit  <- mod5$sample(data = stan_month_data,
+                        init = 0,
+                        metric = "dense_e",
+                        chains = 4,
+                        parallel_chains = 4,
+                        iter_sampling = 500,
+                        iter_warmup = 1000,
+                        adapt_delta = 0.99,
+                        refresh = 10,
+                        seed = seed_id)
+  } else {
+    mod5 <- rstan::stan_model(paste0("stan/",mod_name0,".stan"))
+    fit  <- rstan::sampling(mod5,
+                            data    = stan_month_data,
+                            init    = 0,
+                            chains  = 4,
+                            cores   = 4,
+                            warmup  = 1000,
+                            iter    = 1500,
+                            control = list(adapt_delta=0.99, metric="dense_e"),
                             refresh = 10,
-                            seed = seed_id)
+                            seed    = seed_id)
+  }
   
   if(save_draw){
-    fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
+    if(use_cmdstanr){
+      fit$save_object(file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
+    } else {
+      saveRDS(fit, file = paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
+    }
   }
   if(FALSE){
     fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name,"_seedid",seed_id,".RDS"))
@@ -162,7 +206,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   }
   
   #diagnostic
-  stan_diag_df = cmdstan_diagnostic(fit)
+  stan_diag_df = if(use_cmdstanr) cmdstan_diagnostic(fit) else rstan_diagnostic(fit)
   
   # fit$diagnostic_summary()
   # fit$summary() %>% arrange(-rhat) %>% .[,1:10]
@@ -170,10 +214,10 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   #posterior
   var=c("alpha","alpha_year","inv_sigma")
   #paremeters
-  par_df = fit$summary(variables = var, "mean",~quantile(.x, probs = c(0.025, 0.975)))
-  
+  par_df = fit_summary(fit, var)
+
   #fixed effect of month: gamma_month
-  gamma_month_df = fit$summary(variables = c("gamma_month"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+  gamma_month_df = fit_summary(fit, c("gamma_month")) %>%
     tidyr::extract(variable,into=c("variable","month_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
@@ -181,7 +225,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     dplyr::mutate(month_id = as.numeric(month_id))
   
   #random effect of calendar year: b_year
-  b_year_df = fit$summary(variables = c("b_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+  b_year_df = fit_summary(fit, c("b_year")) %>%
     tidyr::extract(variable,into=c("variable","year_id2"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
@@ -190,7 +234,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     left_join(stan_df %>% dplyr::select(year,year_id2) %>% distinct(),by=c("year_id2")) 
   
   #overdispersion by age: sigma_year
-  sigma_year_df = fit$summary(variables = c("sigma"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+  sigma_year_df = fit_summary(fit, c("sigma")) %>%
     tidyr::extract(variable,into=c("variable","age_id2"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
@@ -199,7 +243,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     left_join(stan_df %>% dplyr::select(mother_age,age_id2) %>% distinct(),by=c("age_id2")) 
   
   #birth probability by age
-  birth_prob_by_age_df = fit$summary(variables = c("birth_prob"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+  birth_prob_by_age_df = fit_summary(fit, c("birth_prob")) %>%
     tidyr::extract(variable,into=c("variable","year_id","age_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
@@ -210,7 +254,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     filter(!is.na(mother_age)) #remove rows with NA because of N_add_age
   
   #gp: increase in mother age over year (calendar or birth year)
-  gp_df = fit$summary(variables = c("f_year"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>% 
+  gp_df = fit_summary(fit, c("f_year")) %>%
     tidyr::extract(variable,into=c("variable","year_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
@@ -229,9 +273,8 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   }
   
   #gp, relative to first year
-  gp_rel_df = fit$draws("f_year",format = "df") %>%
-    dplyr::rename(chain=.chain,iter=.iteration,draw=.draw) %>% 
-    pivot_longer( cols = starts_with("f_year["),names_to = "var",values_to = "value") %>% 
+  gp_rel_df = get_draws_df(fit, "f_year") %>%
+    pivot_longer(cols = starts_with("f_year["), names_to = "var", values_to = "value") %>%
     tidyr::extract(var,into=c("var","year_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     dplyr::mutate(year_id = as.numeric(year_id)) %>% 
@@ -258,7 +301,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
       left_join(stan_df %>% dplyr::select(year,year_id=year_id1) %>% distinct(),by="year_id") 
   }
   #bias
-  age_bias_df = fit$summary(variables = c("age_bias"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>%
+  age_bias_df = fit_summary(fit, c("age_bias")) %>%
     tidyr::extract(variable,into=c("variable","age_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>%
     as_tibble() %>%
@@ -267,7 +310,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") 
   
   #prediction
-  pred_df = fit$summary(variables = c("n_birth_pred"), "mean",~quantile(.x, probs = c(0.025, 0.975))) %>%
+  pred_df = fit_summary(fit, c("n_birth_pred")) %>%
     tidyr::extract(variable,into=c("variable","row_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>%
     as_tibble() %>%
