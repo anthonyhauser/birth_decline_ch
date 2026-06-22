@@ -39,7 +39,7 @@ echo "test--------"
 
 # Load module
 module purge
-dcsrsoft use 20240303
+dcsrsoft use 20260114
 module load r-light
 
 echo "---------------------------------"
