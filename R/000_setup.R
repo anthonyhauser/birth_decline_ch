@@ -1,4 +1,4 @@
-use_cmdstanr = FALSE
+use_cmdstanr = if(exists("is.sim.cluster") && isTRUE(is.sim.cluster)) TRUE else FALSE
 
 #detect cluster environment (run_mod8.R sets is.sim.cluster=TRUE before sourcing this file)
 sim_cluster = exists("is.sim.cluster") && isTRUE(is.sim.cluster) && !startsWith(getwd(), "C:/TEMP")
