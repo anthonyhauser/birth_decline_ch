@@ -21,7 +21,9 @@ params:
   mod_name: "mod8"
   save.date: "20260309"
   seed_id: 1
-    
+  res_path: "results/"
+  ntile_year_suffix: "_2017_2024"
+
 editor: visual
 ---
 
@@ -32,6 +34,8 @@ source("../R/000_setup.R")
 mod_name = params$mod_name
 save.date = params$save.date
 seed_id = params$seed_id
+res_path = params$res_path
+ntile_year_suffix = params$ntile_year_suffix
 
 effect_on_age_shift = ifelse(grepl("birthyear", mod_name), "birth_year", "cal_year")
   
@@ -511,45 +515,45 @@ This allows us to quantify deviations at a finer spatial scale while respecting 
 ```{r}
 
 #load results
-stan_diag_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
-par_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
-gamma_month_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gammamonth.RDS"))
-b_year_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_byear.RDS"))
-#sigma_year_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_sigmayear.RDS"))
-birth_prob_by_age_df=  readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
-gp_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
-gp_rel_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_gp_rel.RDS"))
-age_bias_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
-pred_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
+stan_diag_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
+par_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_par.RDS"))
+gamma_month_df=  readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_gammamonth.RDS"))
+b_year_df=  readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_byear.RDS"))
+#sigma_year_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_sigmayear.RDS"))
+birth_prob_by_age_df=  readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_birthprob.RDS"))
+gp_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_gp.RDS"))
+gp_rel_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_gp_rel.RDS"))
+age_bias_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_agebias.RDS"))
+pred_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_pred.RDS"))
 
 #load excess
-excess_birth_year_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
-excess_birth_year_age_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
-excess_birth_year_month_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
-#excess_birth_reg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_reg_df",".RDS"))
-excess_birth_year_reg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
+excess_birth_year_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_df",".RDS"))
+excess_birth_year_age_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_df",".RDS"))
+excess_birth_year_month_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_df",".RDS"))
+#excess_birth_reg_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_reg_df",".RDS"))
+excess_birth_year_reg_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_reg_df",".RDS"))
 
 #excess by citizenship
 if(filter_ctz2=="all"){
-  excess_birth_year_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
-  excess_birth_year_age_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
-  excess_birth_year_month_ctz_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
+  excess_birth_year_ctz_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctz_df",".RDS"))
+  excess_birth_year_age_ctz_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_age_ctz_df",".RDS"))
+  excess_birth_year_month_ctz_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_month_ctz_df",".RDS"))
 }
 
 #excess by municipality
-excess_birth_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_mun_df",".RDS"))
-excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
+excess_birth_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_mun_df",".RDS"))
+excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
 if(filter_parity!="all"){
-  excess_birth_adj2_mun_childless_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_childless","_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
+  excess_birth_adj2_mun_childless_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_childless","_","seedid",seed_id,"_","excess_birth_adj2_mun_df",".RDS"))
 }
-excess_birth_year_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_df",".RDS"))
-excess_birth_year_adj2_mun_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_df",".RDS"))
+excess_birth_year_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_mun_df",".RDS"))
+excess_birth_year_adj2_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_df",".RDS"))
 
 
 #excess by citizenship region
-excess_birth_ctzreg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_df",".RDS"))
-excess_birth_year_ctzreg_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctzreg_df",".RDS"))
-excess_birth_ctzreg_ctn_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_ctn_df",".RDS"))
+excess_birth_ctzreg_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_df",".RDS"))
+excess_birth_year_ctzreg_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctzreg_df",".RDS"))
+excess_birth_ctzreg_ctn_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ctzreg_ctn_df",".RDS"))
 
 
 #load population dataset (used for citizenship region to have pop by ctzreg)
@@ -578,8 +582,8 @@ birth_prob_by_age_df %>%
 
 #graph to compare fertility curves including any child or first child only
 if(FALSE){
-  birth_prob_by_age_df1=  readRDS(paste0(code_root_path,"results/","20260309","_","mod8","_seedid",1,"_birthprob.RDS"))
-  birth_prob_by_age_df2=  readRDS(paste0(code_root_path,"results/","20260320","_","mod8_first","_seedid",1,"_birthprob.RDS"))
+  birth_prob_by_age_df1=  readRDS(paste0(code_root_path,res_path,"20260309","_","mod8","_seedid",1,"_birthprob.RDS"))
+  birth_prob_by_age_df2=  readRDS(paste0(code_root_path,res_path,"20260320","_","mod8_first","_seedid",1,"_birthprob.RDS"))
   rbind( birth_prob_by_age_df1 %>% dplyr::mutate(data="all"),
          birth_prob_by_age_df2 %>% dplyr::mutate(data="first")) %>% 
     filter(year %in% c(2024)) %>% 
@@ -836,8 +840,8 @@ excess_birth_year_adj2_mun_df %>%
 ## Excess birth by explanatory variables deciles
 
 ```{r,fig.width=8,fig.height=10}
-excess_by_ntiles_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_df",".RDS"))
-excess_by_ntiles_year_df = readRDS(paste0(code_root_path,"results/",save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_ntiles_year_df",".RDS"))
+excess_by_ntiles_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,ntile_year_suffix,"_","excess_birth_ntiles_df",".RDS"))
+excess_by_ntiles_year_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_","seedid",seed_id,ntile_year_suffix,"_","excess_birth_ntiles_year_df",".RDS"))
 
 #plot
 excess_by_ntiles_df %>% 

@@ -304,6 +304,8 @@ mod_df <- mod_df %>%
     mod_name <- if_else(filter_parity == "all", mod_name,
                         paste0(mod_name, "_", filter_parity))
     save.date <- if (filter_parity != "all") "20260320" else "20260309"
+    mod_name <- if_else(last_year != 2025, mod_name, paste0(mod_name, "_2025"))
+    save.date <- if_else(last_year != 2025, save.date, "20260622")
     
     data.frame(ctz_name = ctz_name,
                filter_parity = filter_parity,
@@ -319,6 +321,7 @@ results <- mod_df %>%
     excess_by_ntiles(save.date, mod_name, seed_id,
                      use.p_childless_v,
                      new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
+                     year_range = 2017:last_year,
                      res_path = res_path)
   })
 
@@ -332,7 +335,9 @@ mod_df[3,] %>%
                           output_file = paste0("report1_pres_",save.date,"_",mod_name,"_","seedid",seed_id,".html"),
                           execute_params = list(save.date = save.date,
                                                 mod_name = mod_name,
-                                                seed_id = seed_id))
+                                                seed_id = seed_id,
+                                                res_path = res_path,
+                                                ntile_year_suffix = paste0("_2017_",last_year)))
   })
 
 mod_name = "mod8_swiss"
