@@ -13,7 +13,7 @@ PROJECT="birth_decline_ch/cluster"
 JOB1="${SLURM_ARRAY_JOB_ID}"
 JOB2=${SLURM_ARRAY_TASK_ID}
 Rfile="run_mod8"
-date="20260622"
+date="20260625"
 last_year=2025
 
 # Read job_id from parameters file
