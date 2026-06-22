@@ -92,7 +92,6 @@ mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
                            effect_on_age_shift = "cal_year",
                            save_draw = TRUE, save.date,
                            seed_id = 1)
-
 pop_df
 birth_agg_df
 mod_name ="mod8"
@@ -102,24 +101,40 @@ save_draw = TRUE
 save.date
 seed_id = 1
 
-
 #parity
-save.date="20260320"
 mod8_res = cmstan_fit_mod5(pop_df, birth_agg_first_df,
                            mod_name ="mod8",
-                           stan_years=  2005:2024,
+                           stan_years=  2005:last_year,
                            effect_on_age_shift = "cal_year",
                            save_draw = TRUE, save.date,
                            filter_parity="first",
                            seed_id = 1)
-save.date="20260320"
 mod8_res = cmstan_fit_mod5(pop_df, birth_agg_second_df,
                            mod_name ="mod8",
-                           stan_years=  2005:2024,
+                           stan_years=  2005:last_year,
                            effect_on_age_shift = "cal_year",
                            save_draw = TRUE, save.date,
                            filter_parity="second",
                            seed_id = 1)
+
+#citizenship
+mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
+                           mod_name ="mod8",
+                           stan_years=  2005:last_year,
+                           effect_on_age_shift = "cal_year",
+                           save_draw = TRUE, save.date,
+                           filter_parity="äll",
+                           filter_ctz = "swiss",
+                           seed_id = 1)
+mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
+                           mod_name ="mod8",
+                           stan_years=  2005:last_year,
+                           effect_on_age_shift = "cal_year",
+                           save_draw = TRUE, save.date,
+                           filter_parity="all",
+                           filter_ctz = "non-swiss",
+                           seed_id = 1)
+
 mod8_res$stan_diag_df
 
 #finer-level excess draws-------------------------------------------------------
@@ -132,8 +147,9 @@ mod_name = "mod8" #mod_name = "mod5_birthyear"
 mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_birthyear")) #used as text to name saved results
 mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
 mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
+mod_name = if_else(last_year!=2025,mod_name,paste0(mod_name,"_",last_year))
 use.p_childless_v = if (filter_parity != "all") c(FALSE, TRUE) else FALSE
-save.date = if (filter_parity != "all") "20260320" else "20260309"
+#save.date = if (filter_parity != "all") "20260320" else "20260309"
 
 #load stan fit and stan_df
 fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name,"_seedid",seed_id, ".RDS"))
