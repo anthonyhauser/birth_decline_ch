@@ -13,4 +13,6 @@ data/
 data/births/birth_1987_2024.RDS
 results/
 savepoint/
+!savepoint/cleaned_cluster_df.RData
+!savepoint/cleaned2025_cluster_df.RData
 cluster/outfiles/
