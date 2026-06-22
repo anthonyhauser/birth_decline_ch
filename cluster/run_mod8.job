@@ -2,40 +2,32 @@
 #SBATCH --mail-user=<anthonyhauser06@gmail.com>
 #SBATCH --mail-type=END,FAIL
 #SBATCH --time=24:00:00
-#SBATCH --mem-per-cpu=2G
-#SBATCH --array=1-9
+#SBATCH --mem-per-cpu=10G
+#SBATCH --array=1-5
 #SBATCH -c 4
 #SBATCH --output="outfiles/slurm-%A_%a.out"
 
 
 # Create paths, job number and date of job
-PROJECT="mrpeak2/cluster"
+PROJECT="birth_decline_ch/cluster"
 JOB1="${SLURM_ARRAY_JOB_ID}"
 JOB2=${SLURM_ARRAY_TASK_ID}
 Rfile="run_mod8"
-date="20260619"
+date="20260622"
 
-# Sweeping parameters_mod_ind.txt
+# Read job_id from parameters file
 N=${SLURM_ARRAY_TASK_ID}
 echo "$N"
 
 ra=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f1`
-rb=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f2`
-rc=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f3`
-rd=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f4`
-re=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f5`
-rf=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f6`
-rg=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f7`
-rh=`head -n ${N} parameters_mod8.txt | tail -n 1 | cut -d' ' -f8`
 
 # Paths to temporary file and out file
-SCR="/users/ahauser6/${PROJECT}/temp-$Rfile-$date-$ra-$rb-$rc-$rd-$re-$rf-$rg-$rh"
+SCR="/users/ahauser6/${PROJECT}/temp-$Rfile-$date-$ra"
 echo "SCR: $SCR"
-OUT="/users/ahauser6/${PROJECT}/outfiles/$Rfile-$date-$ra-$rb-$rc-$rd-$re-$rf-$rg-$rh.Rout"
+OUT="/users/ahauser6/${PROJECT}/outfiles/$Rfile-$date-$ra.Rout"
 echo "OUT: $OUT"
 
-# Display
-echo "Job array item $N: ra=$ra, rb=$rb, rc=$rc, rd=$rd, re=$re, rf=$rf, rg=$rg, rh=$rh"
+echo "Job array item $N: ra=$ra"
 echo "---------------------------------"
 
 # Create temporary file, where the simulations are run
@@ -43,19 +35,19 @@ mkdir -p $SCR
 cp -p "$Rfile.R" $SCR/.
 cd $SCR
 
+echo "test--------"
+
 # Load module
 module purge
-dcsrsoft use 20260114
+dcsrsoft use 20240303
 module load r-light
 
 echo "---------------------------------"
 
-
 # Run R file
-R CMD BATCH --no-save --no-restore "--args $ra $rb $rc $rd $re $rf $rg $rh $date" "$Rfile.R"
+R CMD BATCH --no-save --no-restore "--args $ra $date" "$Rfile.R"
 
 echo "---------------------------------"
-
 
 # Copy Rout file
 cp "$Rfile.Rout" $OUT

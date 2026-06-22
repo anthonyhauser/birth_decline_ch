@@ -506,6 +506,8 @@ birth_agg_df = birth_df %>%
 
 #save for cluster
 saveRDS(birth_agg_df,file="cluster/cluster_data/birth_agg_df.RDS")
+saveRDS(birth_agg_first_df,file="cluster/cluster_data/birth_agg_first_df.RDS")
+saveRDS(birth_agg_second_df,file="cluster/cluster_data/birth_agg_second_df.RDS")
 saveRDS(pop_df,file="cluster/cluster_data/pop_agg_df.RDS")
 
 
