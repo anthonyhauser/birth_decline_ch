@@ -1,9 +1,13 @@
 .Rproj.user
 .Rhistory
 *.RData
-.RDataTmp
+.RDataTmp*
 .Ruserdata
 *.exe
+reports/*.html
+report1*.html
+report1_files/
+report1_param_files/
 
 data/
 data/births/birth_1987_2024.RDS
