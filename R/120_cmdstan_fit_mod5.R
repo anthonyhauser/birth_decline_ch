@@ -161,7 +161,8 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   n_iter_sample  = if(quick_run) 50  else 500
 
   if(use_cmdstanr){
-    mod5 <- cmdstan_model(paste0("stan/",mod_name0,".stan"))
+    stan_root = if(exists("code_root_path")) code_root_path else ""
+    mod5 <- cmdstan_model(paste0(stan_root,"stan/",mod_name0,".stan"))
     fit  <- mod5$sample(data = stan_month_data,
                         init = 0,
                         metric = "dense_e",
