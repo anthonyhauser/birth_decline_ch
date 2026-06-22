@@ -107,10 +107,12 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
   print("---")
 
   #distribute over region, only for 2011-2024
-  pred_n_birth_reg_draw_df = pred_n_birth_draw_df %>% 
-    dplyr::rename(n_pred_nat = n_pred) %>% 
+  pred_n_birth_reg_draw_df = pred_n_birth_draw_df %>%
+    dplyr::rename(n_pred_nat = n_pred) %>%
     dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
-    inner_join(pop_dist_df %>% dplyr::rename(n_pop=n), by=c("year","month","age"),relationship = "many-to-many")  %>%
+    dplyr::mutate(year_pop = pmin(year, max(pop_dist_df$year))) %>%
+    inner_join(pop_dist_df %>% dplyr::rename(n_pop=n), by=c("year_pop"="year","month","age"),relationship = "many-to-many")  %>%
+    dplyr::select(-year_pop) %>%
     group_by(draw,year, month, age) %>%
     dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
     as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
@@ -122,10 +124,12 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
   
   #distribute over ctz, only for 2011-2024
   if(ctz_name==""){
-    pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>% 
-      dplyr::rename(n_pred_nat = n_pred) %>% 
+    pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>%
+      dplyr::rename(n_pred_nat = n_pred) %>%
       dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
-      inner_join(pop_ctz_df %>% dplyr::rename(n_pop=n), by=c("year","month","age"),relationship = "many-to-many")  %>%
+      dplyr::mutate(year_pop = pmin(year, max(pop_ctz_df$year))) %>%
+      inner_join(pop_ctz_df %>% dplyr::rename(n_pop=n), by=c("year_pop"="year","month","age"),relationship = "many-to-many")  %>%
+      dplyr::select(-year_pop) %>%
       group_by(draw,year, month, age) %>%
       dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
       as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
