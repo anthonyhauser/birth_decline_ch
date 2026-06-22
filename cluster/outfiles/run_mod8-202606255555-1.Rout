@@ -58,7 +58,107 @@ To disable this check set option or environment variable cmdstanr_no_ver_check=T
 [27] "/users/ahauser6/birth_decline_ch//R//221_summarise_excess_birth_mun.R"                     
 [28] "/users/ahauser6/birth_decline_ch//R//222_get_pred_birth_draw_and_summarise_excess_by_mun.R"
 [29] "/users/ahauser6/birth_decline_ch//R//230_excess_by_ntiles.R"                               
-Error in ggplot(., aes(x = mean, y = ll)) : 
-  could not find function "ggplot"
-Calls: source ... lapply -> FUN -> withVisible -> eval -> eval -> %>%
+[1] "----"
+[1] "/users/ahauser6/birth_decline_ch/"
+ [1] "/users/ahauser6/birth_decline_ch//R//000_generic_functions.R"                              
+ [2] "/users/ahauser6/birth_decline_ch//R//001_load_birth_data.R"                                
+ [3] "/users/ahauser6/birth_decline_ch//R//001_load_municipality_data.R"                         
+ [4] "/users/ahauser6/birth_decline_ch//R//003_load_vote_data.R"                                 
+ [5] "/users/ahauser6/birth_decline_ch//R//004_load_rural_urban_data.R"                          
+ [6] "/users/ahauser6/birth_decline_ch//R//005_load_population_density_data.R"                   
+ [7] "/users/ahauser6/birth_decline_ch//R//006_load_shp_data.R"                                  
+ [8] "/users/ahauser6/birth_decline_ch//R//007_load_childcare_institutions_data.R"               
+ [9] "/users/ahauser6/birth_decline_ch//R//010_load_pop_year_age_ctn_ctz.R"                      
+[10] "/users/ahauser6/birth_decline_ch//R//011_load_pop_10year_agegp_mun_ctz.R"                  
+[11] "/users/ahauser6/birth_decline_ch//R//012_load_pop_year_age_mun_ctz.R"                      
+[12] "/users/ahauser6/birth_decline_ch//R//014_load_pop_year_age_ctn_detctz.R"                   
+[13] "/users/ahauser6/birth_decline_ch//R//020_get_prob_childless_by_mun.R"                      
+[14] "/users/ahauser6/birth_decline_ch//R//110_cmdstan_fit_mod1_nonparam.R"                      
+[15] "/users/ahauser6/birth_decline_ch//R//110_cmdstan_fit_mod1_param.R"                         
+[16] "/users/ahauser6/birth_decline_ch//R//110_cmdstan_fit_mod1_semiparam.R"                     
+[17] "/users/ahauser6/birth_decline_ch//R//111_cmdstan_fit_mod2.R"                               
+[18] "/users/ahauser6/birth_decline_ch//R//111_cmdstan_fit_mod3.R"                               
+[19] "/users/ahauser6/birth_decline_ch//R//112_cmdstan_fit_mod2_semiparam.R"                     
+[20] "/users/ahauser6/birth_decline_ch//R//120_cmdstan_fit_mod5.R"                               
+[21] "/users/ahauser6/birth_decline_ch//R//201_cmdstan_diagnostic.R"                             
+[22] "/users/ahauser6/birth_decline_ch//R//202_tuning_parameter_cond_EQ.R"                       
+[23] "/users/ahauser6/birth_decline_ch//R//210_get_pred_birth_draw_by_dist.R"                    
+[24] "/users/ahauser6/birth_decline_ch//R//211_get_pred_birth_draw_by_mun.R"                     
+[25] "/users/ahauser6/birth_decline_ch//R//212_get_pred_birth_draw_by_detctz.R"                  
+[26] "/users/ahauser6/birth_decline_ch//R//220_summarise_excess_birth.R"                         
+[27] "/users/ahauser6/birth_decline_ch//R//221_summarise_excess_birth_mun.R"                     
+[28] "/users/ahauser6/birth_decline_ch//R//222_get_pred_birth_draw_and_summarise_excess_by_mun.R"
+[29] "/users/ahauser6/birth_decline_ch//R//230_excess_by_ntiles.R"                               
+Joining with `by = join_by(ctn)`
+> 
+> args_all = commandArgs(TRUE)
+> job_id   = as.numeric(args_all[1])
+> save.date = as.character(args_all[2])
+> 
+> print(paste("job_id:", job_id))
+[1] "job_id: 1"
+> print(paste("save.date:", save.date))
+[1] "save.date: 202606255555"
+> 
+> ##########################################
+> #Job configurations (5 models)
+> # 1: all ctz,     all parity    (main)
+> # 2: all ctz,     first parity
+> # 3: all ctz,     second parity
+> # 4: swiss only,  all parity
+> # 5: non-swiss,   all parity
+> 
+> configs = list(
++   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df.RDS"),
++   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df.RDS"),
++   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df.RDS"),
++   list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2005, birth_data = "birth_agg_df.RDS"),
++   list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2005, birth_data = "birth_agg_df.RDS")
++ )
+> 
+> cfg = configs[[job_id]]
+> 
+> ##########################################
+> #Load data
+> pop_df       = readRDS(paste0(code_root_path,"cluster/cluster_data/pop_agg_df.RDS"))
+> birth_agg_df = readRDS(paste0(code_root_path,"cluster/cluster_data/",cfg$birth_data))
+> 
+> ##########################################
+> #Run model
+> last_year = max(birth_agg_df$year)
+> 
+> res = cmstan_fit_mod5(pop_df, birth_agg_df,
++                       mod_name          = "mod8",
++                       stan_years        = cfg$stan_year_start:last_year,
++                       effect_on_age_shift = "cal_year",
++                       save_draw         = TRUE,
++                       save.date         = save.date,
++                       filter_parity     = cfg$filter_parity,
++                       filter_ctz        = cfg$filter_ctz,
++                       seed_id           = 1,
++                       quick_run         = quick_run)
+Error in `filter()`:
+ℹ In argument: `citizenship %in% filter_ctz`.
+Caused by error:
+! object 'citizenship' not found
+Backtrace:
+     ▆
+  1. ├─global cmstan_fit_mod5(...)
+  2. │ └─... %>% dplyr::summarise(n_birth = sum(n), .groups = "drop")
+  3. ├─dplyr::summarise(., n_birth = sum(n), .groups = "drop")
+  4. ├─dplyr::group_by(., year, mother_age, month)
+  5. ├─dplyr::filter(., mother_age %in% 15:50)
+  6. ├─dplyr::filter(., citizenship %in% filter_ctz)
+  7. ├─dplyr:::filter.data.frame(., citizenship %in% filter_ctz)
+  8. │ └─dplyr:::filter_impl(...)
+  9. │   └─dplyr:::filter_rows(...)
+ 10. │     └─dplyr:::filter_eval(...)
+ 11. │       ├─base::withCallingHandlers(...)
+ 12. │       └─mask$eval_all_filter(dots_expanded, invert, env_filter)
+ 13. │         └─dplyr (local) eval()
+ 14. ├─citizenship %in% filter_ctz
+ 15. │ └─posterior::match(x, table, nomatch = 0L)
+ 16. └─base::.handleSimpleError(...)
+ 17.   └─dplyr (local) h(simpleError(msg, call))
+ 18.     └─rlang::abort(message, class = error_class, parent = parent, call = error_call)
 Execution halted
