@@ -412,12 +412,174 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
       geom_point(aes(y=n_birth),size=2)+
       facet_grid(mother_age~.,scale="free_y")
     
-    pred_df %>% 
-      filter(age_id %in% ( c(36,38,40,42,45,48,50)-15)) %>% 
+    pred_df %>%
+      filter(age_id %in% ( c(36,38,40,42,45,48,50)-15)) %>%
       ggplot(aes(x=year_id))+
       geom_ribbon(aes(ymin=lwb,ymax=upb),alpha=0.2,fill="darkred")+
       geom_line(aes(y=est),col="darkred")+
       geom_point(aes(y=n_birth),size=2)+
       facet_grid(mother_age~.,scale="free_y")
   }
+}
+
+# Post-processing only: load saved draws and save all RDS summary files.
+# Use when the model ran successfully but RDS files were not saved (e.g. due to wrong working directory).
+cmstan_postprocess_mod5 = function(pop_df, birth_agg_df,
+                                   mod_name = "mod5",
+                                   stan_years = 2000:2024,
+                                   effect_on_age_shift = "cal_year",
+                                   save.date,
+                                   filter_parity = "all",
+                                   filter_ctz = c("swiss","non-swiss"),
+                                   seed_id = 1){
+  N_add_age = 3
+
+  # backend-agnostic helpers (always cmdstanr for cluster)
+  fit_summary = function(fit, vars){
+    fit$summary(variables = vars, "mean", ~quantile(.x, probs = c(0.025, 0.975))) %>%
+      as.data.frame() %>%
+      dplyr::rename(lwb = `2.5%`, upb = `97.5%`)
+  }
+  get_draws_df = function(fit, var){
+    fit$draws(var, format="df") %>%
+      dplyr::rename(chain=.chain, iter=.iteration, draw=.draw)
+  }
+
+  # Reconstruct mod_name and res_path exactly as in cmstan_fit_mod5
+  mod_name = if_else(effect_on_age_shift=="cal_year", mod_name, paste0(mod_name,"_birthyear"))
+  mod_name = paste0(mod_name, ifelse(length(filter_ctz)==2, "", paste0("_",filter_ctz)))
+  mod_name = if_else(filter_parity=="all", mod_name, paste0(mod_name,"_",filter_parity))
+  last_year = max(stan_years)
+  mod_name = if_else(last_year!=2025, mod_name, paste0(mod_name,"_",last_year))
+  root     = if(exists("code_root_path")) code_root_path else ""
+  res_path = paste0(root, "results/", ifelse(last_year==2025, "2025/", ""))
+  if(!dir.exists(res_path)) dir.create(res_path, recursive=TRUE)
+
+  # Load saved fit object
+  fit = readRDS(paste0(root,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
+
+  # Reconstruct stan_df (needed for joins)
+  pop_mod_df = pop_df %>%
+    filter(citizenship %in% filter_ctz) %>%
+    group_by(year, mother_age=age, month) %>%
+    dplyr::summarise(n_pop=sum(n), .groups="drop")
+  birth_mod_df = birth_agg_df %>%
+    filter(citizenship %in% filter_ctz) %>%
+    filter(mother_age %in% 15:50) %>%
+    group_by(year, mother_age, month) %>%
+    dplyr::summarise(n_birth=sum(n), .groups="drop")
+  stan_df = pop_mod_df %>%
+    filter(year<=last_year) %>%
+    left_join(birth_mod_df, by=c("year","mother_age","month")) %>%
+    dplyr::mutate(n_birth   = replace_na(n_birth, 0),
+                  birth_year = year - mother_age,
+                  age_id2   = mother_age - min(mother_age) + 1,
+                  age_id    = age_id2 + N_add_age)
+  if(effect_on_age_shift=="birth_year"){
+    stan_df = stan_df %>%
+      filter(birth_year>=1965, birth_year<=1998, year>=1990) %>%
+      dplyr::mutate(year_id1 = birth_year-min(birth_year) + 1,
+                    year_id2 = year-min(year) + 1)
+  } else {
+    stan_df = stan_df %>%
+      filter(year %in% stan_years) %>%
+      dplyr::mutate(year_id1 = year-min(year) + 1,
+                    year_id2 = year-min(year) + 1)
+  }
+
+  # Diagnostic
+  stan_diag_df = cmdstan_diagnostic(fit)
+
+  # Posterior summaries
+  var = c("alpha","alpha_year","inv_sigma")
+  par_df = fit_summary(fit, var)
+
+  gamma_month_df = fit_summary(fit, c("gamma_month")) %>%
+    tidyr::extract(variable, into=c("variable","month_id"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove=T) %>%
+    as_tibble() %>%
+    dplyr::select(month_id, est=mean, lwb, upb) %>%
+    dplyr::mutate(month_id = as.numeric(month_id))
+
+  b_year_df = fit_summary(fit, c("b_year")) %>%
+    tidyr::extract(variable, into=c("variable","year_id2"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove=T) %>%
+    as_tibble() %>%
+    dplyr::select(year_id2, est=mean, lwb, upb) %>%
+    dplyr::mutate(year_id2 = as.numeric(year_id2)) %>%
+    left_join(stan_df %>% dplyr::select(year,year_id2) %>% distinct(), by="year_id2")
+
+  sigma_year_df = fit_summary(fit, c("sigma")) %>%
+    tidyr::extract(variable, into=c("variable","age_id2"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove=T) %>%
+    as_tibble() %>%
+    dplyr::select(age_id2, est=mean, lwb, upb) %>%
+    dplyr::mutate(age_id2 = as.numeric(age_id2)) %>%
+    left_join(stan_df %>% dplyr::select(mother_age,age_id2) %>% distinct(), by="age_id2")
+
+  birth_prob_by_age_df = fit_summary(fit, c("birth_prob")) %>%
+    tidyr::extract(variable, into=c("variable","year_id","age_id"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove=T) %>%
+    as_tibble() %>%
+    dplyr::select(year_id, age_id, est=mean, lwb, upb) %>%
+    dplyr::mutate(year_id=as.numeric(year_id), age_id=as.numeric(age_id)) %>%
+    left_join(stan_df %>% dplyr::select(year,mother_age,birth_year,age_id,year_id=year_id1) %>% distinct(), by=c("age_id","year_id")) %>%
+    filter(!is.na(mother_age))
+
+  gp_df = fit_summary(fit, c("f_year")) %>%
+    tidyr::extract(variable, into=c("variable","year_id"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove=T) %>%
+    as_tibble() %>%
+    dplyr::select(year_id, est=mean, lwb, upb) %>%
+    dplyr::mutate(year_id=as.numeric(year_id))
+
+  gp_rel_df = get_draws_df(fit, "f_year") %>%
+    pivot_longer(cols=starts_with("f_year["), names_to="var", values_to="value") %>%
+    tidyr::extract(var, into=c("var","year_id"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove=T) %>%
+    dplyr::mutate(year_id=as.numeric(year_id)) %>%
+    group_by(draw) %>%
+    dplyr::mutate(value=value-value[year_id==1], value=-value) %>% ungroup() %>%
+    group_by(year_id) %>%
+    dplyr::summarise(est=mean(value), lwb=quantile(value,probs=0.025), upb=quantile(value,probs=0.975), .groups="drop")
+
+  if(grepl("birth_year",mod_name)){
+    gp_df    = gp_df    %>% left_join(stan_df %>% dplyr::select(birth_year,year_id=year_id1) %>% distinct(), by="year_id")
+    gp_rel_df= gp_rel_df%>% left_join(stan_df %>% dplyr::select(birth_year,year_id=year_id1) %>% distinct(), by="year_id")
+  } else {
+    gp_df    = gp_df    %>% left_join(stan_df %>% dplyr::select(year,year_id=year_id1) %>% distinct(), by="year_id")
+    gp_rel_df= gp_rel_df%>% left_join(stan_df %>% dplyr::select(year,year_id=year_id1) %>% distinct(), by="year_id")
+  }
+
+  age_bias_df = fit_summary(fit, c("age_bias")) %>%
+    tidyr::extract(variable, into=c("variable","age_id"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove=T) %>%
+    as_tibble() %>%
+    dplyr::select(age_id, est=mean, lwb, upb) %>%
+    dplyr::mutate(age_id=as.numeric(age_id)) %>%
+    left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(), by="age_id")
+
+  pred_df = fit_summary(fit, c("n_birth_pred")) %>%
+    tidyr::extract(variable, into=c("variable","row_id"),
+                   regex=paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove=T) %>%
+    as_tibble() %>%
+    dplyr::select(row_id, est=mean, lwb, upb) %>%
+    cbind(stan_df %>% dplyr::select(year_id=year_id1, month, age_id, n_birth)) %>%
+    left_join(stan_df %>% dplyr::select(year,mother_age,birth_year,age_id,year_id=year_id1) %>% distinct(), by=c("age_id","year_id")) %>%
+    dplyr::mutate(date=as.Date(sprintf("%d-%02d-01", year, month)))
+
+  # Save all RDS files
+  rds = function(obj, suffix) saveRDS(obj, paste0(res_path, save.date,"_",mod_name,"_seedid",seed_id,"_",suffix,".RDS"))
+  rds(stan_diag_df,         "standiag")
+  rds(par_df,               "par")
+  rds(gamma_month_df,       "gammamonth")
+  rds(b_year_df,            "byear")
+  rds(sigma_year_df,        "sigmayear")
+  rds(birth_prob_by_age_df, "birthprob")
+  rds(gp_df,                "gp")
+  rds(gp_rel_df,            "gp_rel")
+  rds(age_bias_df,          "agebias")
+  rds(pred_df,              "pred")
+
+  print(paste("Saved all RDS files to", res_path))
 }
