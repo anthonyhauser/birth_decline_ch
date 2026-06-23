@@ -44,8 +44,8 @@ seed_id  = 1
 ##########################################
 #Load model data
 load(ifelse(last_year==2024,
-            paste0(code_root_path,"savepoint/cleaned_cluster_extrapolate_df.RData"),
-            paste0(code_root_path,"savepoint/cleaned2025_cluster_extrapolate_df.RData")))
+            paste0(code_root_path,"savepoint/cleaned_cluster_df.RData"),
+            paste0(code_root_path,"savepoint/cleaned2025_cluster_df.RData")))
 
 ##########################################
 #Load stan fit and stan_df
