@@ -228,7 +228,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     tidyr::extract(variable,into=c("variable","month_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
-    dplyr::select(month_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::select(month_id,est=mean,lwb,upb) %>%
     dplyr::mutate(month_id = as.numeric(month_id))
   
   #random effect of calendar year: b_year
@@ -236,7 +236,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     tidyr::extract(variable,into=c("variable","year_id2"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
-    dplyr::select(year_id2,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::select(year_id2,est=mean,lwb,upb) %>%
     dplyr::mutate(year_id2 = as.numeric(year_id2)) %>% 
     left_join(stan_df %>% dplyr::select(year,year_id2) %>% distinct(),by=c("year_id2")) 
   
@@ -245,7 +245,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     tidyr::extract(variable,into=c("variable","age_id2"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
-    dplyr::select(age_id2,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::select(age_id2,est=mean,lwb,upb) %>%
     dplyr::mutate(age_id2 = as.numeric(age_id2)) %>% 
     left_join(stan_df %>% dplyr::select(mother_age,age_id2) %>% distinct(),by=c("age_id2")) 
   
@@ -254,7 +254,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     tidyr::extract(variable,into=c("variable","year_id","age_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",2),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
-    dplyr::select(year_id,age_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::select(year_id,age_id,est=mean,lwb,upb) %>%
     dplyr::mutate(year_id = as.numeric(year_id),
                   age_id=as.numeric(age_id)) %>% 
     left_join(stan_df %>% dplyr::select(year,mother_age,birth_year,age_id,year_id=year_id1) %>% distinct(),by=c("age_id","year_id")) %>% 
@@ -265,7 +265,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     tidyr::extract(variable,into=c("variable","year_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>% 
     as_tibble() %>% 
-    dplyr::select(year_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>% 
+    dplyr::select(year_id,est=mean,lwb,upb) %>%
     dplyr::mutate(year_id=as.numeric(year_id))
   
   if(FALSE){
@@ -312,7 +312,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     tidyr::extract(variable,into=c("variable","age_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>%
     as_tibble() %>%
-    dplyr::select(age_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>%
+    dplyr::select(age_id,est=mean,lwb,upb) %>%
     dplyr::mutate(age_id=as.numeric(age_id)) %>% 
     left_join(stan_df %>% dplyr::select(mother_age,age_id) %>% distinct(),by="age_id") 
   
@@ -321,7 +321,7 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
     tidyr::extract(variable,into=c("variable","row_id"),
                    regex =paste0('(\\w.*)\\[',paste(rep("(.*)",1),collapse='\\,'),'\\]'), remove = T) %>%
     as_tibble() %>%
-    dplyr::select(row_id,est=mean,lwb=`2.5%`,upb=`97.5%`) %>%
+    dplyr::select(row_id,est=mean,lwb,upb) %>%
     cbind(stan_df %>% dplyr::select(year_id=year_id1,month,age_id,n_birth)) %>% 
     left_join(stan_df %>% dplyr::select(year,mother_age,birth_year,age_id,year_id=year_id1) %>% distinct(),by=c("age_id","year_id")) %>% 
     dplyr::mutate(date = as.Date(sprintf("%d-%02d-01", year, month)))
