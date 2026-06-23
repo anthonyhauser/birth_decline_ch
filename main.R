@@ -89,245 +89,110 @@ new_birth_df = birth_df %>%
 #run model----------------------------------------------------------------------
 #stan model
 
-#main analysis
-save.date="20260622"#"20260309"
-mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
-                           mod_name ="mod8",
-                           stan_years=  2000:last_year,
-                           effect_on_age_shift = "cal_year",
-                           save_draw = TRUE, save.date,
-                           seed_id = 1)
-pop_df
-birth_agg_df
-mod_name ="mod8"
-stan_years=  2000:last_year
-effect_on_age_shift = "cal_year"
-save_draw = TRUE
-save.date
-seed_id = 1
+#run model, extrapolate and summarise------------------------------------------
+save.date = "20260622"
+seed_id   = 1
 
-#parity
-mod8_res = cmstan_fit_mod5(pop_df, birth_agg_first_df,
-                           mod_name ="mod8",
-                           stan_years=  2005:last_year,
-                           effect_on_age_shift = "cal_year",
-                           save_draw = TRUE, save.date,
-                           filter_parity="first",
-                           seed_id = 1)
-mod8_res = cmstan_fit_mod5(pop_df, birth_agg_second_df,
-                           mod_name ="mod8",
-                           stan_years=  2005:last_year,
-                           effect_on_age_shift = "cal_year",
-                           save_draw = TRUE, save.date,
-                           filter_parity="second",
-                           seed_id = 1)
+configs = list(
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df"),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df"),
+  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
+  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df")
+)
 
-#citizenship
-mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
-                           mod_name ="mod8",
-                           stan_years=  2005:last_year,
-                           effect_on_age_shift = "cal_year",
-                           save_draw = TRUE, save.date,
-                           filter_parity="äll",
-                           filter_ctz = "swiss",
-                           seed_id = 1)
-mod8_res = cmstan_fit_mod5(pop_df, birth_agg_df,
-                           mod_name ="mod8",
-                           stan_years=  2005:last_year,
-                           effect_on_age_shift = "cal_year",
-                           save_draw = TRUE, save.date,
-                           filter_parity="all",
-                           filter_ctz = "non-swiss",
-                           seed_id = 1)
+lapply(configs, function(cfg){
+  birth_data   = get(cfg$birth_data)
+  use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
 
-mod8_res$stan_diag_df
+  #1. Run model
+  cmstan_fit_mod5(pop_df, birth_data,
+                  mod_name            = "mod8",
+                  stan_years          = cfg$stan_year_start:last_year,
+                  effect_on_age_shift = "cal_year",
+                  save_draw           = TRUE,
+                  save.date           = save.date,
+                  filter_parity       = cfg$filter_parity,
+                  filter_ctz          = cfg$filter_ctz,
+                  seed_id             = seed_id)
 
-#finer-level excess draws-------------------------------------------------------
-#post-processing: estimates by district and municipality
-filter_ctz =  c("swiss","non-swiss") #c("swiss","non-swiss") #c("swiss","non-swiss"), "swiss", "non-swiss"
-filter_parity="all" #"all", "first", "second"
-effect_on_age_shift = "cal_year"
-seed_id=1 # seed_id = 1
-mod_name = "mod8" #mod_name = "mod5_birthyear"
-mod_name = if_else(effect_on_age_shift=="cal_year",mod_name,paste0(mod_name,"_birthyear")) #used as text to name saved results
-mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
-mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
-mod_name = if_else(last_year!=2025,mod_name,paste0(mod_name,"_",last_year))
-res_path = paste0("results/", ifelse(last_year==2025, "2025/", ""))
-use.p_childless_v = if (filter_parity != "all") c(FALSE, TRUE) else FALSE
-#save.date = if (filter_parity != "all") "20260320" else "20260309"
+  #reconstruct mod_name and res_path (same logic as inside cmstan_fit_mod5)
+  mod_name = "mod8"
+  mod_name = paste0(mod_name, ifelse(length(cfg$filter_ctz)==2,"",paste0("_",cfg$filter_ctz)))
+  mod_name = if_else(cfg$filter_parity=="all", mod_name, paste0(mod_name,"_",cfg$filter_parity))
+  mod_name = if_else(last_year!=2025, mod_name, paste0(mod_name,"_",last_year))
+  res_path = paste0("results/", ifelse(last_year==2025, "2025/", ""))
 
-#load stan fit and stan_df
-fit <- readRDS(paste0(code_root_path, "results/cmdstan_draw/", save.date, "_", mod_name,"_seedid",seed_id, ".RDS"))
-stan_df = readRDS(paste0(res_path, mod_name,"_standf.RDS"))
+  #2. Extrapolate to finer levels
+  fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
+  stan_df = readRDS(paste0(res_path, mod_name,"_standf.RDS"))
 
-#use multinomial to distribute prediction over regions (draws over regions, month, year, age) and citizenship (swiss and non-swiss)
-list_pred_n_birth_draw_list = get_pred_birth_draw_by_dist(fit, #cmdstanr fit
-                                                          stan_df,
-                                                          pop_dist_df,#pop by district
-                                                          birth_df, #birth_df (individual level)
-                                                          n_draw_subset = 100,
-                                                          save.date,
-                                                          mod_name,
-                                                          seed_id)
-pred_n_birth_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_draw_df"]]
-pred_n_birth_reg_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_reg_draw_df"]]
-pred_n_birth_ctz_draw_df = list_pred_n_birth_draw_list[["pred_n_birth_ctz_draw_df"]]
+  get_pred_birth_draw_by_dist(fit, stan_df, pop_dist_df, new_birth_df,
+                              n_draw_subset = 100, save.date, mod_name, seed_id, res_path)
 
-if(FALSE){
-  pred_n_birth_draw_df %>% 
-    filter(year==2024, month==1) %>% 
-    group_by(draw) %>% 
-    dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
-  
-  
-  pred_n_birth_reg_draw_df %>% 
-    filter(year==2024, month==1) %>% 
-    group_by(draw) %>% 
-    dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
-}
+  for(use.p_childless in use.p_childless_v){
+    get_pred_birth_draw_by_mun(fit, stan_df, new_pop_mun_df, new_birth_df,
+                               new_mun_sf = new_mun_sf, n_draw_subset = 100,
+                               save.date, mod_name, use.p_childless, seed_id, res_path)
+  }
 
-#use multinomial to distribute prediction over municipality (slightly different from district, as, because they are more strata, we sum over month and age)
-for(use.p_childless in use.p_childless_v){
-  list_pred_n_birth_mun_draw_list = get_pred_birth_draw_by_mun(fit, #cmdstanr fit
-                                                               stan_df,
-                                                               new_pop_mun_df,#pop by district
-                                                               new_birth_df, #birth_df (individual level)
-                                                               new_mun_sf = new_mun_sf,
-                                                               n_draw_subset = 100,
-                                                               save.date,
-                                                               mod_name,
-                                                               use.p_childless,
-                                                               seed_id)
-  excess_birth_year_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_mun_draw_df"]]
-  excess_birth_year_adj_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj_mun_draw_df"]]
-  excess_birth_year_adj2_mun_draw_df = list_pred_n_birth_mun_draw_list[["excess_birth_year_adj2_mun_draw_df"]]
-}
+  get_pred_birth_draw_by_ctzreg(fit, stan_df, pop_detctz_df, new_birth_df,
+                                n_draw_subset = 100, save.date, mod_name, seed_id, res_path)
 
-if(FALSE){
-  excess_birth_year_mun_draw_df %>% 
-    filter(year==2011) %>% 
-    group_by(draw) %>% 
-    dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
-  
-  
-  pred_n_birth_reg_draw_df %>% 
-    filter(year==2024, month==1) %>% 
-    group_by(draw) %>% 
-    dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
-}
+  #3. Summarise excess births
+  pred_n_birth_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_pred_n_birth_draw_df.RDS"))
+  summarise_excess_birth_nat(pred_n_birth_draw_df, save.date, mod_name, seed_id, res_path)
 
-#use multinomial to distribute over ctz_reg and ctn_abbr
-list_pred_n_birth_ctzreg_draw_list = get_pred_birth_draw_by_ctzreg(fit, #cmdstanr fit
-                                                                   stan_df,
-                                                                   pop_detctz_df,#pop by year ctn_abbr and detctz
-                                                                   new_birth_df, #birth_df (individual level)
-                                                                   n_draw_subset = 100,
-                                                                   save.date,
-                                                                   mod_name,
-                                                                   seed_id)
-excess_birth_year_ctz_draw_df = list_pred_n_birth_ctzreg_draw_list[["excess_birth_year_ctz_draw_df"]]
+  pred_n_birth_reg_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_pred_n_birth_reg_draw_df.RDS"))
+  summarise_excess_birth_reg(pred_n_birth_reg_draw_df, save.date, mod_name, seed_id, res_path)
 
-if(FALSE){
-  excess_birth_year_ctz_draw_df %>% 
-    filter(year==2011) %>% 
-    group_by(draw) %>% 
-    dplyr::summarise(n_excess = sum(n_birth-n_pred)/sum(n_birth))
-}
+  if(length(cfg$filter_ctz)==2){
+    pred_n_birth_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_pred_n_birth_ctz_draw_df.RDS"))
+    summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df, save.date, mod_name, seed_id, res_path)
+  }
 
+  for(use.p_childless in use.p_childless_v){
+    excess_birth_year_mun_draw_df      = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_mun_draw_df.RDS"))
+    excess_birth_year_adj_mun_draw_df  = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_adj_mun_draw_df.RDS"))
+    excess_birth_year_adj2_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_adj2_mun_draw_df.RDS"))
+    summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
+                               excess_birth_year_adj2_mun_draw_df,
+                               excess_birth_year_mun_draw_df,
+                               save.date, paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id, res_path)
+  }
 
-#excess estimates with uncertainty----------------------------------------------
-#load draws
-if(FALSE){
-  #national, district, national/citizenship (by age, month and year)
-  pred_n_birth_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
-  pred_n_birth_reg_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
-  pred_n_birth_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
-  #municipality (by year)
-  use.p_childless=TRUE
-  excess_birth_year_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-  excess_birth_year_adj_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-  excess_birth_year_adj2_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
-
-  #ctz region (by year and ctn_abbr)
-  excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
-}
-
-#Summarise excess birth
-#1) nationally (level at which model was fitted)
-pred_n_birth_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
-excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
-                                                  save.date, mod_name, seed_id, res_path)
-#2) by region (using multinomial distribution to distribute over regions)
-pred_n_birth_reg_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
-excess_birth_reg_res = summarise_excess_birth_reg(pred_n_birth_reg_draw_df,
-                                                  save.date, mod_name, seed_id, res_path)
-#3) by citizenship (2 levels, swiss, non-swiss), using multinomial
-#only if not already restricted to swiss or non-swiss
-if(length(filter_ctz)==2){
-  pred_n_birth_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
-  excess_birth_ctz_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
-                                                    save.date, mod_name, seed_id, res_path)
-}
-#4) municipality level, using multinomial
-for(use.p_childless in use.p_childless_v){
-  excess_birth_year_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-  excess_birth_year_adj_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-  excess_birth_year_adj2_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
-  excess_birth_mun = summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
-                                                          excess_birth_year_adj2_mun_draw_df,
-                                                          excess_birth_year_mun_draw_df,
-                                                          save.date, paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id, res_path)
-}
-#5) ctz region, using multinomial
-#needs to do it for all
-excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
-excess_birth_ctzreg = summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, mod_name, seed_id, res_path)
-
+  excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_excess_birth_year_ctn_ctzreg_draw_df.RDS"))
+  summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, mod_name, seed_id, res_path)
+})
 
 ################################################################################
 #excess birth by ntiles---------------------------------------------------------
-ctz_name =  c("swiss","non-swiss","") #c("swiss","non-swiss") #c("swiss","non-swiss"), "swiss", "non-swiss"
-filter_parity=c("all", "first", "second")
-
-mod_df = expand.grid(ctz_name = ctz_name,
-                     filter_parity = filter_parity,stringsAsFactors = FALSE) %>% 
-  filter(ctz_name=="" | filter_parity=="all") #%>% .[3,]
+mod_df = expand.grid(ctz_name      = c("swiss","non-swiss",""),
+                     filter_parity = c("all","first","second"),
+                     stringsAsFactors = FALSE) %>%
+  filter(ctz_name=="" | filter_parity=="all")
 
 mod_df <- mod_df %>%
   pmap(function(ctz_name, filter_parity) {
-    print("---")
-    filter_ctz = if (ctz_name == "") c("swiss","non-swiss") else ctz_name
-    print(filter_ctz)
-    effect_on_age_shift <- "cal_year"
-    seed_id <- 1
-    mod_name0 <- "mod8"
-    mod_name <- if_else(effect_on_age_shift == "cal_year", mod_name0,
-                        paste0(mod_name0, "_birthyear"))
-    mod_name <- paste0(mod_name,
-                       ifelse(length(filter_ctz) == 2, "", paste0("_", filter_ctz)))
-    mod_name <- if_else(filter_parity == "all", mod_name,
-                        paste0(mod_name, "_", filter_parity))
-    save.date <- if (filter_parity != "all") "20260320" else "20260309"
-    mod_name <- if_else(last_year != 2025, mod_name, paste0(mod_name, "_2025"))
-    save.date <- if_else(last_year != 2025, save.date, "20260622")
-    
-    data.frame(ctz_name = ctz_name,
-               filter_parity = filter_parity,
-               mod_name = mod_name,
-               save.date = save.date,
-               seed_id = seed_id)
+    filter_ctz = if(ctz_name=="") c("swiss","non-swiss") else ctz_name
+    mod_name   = "mod8"
+    mod_name   = paste0(mod_name, ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz)))
+    mod_name   = if_else(filter_parity=="all", mod_name, paste0(mod_name,"_",filter_parity))
+    save.date  = if(filter_parity != "all") "20260320" else "20260309"
+    mod_name   = if_else(last_year!=2025, mod_name, paste0(mod_name,"_2025"))
+    save.date  = if_else(last_year!=2025, save.date, "20260622")
+    data.frame(ctz_name=ctz_name, filter_parity=filter_parity, mod_name=mod_name, save.date=save.date, seed_id=1)
   }) %>% rbindlist()
-    
-results <- mod_df %>%
-  pmap(function(ctz_name,filter_parity, mod_name, save.date, seed_id) {
-    use.p_childless_v <- if (filter_parity != "all") c(FALSE, TRUE) else FALSE
-    
+
+res_path = paste0("results/", ifelse(last_year==2025, "2025/", ""))
+mod_df %>%
+  pmap(function(ctz_name, filter_parity, mod_name, save.date, seed_id) {
+    use.p_childless_v = if(filter_parity != "all") c(FALSE, TRUE) else FALSE
     excess_by_ntiles(save.date, mod_name, seed_id,
                      use.p_childless_v,
                      new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
                      year_range = 2017:last_year,
-                     res_path = res_path)
+                     res_path   = res_path)
   })
 
 
