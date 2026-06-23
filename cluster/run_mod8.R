@@ -42,26 +42,14 @@ load(ifelse(last_year==2024,
 birth_agg_df = get(cfg$birth_data)
 
 ##########################################
-# TEMPORARY: post-process only (load saved draws and save RDS files)
-# Switch back to cmstan_fit_mod5 once confirmed working
-cmstan_postprocess_mod5(pop_df, birth_agg_df,
-                        mod_name            = "mod8",
-                        stan_years          = cfg$stan_year_start:last_year,
-                        effect_on_age_shift = "cal_year",
-                        save.date           = save.date,
-                        filter_parity       = cfg$filter_parity,
-                        filter_ctz          = cfg$filter_ctz,
-                        seed_id             = 1)
-
-##########################################
-# NORMAL: run full model (uncomment when not in post-process mode)
-# res = cmstan_fit_mod5(pop_df, birth_agg_df,
-#                       mod_name            = "mod8",
-#                       stan_years          = cfg$stan_year_start:last_year,
-#                       effect_on_age_shift = "cal_year",
-#                       save_draw           = TRUE,
-#                       save.date           = save.date,
-#                       filter_parity       = cfg$filter_parity,
-#                       filter_ctz          = cfg$filter_ctz,
-#                       seed_id             = 1,
-#                       quick_run           = quick_run)
+#Run model
+res = cmstan_fit_mod5(pop_df, birth_agg_df,
+                      mod_name            = "mod8",
+                      stan_years          = cfg$stan_year_start:last_year,
+                      effect_on_age_shift = "cal_year",
+                      save_draw           = TRUE,
+                      save.date           = save.date,
+                      filter_parity       = cfg$filter_parity,
+                      filter_ctz          = cfg$filter_ctz,
+                      seed_id             = 1,
+                      quick_run           = quick_run)
