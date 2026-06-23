@@ -51,8 +51,10 @@ cmstan_fit_mod5 = function(pop_df, birth_agg_df,
   mod_name = paste0(mod_name,ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz))) #add whether we filter on citizenship or not
   mod_name = if_else(filter_parity=="all",mod_name,paste0(mod_name,"_",filter_parity)) #used as text to name saved results
   mod_name = if_else(last_year!=2025,mod_name,paste0(mod_name,"_",last_year))
-  res_path  = paste0("results/", ifelse(last_year==2025, "2025/", ""))
+  root = if(exists("code_root_path")) code_root_path else ""
+  res_path  = paste0(root, "results/", ifelse(last_year==2025, "2025/", ""))
   if(!dir.exists(res_path)) dir.create(res_path, recursive=TRUE)
+  if(!dir.exists(paste0(root,"results/cmdstan_draw/"))) dir.create(paste0(root,"results/cmdstan_draw/"), recursive=TRUE)
 
   #Load data--------------------------------------------------------------------
   #population
