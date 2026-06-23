@@ -75,6 +75,7 @@ if(FALSE){
   save(birth_agg_df, birth_agg_first_df, birth_agg_second_df,
        pop_df, new_pop_mun_df, pop_dist_df, pop_ctz_df, pop_detctz_df,
        new_birth_df, new_mun_sf,
+       rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
        file=ifelse(last_year==2024,"savepoint/cleaned_cluster_df.RData","savepoint/cleaned2025_cluster_df.RData"))
 }
 
