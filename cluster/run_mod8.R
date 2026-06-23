@@ -1,7 +1,7 @@
 ##########################################
 #Setting up paths
 is.sim.cluster = TRUE
-quick_run = TRUE
+quick_run = FALSE
 wd = getwd()
 code_root_path = paste0(strsplit(wd, split="/cluster")[[1]][1],"/")
 source(paste0(code_root_path,"R/000_setup.R"))
