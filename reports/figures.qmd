@@ -22,7 +22,6 @@ execute:
 editor: visual
 ---
 
-
 ```{r,include=FALSE}
 source("../R/000_setup.R")
 
@@ -109,7 +108,6 @@ excess_by_ntiles_second_df = readRDS(paste0(code_root_path,res_path,save.date2,"
 # Figures
 
 ::: {#fig-myfig}
-
 ```{r,  fig.height=6,fig.width=10}
 p1 = excess_birth_year_month_df %>% 
   ggplot(aes(x=date))+
@@ -165,8 +163,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig1.png"),
 **Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and 2024). C. Age of fertility peak according to calendar year.
 :::
 
-
-::: {#fig-myfig}
+<div>
 
 ```{r,  fig.height=8,fig.width=12}
 #national, year
@@ -307,9 +304,10 @@ ggsave(filename = paste0(code_root_path,"figure/fig2.pdf"),
 ```
 
 **Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Relative excess birth by year from 2000 to 2024. C. Relative excess birth by month between 2020 and 2024. D. Relative excess birth by citizenship aggregated by region of the world in 2011-2024. E. Relative excess birth by citizenship over years.
-:::
 
-::: {#fig-myfig}
+</div>
+
+<div>
 
 ```{r,  fig.height=6,fig.width=10}
 fig3 = excess_birth_adj2_mun_df %>% 
@@ -339,11 +337,10 @@ ggsave(filename = paste0(code_root_path,"figure/fig3.png"),
 ```
 
 **Excess birth by municipality**. Relative excess birth by municipality between 2017 and 2024.
-:::
 
+</div>
 
-
-::: {#fig-myfig}
+<div>
 
 ```{r,  fig.height=6,fig.width=10}
 #plot
@@ -367,9 +364,10 @@ ggsave(filename = paste0(code_root_path,"figure/fig4.png"),
 ```
 
 **Relative excess birth stratified by variable deciles**
-:::
 
-::: {#fig-myfig}
+</div>
+
+<div>
 
 ```{r,  fig.height=8,fig.width=10}
 
@@ -538,11 +536,9 @@ ggsave(filename = paste0(code_root_path,"figure/fig5.png"),
        width = 10, height = 8,units = "in", dpi = 600)
 ```
 
-**Sub-group excess births**: 
-:::
+**Sub-group excess births**:
 
-
-
+</div>
 
 ```{r, include=FALSE}
 
