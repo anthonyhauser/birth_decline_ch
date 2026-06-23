@@ -93,19 +93,32 @@ new_birth_df = birth_df %>%
 save.date = "20260622"
 seed_id   = 1
 
+res_path = paste0("results/", ifelse(last_year==2025, "2025/", ""))
+
+make_mod_name = function(filter_ctz, filter_parity, last_year){
+  mod_name = "mod8"
+  mod_name = paste0(mod_name, ifelse(length(filter_ctz)==2, "", paste0("_", filter_ctz)))
+  mod_name = if_else(filter_parity=="all", mod_name, paste0(mod_name, "_", filter_parity))
+  mod_name = if_else(last_year!=2025, mod_name, paste0(mod_name, "_", last_year))
+  mod_name
+}
+
 configs = list(
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df"),
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df"),
-  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
-  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df")
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",
+       mod_name = make_mod_name(c("swiss","non-swiss"), "all",    last_year), res_path = res_path),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df",
+       mod_name = make_mod_name(c("swiss","non-swiss"), "first",  last_year), res_path = res_path),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df",
+       mod_name = make_mod_name(c("swiss","non-swiss"), "second", last_year), res_path = res_path),
+  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",
+       mod_name = make_mod_name("swiss",               "all",    last_year), res_path = res_path),
+  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",
+       mod_name = make_mod_name("non-swiss",           "all",    last_year), res_path = res_path)
 )
 
+#1. Run model-------------------------------------------------------------------
 lapply(configs, function(cfg){
-  birth_data   = get(cfg$birth_data)
-  use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
-
-  #1. Run model
+  birth_data = get(cfg$birth_data)
   cmstan_fit_mod5(pop_df, birth_data,
                   mod_name            = "mod8",
                   stan_years          = cfg$stan_year_start:last_year,
@@ -115,54 +128,54 @@ lapply(configs, function(cfg){
                   filter_parity       = cfg$filter_parity,
                   filter_ctz          = cfg$filter_ctz,
                   seed_id             = seed_id)
+})
 
-  #reconstruct mod_name and res_path (same logic as inside cmstan_fit_mod5)
-  mod_name = "mod8"
-  mod_name = paste0(mod_name, ifelse(length(cfg$filter_ctz)==2,"",paste0("_",cfg$filter_ctz)))
-  mod_name = if_else(cfg$filter_parity=="all", mod_name, paste0(mod_name,"_",cfg$filter_parity))
-  mod_name = if_else(last_year!=2025, mod_name, paste0(mod_name,"_",last_year))
-  res_path = paste0("results/", ifelse(last_year==2025, "2025/", ""))
-
-  #2. Extrapolate to finer levels
-  fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
-  stan_df = readRDS(paste0(res_path, mod_name,"_standf.RDS"))
+#2. Extrapolate to finer levels-------------------------------------------------
+lapply(configs, function(cfg){
+  use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
+  fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",cfg$mod_name,"_seedid",seed_id,".RDS"))
+  stan_df = readRDS(paste0(cfg$res_path, cfg$mod_name,"_standf.RDS"))
 
   get_pred_birth_draw_by_dist(fit, stan_df, pop_dist_df, new_birth_df,
-                              n_draw_subset = 100, save.date, mod_name, seed_id, res_path)
+                              n_draw_subset = 100, save.date, cfg$mod_name, seed_id, cfg$res_path)
 
   for(use.p_childless in use.p_childless_v){
     get_pred_birth_draw_by_mun(fit, stan_df, new_pop_mun_df, new_birth_df,
                                new_mun_sf = new_mun_sf, n_draw_subset = 100,
-                               save.date, mod_name, use.p_childless, seed_id, res_path)
+                               save.date, cfg$mod_name, use.p_childless, seed_id, cfg$res_path)
   }
 
   get_pred_birth_draw_by_ctzreg(fit, stan_df, pop_detctz_df, new_birth_df,
-                                n_draw_subset = 100, save.date, mod_name, seed_id, res_path)
+                                n_draw_subset = 100, save.date, cfg$mod_name, seed_id, cfg$res_path)
+})
 
-  #3. Summarise excess births
-  pred_n_birth_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_pred_n_birth_draw_df.RDS"))
-  summarise_excess_birth_nat(pred_n_birth_draw_df, save.date, mod_name, seed_id, res_path)
+#3. Summarise excess births-----------------------------------------------------
+lapply(configs, function(cfg){
+  use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
 
-  pred_n_birth_reg_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_pred_n_birth_reg_draw_df.RDS"))
-  summarise_excess_birth_reg(pred_n_birth_reg_draw_df, save.date, mod_name, seed_id, res_path)
+  pred_n_birth_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_pred_n_birth_draw_df.RDS"))
+  summarise_excess_birth_nat(pred_n_birth_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
+
+  pred_n_birth_reg_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_pred_n_birth_reg_draw_df.RDS"))
+  summarise_excess_birth_reg(pred_n_birth_reg_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
 
   if(length(cfg$filter_ctz)==2){
-    pred_n_birth_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_pred_n_birth_ctz_draw_df.RDS"))
-    summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df, save.date, mod_name, seed_id, res_path)
+    pred_n_birth_ctz_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_pred_n_birth_ctz_draw_df.RDS"))
+    summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
   }
 
   for(use.p_childless in use.p_childless_v){
-    excess_birth_year_mun_draw_df      = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_mun_draw_df.RDS"))
-    excess_birth_year_adj_mun_draw_df  = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_adj_mun_draw_df.RDS"))
-    excess_birth_year_adj2_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_adj2_mun_draw_df.RDS"))
+    excess_birth_year_mun_draw_df      = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_mun_draw_df.RDS"))
+    excess_birth_year_adj_mun_draw_df  = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_adj_mun_draw_df.RDS"))
+    excess_birth_year_adj2_mun_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_adj2_mun_draw_df.RDS"))
     summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
                                excess_birth_year_adj2_mun_draw_df,
                                excess_birth_year_mun_draw_df,
-                               save.date, paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id, res_path)
+                               save.date, paste0(cfg$mod_name,ifelse(use.p_childless,"_childless","")), seed_id, cfg$res_path)
   }
 
-  excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_seedid",seed_id,"_excess_birth_year_ctn_ctzreg_draw_df.RDS"))
-  summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, mod_name, seed_id, res_path)
+  excess_birth_year_ctz_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_excess_birth_year_ctn_ctzreg_draw_df.RDS"))
+  summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
 })
 
 ################################################################################
