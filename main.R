@@ -180,33 +180,14 @@ lapply(configs, function(cfg){
 
 ################################################################################
 #excess birth by ntiles---------------------------------------------------------
-mod_df = expand.grid(ctz_name      = c("swiss","non-swiss",""),
-                     filter_parity = c("all","first","second"),
-                     stringsAsFactors = FALSE) %>%
-  filter(ctz_name=="" | filter_parity=="all")
-
-mod_df <- mod_df %>%
-  pmap(function(ctz_name, filter_parity) {
-    filter_ctz = if(ctz_name=="") c("swiss","non-swiss") else ctz_name
-    mod_name   = "mod8"
-    mod_name   = paste0(mod_name, ifelse(length(filter_ctz)==2,"",paste0("_",filter_ctz)))
-    mod_name   = if_else(filter_parity=="all", mod_name, paste0(mod_name,"_",filter_parity))
-    save.date  = if(filter_parity != "all") "20260320" else "20260309"
-    mod_name   = if_else(last_year!=2025, mod_name, paste0(mod_name,"_2025"))
-    save.date  = if_else(last_year!=2025, save.date, "20260622")
-    data.frame(ctz_name=ctz_name, filter_parity=filter_parity, mod_name=mod_name, save.date=save.date, seed_id=1)
-  }) %>% rbindlist()
-
-res_path = paste0("results/", ifelse(last_year==2025, "2025/", ""))
-mod_df %>%
-  pmap(function(ctz_name, filter_parity, mod_name, save.date, seed_id) {
-    use.p_childless_v = if(filter_parity != "all") c(FALSE, TRUE) else FALSE
-    excess_by_ntiles(save.date, mod_name, seed_id,
-                     use.p_childless_v,
-                     new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
-                     year_range = 2017:last_year,
-                     res_path   = res_path)
-  })
+lapply(configs, function(cfg){
+  use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
+  excess_by_ntiles(save.date, cfg$mod_name, seed_id,
+                   use.p_childless_v,
+                   new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
+                   year_range = 2017:last_year,
+                   res_path   = cfg$res_path)
+})
 
 
 ################################################################################
