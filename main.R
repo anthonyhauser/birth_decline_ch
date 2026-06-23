@@ -193,16 +193,13 @@ lapply(configs, function(cfg){
 ################################################################################
 #report
 
-mod_df[3,] %>%
-  pmap(function(ctz_name,filter_parity, mod_name, save.date, seed_id) {
-    quarto::quarto_render(input = "reports/report1_pres.qmd",
-                          output_file = paste0("report1_pres_",save.date,"_",mod_name,"_","seedid",seed_id,".html"),
-                          execute_params = list(save.date = save.date,
-                                                mod_name = mod_name,
-                                                seed_id = seed_id,
-                                                res_path = res_path,
-                                                ntile_year_suffix = paste0("_2017_",last_year)))
-  })
+quarto::quarto_render(input = "reports/report1_pres.qmd",
+                      output_file = paste0("report1_pres_",save.date,"_",configs[[1]]$mod_name,"_seedid",seed_id,".html"),
+                      execute_params = list(save.date = save.date,
+                                            mod_name  = configs[[1]]$mod_name,
+                                            seed_id   = seed_id,
+                                            res_path  = configs[[1]]$res_path,
+                                            ntile_year_suffix = paste0("_2017_",last_year)))
 
 mod_name = "mod8_swiss"
 seed_id=1
