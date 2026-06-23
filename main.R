@@ -74,6 +74,8 @@ if(FALSE){
        file=ifelse(last_year==2024,"savepoint/cleaned_df.RData","savepoint/cleaned2025_df.RData"))
   save(birth_agg_df, birth_agg_first_df, birth_agg_second_df, pop_df,
        file=ifelse(last_year==2024,"savepoint/cleaned_cluster_df.RData","savepoint/cleaned2025_cluster_df.RData"))
+  save(new_birth_df, new_pop_mun_df, pop_dist_df, pop_ctz_df, pop_detctz_df, new_mun_sf,
+       file=ifelse(last_year==2024,"savepoint/cleaned_cluster_extrapolate_df.RData","savepoint/cleaned2025_cluster_extrapolate_df.RData"))
 }
 
 #load cleaned, aggregated data

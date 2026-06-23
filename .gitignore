@@ -15,4 +15,6 @@ results/
 savepoint/*
 !savepoint/cleaned_cluster_df.RData
 !savepoint/cleaned2025_cluster_df.RData
+!savepoint/cleaned_cluster_extrapolate_df.RData
+!savepoint/cleaned2025_cluster_extrapolate_df.RData
 cluster/outfiles/

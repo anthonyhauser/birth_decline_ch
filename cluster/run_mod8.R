@@ -27,8 +27,8 @@ configs = list(
   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df"),
   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df"),
-  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2005, birth_data = "birth_agg_df"),
-  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2005, birth_data = "birth_agg_df")
+  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
+  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df")
 )
 
 cfg = configs[[job_id]]
