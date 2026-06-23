@@ -104,17 +104,17 @@ make_mod_name = function(filter_ctz, filter_parity, last_year){
 }
 
 configs = list(
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",
-       mod_name = make_mod_name(c("swiss","non-swiss"), "all",    last_year), res_path = res_path),
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df",
-       mod_name = make_mod_name(c("swiss","non-swiss"), "first",  last_year), res_path = res_path),
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df",
-       mod_name = make_mod_name(c("swiss","non-swiss"), "second", last_year), res_path = res_path),
-  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",
-       mod_name = make_mod_name("swiss",               "all",    last_year), res_path = res_path),
-  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",
-       mod_name = make_mod_name("non-swiss",           "all",    last_year), res_path = res_path)
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df"),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df"),
+  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df"),
+  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df")
 )
+configs = lapply(configs, function(cfg){
+  cfg$mod_name = make_mod_name(cfg$filter_ctz, cfg$filter_parity, last_year)
+  cfg$res_path = res_path
+  cfg
+})
 
 #1. Run model-------------------------------------------------------------------
 lapply(configs, function(cfg){
