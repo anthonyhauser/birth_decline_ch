@@ -203,6 +203,9 @@ lake_sf <- lake_sf %>%
   st_filter(mun_buffer, .predicate = st_intersects)
 
 
+
+} #end if(!sim_cluster)
+
 #
 ctz_map <- tribble(
   ~ctz_name, ~ctz_region,
@@ -407,6 +410,4 @@ ctz_map <- tribble(
   "Îles Cook", "Oceania",
   "Tibet","Asia"
 )
-
-} #end if(!sim_cluster)
 
