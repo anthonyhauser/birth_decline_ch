@@ -159,6 +159,18 @@ lapply(configs, function(cfg){
                                 n_draw_subset = 100, cfg$save.date, cfg$mod_name, cfg$seed_id, cfg$res_path)
 })
 
+save.date="20260625"
+mod_name="mod8_2025"
+seed_id=1
+
+readRDS( paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS")) %>% 
+  filter(year==2025,month>1)
+readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS")) %>% 
+  filter(year==2025)
+readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS")) %>% 
+  filter(year==2025)
+
+
 #3. Summarise excess births-----------------------------------------------------
 lapply(configs, function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
