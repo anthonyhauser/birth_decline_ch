@@ -253,7 +253,7 @@ for(save.date_rep in c("20260309", "20260625")){
   res_path_rep          = if(is_2025) "results/2025/" else "results/"
   ntile_year_suffix_rep = if(is_2025) "_2017_2025" else ""
   last_year_rep         = if(is_2025) 2025 else 2024
-  mod_name_rep          = if(is_2025) "mod8_2025" else "mod8"
+  mod_name_rep          = "mod8"
 
   render_figures("reports/figures.qmd",     save.date_rep, save.date2_rep, res_path_rep, ntile_year_suffix_rep, last_year_rep, mod_name_rep)
   render_figures("reports/supp_figues.qmd", save.date_rep, save.date2_rep, res_path_rep, ntile_year_suffix_rep, last_year_rep)
