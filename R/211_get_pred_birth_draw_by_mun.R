@@ -1,7 +1,7 @@
 #draws by year (and not month) for 2011:2024, by municipality
 get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
                                       stan_df,
-                                      pop_mun_df,#pop by dmunicipality
+                                      pop_mun_df,#pop by municipality
                                       birth_df, #birth_df (individual level)
                                       new_mun_sf,
                                       n_draw_subset = 100,
