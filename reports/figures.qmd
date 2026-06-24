@@ -130,7 +130,7 @@ p1 = excess_birth_year_month_df %>%
   geom_ribbon(aes(ymin=n_exp_lwb, ymax=n_exp_upb),alpha=0.2)+
   geom_line(aes(y=n_exp_mean)) +
   geom_point(aes(y=n_birth), alpha=0.6,col="darkred")+
-  scale_x_date(name="", expand = c(0.01, 0.01),limits=dmy(c("01-01-2000","01-01-2025")))+
+  scale_x_date(name="", expand = c(0.01, 0.01),limits=dmy(c("01-01-2000",paste0("01-01-",last_year+1))))+
   scale_y_continuous(name="Monthly births")
 
 #fertility
@@ -176,7 +176,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig1.png"),
        width = 10, height = 6,units = "in", dpi = 600)
 ```
 
-**Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and 2024). C. Age of fertility peak according to calendar year.
+**Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and `r last_year`). C. Age of fertility peak according to calendar year.
 :::
 
 <div>
@@ -319,7 +319,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig2.pdf"),
        width = 12, height = 8, units = "in")
 ```
 
-**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2011-2024. E. Relative excess birth by citizenship over years.
+**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2011-`r last_year`. E. Relative excess birth by citizenship over years.
 
 </div>
 
@@ -569,7 +569,7 @@ if(FALSE){
   birth_prob_by_age_df2=  readRDS(paste0(code_root_path,res_path,"20260320","_","mod8_first","_seedid",1,"_birthprob.RDS"))
   rbind( birth_prob_by_age_df1 %>% dplyr::mutate(data="all"),
          birth_prob_by_age_df2 %>% dplyr::mutate(data="first")) %>% 
-    filter(year %in% c(2024)) %>% 
+    filter(year %in% c(last_year)) %>%
     #group_by(data) %>% dplyr::mutate(lwb=lwb/max(est),upb=upb/max(est),est=est/max(est)) %>% ungroup() %>% 
     ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
     geom_ribbon(aes(fill=factor(data)),alpha=0.2)+
