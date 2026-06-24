@@ -131,20 +131,25 @@ lapply(configs, function(cfg){
 })
 
 #2. Extrapolate to finer levels-------------------------------------------------
+# For 2025: pop_mun_df has actual 2025 data (by municipality); pop_dist_df and
+# pop_detctz_df cap at 2024 (last available year is used as proxy via pmin).
 lapply(configs, function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
   fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",cfg$mod_name,"_seedid",seed_id,".RDS"))
   stan_df = readRDS(paste0(cfg$res_path, cfg$mod_name,"_standf.RDS"))
 
+  # by district (2025 pop imputed from 2024)
   get_pred_birth_draw_by_dist(fit, stan_df, pop_dist_df, new_birth_df,
                               n_draw_subset = 100, save.date, cfg$mod_name, seed_id, cfg$res_path)
 
+  # by municipality (actual 2025 pop); p_childless adjustment only for parity models
   for(use.p_childless in use.p_childless_v){
     get_pred_birth_draw_by_mun(fit, stan_df, new_pop_mun_df, new_birth_df,
                                new_mun_sf = new_mun_sf, n_draw_subset = 100,
                                save.date, cfg$mod_name, use.p_childless, seed_id, cfg$res_path)
   }
 
+  # by citizenship x region (2025 pop imputed from 2024)
   get_pred_birth_draw_by_ctzreg(fit, stan_df, pop_detctz_df, new_birth_df,
                                 n_draw_subset = 100, save.date, cfg$mod_name, seed_id, cfg$res_path)
 })
@@ -153,17 +158,21 @@ lapply(configs, function(cfg){
 lapply(configs, function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
 
+  # nationally
   pred_n_birth_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_pred_n_birth_draw_df.RDS"))
   summarise_excess_birth_nat(pred_n_birth_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
 
+  # by district
   pred_n_birth_reg_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_pred_n_birth_reg_draw_df.RDS"))
   summarise_excess_birth_reg(pred_n_birth_reg_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
 
+  # by citizenship (skipped when already restricted to swiss or non-swiss only)
   if(length(cfg$filter_ctz)==2){
     pred_n_birth_ctz_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_pred_n_birth_ctz_draw_df.RDS"))
     summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
   }
 
+  # by municipality (with and without p_childless adjustment for parity models)
   for(use.p_childless in use.p_childless_v){
     excess_birth_year_mun_draw_df      = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_mun_draw_df.RDS"))
     excess_birth_year_adj_mun_draw_df  = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",seed_id,"_excess_birth_year_adj_mun_draw_df.RDS"))
@@ -174,6 +183,7 @@ lapply(configs, function(cfg){
                                save.date, paste0(cfg$mod_name,ifelse(use.p_childless,"_childless","")), seed_id, cfg$res_path)
   }
 
+  # by citizenship x region (canton level)
   excess_birth_year_ctz_draw_df = readRDS(paste0(cfg$res_path,save.date,"_",cfg$mod_name,"_seedid",seed_id,"_excess_birth_year_ctn_ctzreg_draw_df.RDS"))
   summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
 })
