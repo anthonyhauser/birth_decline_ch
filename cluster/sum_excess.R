@@ -56,39 +56,39 @@ if(!all(standiag$is.stan.ok)){
 }
 
 ##########################################
-#Summarise excess births
+#Summarise excess births (already saved, commented out temporarily)
 
-#1) nationally
-pred_n_birth_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
-excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
-                                                  save.date, mod_name, seed_id, res_path)
-
-#2) by district
-pred_n_birth_reg_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
-excess_birth_reg_res = summarise_excess_birth_reg(pred_n_birth_reg_draw_df,
-                                                  save.date, mod_name, seed_id, res_path)
-
-#3) by citizenship (only if not already restricted to swiss or non-swiss)
-if(length(cfg$filter_ctz)==2){
-  pred_n_birth_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
-  excess_birth_ctz_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
-                                                    save.date, mod_name, seed_id, res_path)
-}
-
-#4) municipality level
-for(use.p_childless in use.p_childless_v){
-  excess_birth_year_mun_draw_df     = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
-  excess_birth_year_adj_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
-  excess_birth_year_adj2_mun_draw_df= readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
-  summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
-                             excess_birth_year_adj2_mun_draw_df,
-                             excess_birth_year_mun_draw_df,
-                             save.date, paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id, res_path)
-}
-
-#5) ctz region x canton
-excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
-excess_birth_ctzreg = summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, mod_name, seed_id, res_path)
+# #1) nationally
+# pred_n_birth_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_draw_df",".RDS"))
+# excess_birth_nat_res = summarise_excess_birth_nat(pred_n_birth_draw_df,
+#                                                   save.date, mod_name, seed_id, res_path)
+#
+# #2) by district
+# pred_n_birth_reg_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_reg_draw_df",".RDS"))
+# excess_birth_reg_res = summarise_excess_birth_reg(pred_n_birth_reg_draw_df,
+#                                                   save.date, mod_name, seed_id, res_path)
+#
+# #3) by citizenship (only if not already restricted to swiss or non-swiss)
+# if(length(cfg$filter_ctz)==2){
+#   pred_n_birth_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","pred_n_birth_ctz_draw_df",".RDS"))
+#   excess_birth_ctz_res = summarise_excess_birth_ctz(pred_n_birth_ctz_draw_df,
+#                                                     save.date, mod_name, seed_id, res_path)
+# }
+#
+# #4) municipality level
+# for(use.p_childless in use.p_childless_v){
+#   excess_birth_year_mun_draw_df     = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_mun_draw_df",".RDS"))
+#   excess_birth_year_adj_mun_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj_mun_draw_df",".RDS"))
+#   excess_birth_year_adj2_mun_draw_df= readRDS(paste0(res_path,save.date,"_",mod_name,ifelse(use.p_childless,"_childless",""),"_","seedid",seed_id,"_","excess_birth_year_adj2_mun_draw_df",".RDS"))
+#   summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
+#                              excess_birth_year_adj2_mun_draw_df,
+#                              excess_birth_year_mun_draw_df,
+#                              save.date, paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id, res_path)
+# }
+#
+# #5) ctz region x canton
+# excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
+# excess_birth_ctzreg = summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, mod_name, seed_id, res_path)
 
 ##########################################
 #Excess birth by ntiles
