@@ -86,9 +86,8 @@ new_birth_df = birth_df %>%
   dplyr::mutate(mother_mun_name = if_else(mother_mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mother_mun_name),
                 mother_mun_id = if_else(mother_mun_id %in% mun_ids_to_agg, 31010,mother_mun_id))
 
-#run model----------------------------------------------------------------------
-#stan model
 
+################################################################################################################################################################
 #run model, extrapolate and summarise------------------------------------------
 save.date = "20260622"
 seed_id   = 1
@@ -188,7 +187,7 @@ lapply(configs, function(cfg){
   summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, cfg$mod_name, seed_id, cfg$res_path)
 })
 
-################################################################################
+################################################################################################################################################################
 #excess birth by ntiles---------------------------------------------------------
 lapply(configs, function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
@@ -200,7 +199,7 @@ lapply(configs, function(cfg){
 })
 
 
-################################################################################
+################################################################################################################################################################
 #report
 
 old_configs = list(
@@ -230,10 +229,11 @@ render_report = function(cfg, save.date_rep, last_year_rep){
 lapply(old_configs, function(cfg) render_report(cfg, cfg$save.date_rep, last_year_rep = 2024))
 lapply(configs,     function(cfg) render_report(cfg, save.date,          last_year_rep = last_year))
 
-mod_name = "mod8_swiss"
-seed_id=1
-save.date="20260309"
 
+
+
+################################################################################################################################################################
+################################################################################################################################################################
 
 p_childless_df =  get_prob_childless_by_mun(new_birth_df, new_pop_mun_df, filter_ctz, p_mun_changes = 0.06)
 age_childless=30
