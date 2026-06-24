@@ -198,7 +198,7 @@ lapply(configs, function(cfg){
                    use.p_childless_v,
                    new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
                    year_range = 2017:last_year,
-                   res_path   = cfg$res_path)
+                   res_path   = paste0(code_root_path, cfg$res_path))
 })
 
 

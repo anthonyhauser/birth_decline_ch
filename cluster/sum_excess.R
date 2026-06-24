@@ -97,4 +97,4 @@ excess_by_ntiles(save.date, mod_name, seed_id,
                  use.p_childless_v,
                  new_pop_mun_df, rural_urban_df, pop_dens_df, sep_df3, childcare_institutions_df, vote_mun_df,
                  year_range = 2017:last_year,
-                 res_path   = paste0("results/", ifelse(last_year==2025, "2025/", "")))
+                 res_path   = res_path)
