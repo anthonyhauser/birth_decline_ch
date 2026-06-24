@@ -247,9 +247,9 @@ render_figures = function(qmd, save.date_rep, save.date2_rep, res_path_rep, ntil
 }
 
 
-for(save.date_rep in c("20260309", "20260622")){
-  is_2025       = save.date_rep == "20260622"
-  save.date2_rep        = if(is_2025) "20260622" else "20260320"
+for(save.date_rep in c("20260309", "20260625")){
+  is_2025       = save.date_rep == "20260625"
+  save.date2_rep        = if(is_2025) "20260625" else "20260320"
   res_path_rep          = if(is_2025) "results/2025/" else "results/"
   ntile_year_suffix_rep = if(is_2025) "_2017_2025" else ""
   last_year_rep         = if(is_2025) 2025 else 2024
