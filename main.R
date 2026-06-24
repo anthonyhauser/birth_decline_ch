@@ -246,8 +246,10 @@ render_figures = function(qmd, mod_name_rep, save.date_rep, save.date2_rep, res_
 }
 
 for(qmd in c("reports/figures.qmd", "reports/supp_figues.qmd")){
-  render_figures(qmd, mod_name_rep="mod8",      save.date_rep="20260309", save.date2_rep="20260320", res_path_rep="results/",      ntile_year_suffix_rep="",           last_year_rep=2024)
-  render_figures(qmd, mod_name_rep="mod8_2025", save.date_rep="20260622", save.date2_rep="20260622", res_path_rep="results/2025/", ntile_year_suffix_rep="_2017_2025", last_year_rep=2025)
+  render_figures(qmd, mod_name_rep="mod8",      save.date_rep="20260309", save.date2_rep="20260320", res_path_rep="results/",
+                 ntile_year_suffix_rep="",           last_year_rep=2024)
+  render_figures(qmd, mod_name_rep="mod8_2025", save.date_rep="20260622", save.date2_rep="20260622", res_path_rep="results/2025/",
+                 ntile_year_suffix_rep="_2017_2025", last_year_rep=2025)
 }
 
 
