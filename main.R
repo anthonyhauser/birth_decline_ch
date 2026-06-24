@@ -131,8 +131,8 @@ lapply(configs, function(cfg){
 })
 
 #2. Extrapolate to finer levels-------------------------------------------------
-# For 2025: pop_mun_df has actual 2025 data (by municipality); pop_dist_df and
-# pop_detctz_df cap at 2024 (last available year is used as proxy via pmin).
+# For 2025: pop by municipality has actual 2025 data; pop by district and by
+# citizenship x region stop at 2024, so 2024 pop is used as proxy for 2025.
 lapply(configs, function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
   fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",cfg$mod_name,"_seedid",seed_id,".RDS"))
