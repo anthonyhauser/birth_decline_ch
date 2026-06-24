@@ -203,16 +203,32 @@ lapply(configs, function(cfg){
 ################################################################################
 #report
 
-lapply(configs, function(cfg){
+old_configs = list(
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    save.date_rep = "20260309"),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  save.date_rep = "20260320"),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", save.date_rep = "20260320"),
+  list(filter_ctz = "swiss",               filter_parity = "all",    save.date_rep = "20260309"),
+  list(filter_ctz = "non-swiss",           filter_parity = "all",    save.date_rep = "20260309")
+)
+old_configs = lapply(old_configs, function(cfg){
+  cfg$mod_name = make_mod_name(cfg$filter_ctz, cfg$filter_parity, last_year = 2024)
+  cfg$res_path = "results/"
+  cfg
+})
+
+render_report = function(cfg, save.date_rep, last_year_rep){
   quarto::quarto_render(input = "reports/report1_pres.qmd",
-                        output_file = paste0("report1_pres_",save.date,"_",cfg$mod_name,"_seedid",seed_id,".html"),
-                        execute_params = list(save.date = save.date,
+                        output_file = paste0("report1_pres_",save.date_rep,"_",cfg$mod_name,"_seedid",seed_id,".html"),
+                        execute_params = list(save.date = save.date_rep,
                                               mod_name  = cfg$mod_name,
                                               seed_id   = seed_id,
                                               res_path  = cfg$res_path,
-                                              ntile_year_suffix = paste0("_2017_",last_year),
-                                              last_year = last_year))
-})
+                                              ntile_year_suffix = if(last_year_rep==2025) paste0("_2017_",last_year_rep) else "",
+                                              last_year = last_year_rep))
+}
+
+lapply(old_configs, function(cfg) render_report(cfg, cfg$save.date_rep, last_year_rep = 2024))
+lapply(configs,     function(cfg) render_report(cfg, save.date,          last_year_rep = last_year))
 
 mod_name = "mod8_swiss"
 seed_id=1
