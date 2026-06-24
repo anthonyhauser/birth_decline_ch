@@ -210,7 +210,8 @@ lapply(configs, function(cfg){
                                               mod_name  = cfg$mod_name,
                                               seed_id   = seed_id,
                                               res_path  = cfg$res_path,
-                                              ntile_year_suffix = paste0("_2017_",last_year)))
+                                              ntile_year_suffix = paste0("_2017_",last_year),
+                                              last_year = last_year))
 })
 
 mod_name = "mod8_swiss"

@@ -22,7 +22,8 @@ params:
   save.date: "20260309"
   seed_id: 1
   res_path: "results/"
-  ntile_year_suffix: "_2017_2024"
+  ntile_year_suffix: ""
+  last_year: 2024
 
 editor: visual
 ---
@@ -36,6 +37,7 @@ save.date = params$save.date
 seed_id = params$seed_id
 res_path = params$res_path
 ntile_year_suffix = params$ntile_year_suffix
+last_year = params$last_year
 
 effect_on_age_shift = ifelse(grepl("birthyear", mod_name), "birth_year", "cal_year")
   
@@ -60,7 +62,7 @@ load(paste0(code_root_path,"savepoint/cleaned_df.RData"))
 
 # Objectives
 
-- Quantify Switzerland’s birth deficit over 2000–2024, adjusting for demographic changes and delayed childbearing
+- Quantify Switzerland’s birth deficit over 2000–`r last_year`, adjusting for demographic changes and delayed childbearing
 - Examine temporal and geographical heterogeneity in birth deficits
 - Explore socio-economic factors associated with variations in excess/deficit births
 
@@ -70,11 +72,11 @@ load(paste0(code_root_path,"savepoint/cleaned_df.RData"))
 
 - Birth data:
   - Individual-level: year, month, municipality, maternal age  
-  - Period: 1987–2024 (analysis uses 2000–2024)  
+  - Period: 1987–`r last_year` (analysis uses 2000–`r last_year`)
 
 - Population data:
-  - Aggregated: year × canton, nationality (Swiss vs non-Swiss), 1987–2024  
-  - Optionally: municipality-level counts 2011–2024  
+  - Aggregated: year × canton, nationality (Swiss vs non-Swiss), 1987–`r last_year`
+  - Optionally: municipality-level counts 2011–`r last_year`
 
 - Socio-economic data (Explanatory variables)
   - Votation data (municipality-level):
@@ -382,7 +384,7 @@ p_df = readRDS(paste0(code_root_path,"savepoint/cleaned_shp_p_df.RDS"))
 ```{r,fig.width=10,fig.height=16}
   #mean
   df = p_df %>%
-    filter(year_start %in% c(2010:2024),sex=="woman",age_start %in% 15:50) %>%
+    filter(year_start %in% c(2010:last_year),sex=="woman",age_start %in% 15:50) %>%
     dplyr::mutate(dplyr::across(everything(), as.character)) %>%
     dplyr::mutate(row_id = dplyr::row_number()) %>%
     tidyr::pivot_longer(cols = -c(year,row_id), names_to = "var", values_to = "value") %>%
@@ -574,7 +576,7 @@ gamma_month_df %>%
 
 ```{r}
 birth_prob_by_age_df %>% 
-    filter(year %in% c(2000,2010,2024)) %>% 
+    filter(year %in% c(2000,2010,last_year)) %>%
     ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
     geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
     geom_line(aes(col=factor(year)))+
@@ -586,7 +588,7 @@ if(FALSE){
   birth_prob_by_age_df2=  readRDS(paste0(code_root_path,res_path,"20260320","_","mod8_first","_seedid",1,"_birthprob.RDS"))
   rbind( birth_prob_by_age_df1 %>% dplyr::mutate(data="all"),
          birth_prob_by_age_df2 %>% dplyr::mutate(data="first")) %>% 
-    filter(year %in% c(2024)) %>% 
+    filter(year %in% c(last_year)) %>%
     #group_by(data) %>% dplyr::mutate(lwb=lwb/max(est),upb=upb/max(est),est=est/max(est)) %>% ungroup() %>% 
     ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
     geom_ribbon(aes(fill=factor(data)),alpha=0.2)+
@@ -670,7 +672,7 @@ plot_df %>%
 
 ```{r, fig.height=16,fig.width=12}
 excess_birth_year_reg_df %>% 
-  filter(year %in% 2017:2024) %>% 
+  filter(year %in% 2017:last_year) %>%
   left_join(regions_sf %>% dplyr::mutate(dist_id=as.numeric(dist_id)), by = c("dist_id")) %>%
   st_as_sf() %>%
   ggplot(aes(fill = rel_exc_mean)) +
@@ -689,11 +691,11 @@ excess_birth_year_reg_df %>%
 ```
 
 
-*Figure XX**: Excess birth by district for 2017-2024.
+*Figure XX**: Excess birth by district for 2017-`r last_year`.
 
 ### Municipality-level
 
-#### 2017-2024
+#### 2017-`r last_year`
 
 ```{r, fig.height=6,fig.width=8}
 excess_birth_mun_df %>% 
@@ -719,7 +721,7 @@ excess_birth_mun_df %>%
         legend.direction = "horizontal")
 ```
 
-**Figure XX**: Excess birth by municipality for 2017-2024.
+**Figure XX**: Excess birth by municipality for 2017-`r last_year`.
 
 **Smoothed**
 
@@ -778,7 +780,7 @@ excess_birth_adj2_mun_childless_df %>%
 }
 ```
 
-**Figure XX**: Smoothed estimates of excess birth by municipality for 2017-2024.
+**Figure XX**: Smoothed estimates of excess birth by municipality for 2017-`r last_year`.
 
 Only results whose 95%CrI does not cross with 0 are displayed
 
@@ -806,13 +808,13 @@ excess_birth_adj2_mun_df %>%
         legend.direction = "horizontal")
 ```
 
-**Figure XX**:  Smooth estimates of excess birth by municipality for 2017-2024, displaying only estimates whose 95%CrI does not overlap with 0.
+**Figure XX**:  Smooth estimates of excess birth by municipality for 2017-`r last_year`, displaying only estimates whose 95%CrI does not overlap with 0.
 
 #### By year
 
 ```{r, fig.height=16,fig.width=12}
 excess_birth_year_adj2_mun_df %>% 
-  filter(year %in% 2017:2024) %>% 
+  filter(year %in% 2017:last_year) %>%
   left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
   left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
   st_as_sf() %>%
@@ -953,7 +955,7 @@ if(filter_ctz2=="all"){
 }
 ```
 
-**Figure `r fig_i`**: Excess birth by municipality for 2017-2024.
+**Figure `r fig_i`**: Excess birth by municipality for 2017-`r last_year`.
 
 ### By region of the world
 
