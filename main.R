@@ -100,11 +100,11 @@ make_mod_name = function(filter_ctz, filter_parity, last_year){
 }
 
 configs = list(
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",        save.date = "20260622", seed_id = 1),
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df",  save.date = "20260622", seed_id = 1),
-  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df", save.date = "20260622", seed_id = 1),
-  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",        save.date = "20260622", seed_id = 1),
-  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",        save.date = "20260622", seed_id = 1)
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",        save.date = "20260625", seed_id = 1),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  stan_year_start = 2005, birth_data = "birth_agg_first_df",  save.date = "20260625", seed_id = 1),
+  list(filter_ctz = c("swiss","non-swiss"), filter_parity = "second", stan_year_start = 2005, birth_data = "birth_agg_second_df", save.date = "20260625", seed_id = 1),
+  list(filter_ctz = "swiss",               filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",        save.date = "20260625", seed_id = 1),
+  list(filter_ctz = "non-swiss",           filter_parity = "all",    stan_year_start = 2000, birth_data = "birth_agg_df",        save.date = "20260625", seed_id = 1)
 )
 configs = lapply(configs, function(cfg){
   cfg$mod_name = make_mod_name(cfg$filter_ctz, cfg$filter_parity, last_year)
