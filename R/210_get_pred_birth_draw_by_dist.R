@@ -122,7 +122,7 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::mutate(n_birth = replace_na(n_birth,0))
   print("---")
   
-  #distribute over ctz, only for 2011-2024
+  #distribute over ctz, only for 2011-2024 or 2011-2025, assuming 2025 is the same distribution as 2024
   if(ctz_name==""){
     pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>%
       dplyr::rename(n_pred_nat = n_pred) %>%

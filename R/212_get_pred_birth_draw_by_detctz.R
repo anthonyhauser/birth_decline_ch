@@ -80,7 +80,7 @@ get_pred_birth_draw_by_ctzreg = function(fit, #cmdstanr fit
   print("---")
   #draws by year and age (over month)
   pred_n_birth_draw_df = pred_n_birth_draw_df %>% 
-    filter(year %in% 2011:2024) %>% 
+    filter(year %in% 2011:last_year) %>% 
     group_by(year,age,draw) %>% #sum over age and month
     dplyr::summarise(n_pred = sum(n_pred),.groups = "drop")
   print("---")
@@ -94,7 +94,7 @@ get_pred_birth_draw_by_ctzreg = function(fit, #cmdstanr fit
   #births by year and ctz region and ctn----------------------------------------------------
   birth_year_ctn_detctz_df = birth_df %>% 
     filter(mother_citizenship2 %in% filter_ctz) %>% 
-    filter(year %in% 2011:2024,
+    filter(year %in% 2011:last_year,
            !(mother_citizenship %in% c(8998, 8999))) %>% 
     dplyr::rename(ctz_id=mother_citizenship) %>% 
     left_join(world_reg_ctz_df,by="ctz_id") %>% 
@@ -103,7 +103,7 @@ get_pred_birth_draw_by_ctzreg = function(fit, #cmdstanr fit
   if(FALSE){
     #check that there is no missing ctn_abbr
     birth_year_ctn_detctz_df %>% 
-      filter(year %in% 2011:2024) %>% 
+      filter(year %in% 2011:last_year) %>% 
       group_by(mother_ctn_abbr) %>% dplyr::summarise(n=n()) %>% print(n=30)
     
     birth_year_ctn_detctz_df %>% filter(is.na(ctz_region))
@@ -136,9 +136,7 @@ get_pred_birth_draw_by_ctzreg = function(fit, #cmdstanr fit
   #distribute over mun_id, only for 2011-2024 (multinomial)
   pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
-    dplyr::mutate(year_pop = pmin(year, max(pop_detctz_df2$year))) %>%
-    inner_join(pop_detctz_df2, by=c("year_pop"="year","age"),relationship = "many-to-many")  %>%
-    dplyr::select(-year_pop) %>%
+    inner_join(pop_detctz_df2, by=c("year","age"),relationship = "many-to-many")  %>%
     group_by(draw,year,age) %>%
     dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
     as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%

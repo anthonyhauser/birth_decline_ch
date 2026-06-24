@@ -65,7 +65,7 @@ load_pop_year_age_ctn_ctz = function(last_year = 2024){
                               rule = 2)$y) %>%
                 ungroup() %>% 
                dplyr::select(year,month,ctn_abbr,citizenship,age,n) %>% 
-     filter(!(year==last_year+1 & month>1))
+     filter(year<last_year+1)
     
    if(last_year==2024){
      saveRDS(pop_df,paste0(code_root_path,"data/population_data/pop_year_age_nat_ctn.RDS"))

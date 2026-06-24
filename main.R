@@ -11,6 +11,9 @@ if(FALSE){
   
   #birth data
   birth_df = load_birth_data(mun_df = new_mun_df, rerun=FALSE,last_year=last_year) #automatically saved
+  new_birth_df = birth_df %>% 
+    dplyr::mutate(mother_mun_name = if_else(mother_mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mother_mun_name),
+                  mother_mun_id = if_else(mother_mun_id %in% mun_ids_to_agg, 31010,mother_mun_id))
   birth_agg_df = birth_df %>% #by canton, as the minimum aggregation level for fit (it is even too detailled as we only run nationally)
     group_by(year,month,mother_age,ctn_abbr=mother_ctn_abbr,citizenship=mother_citizenship2) %>% 
     dplyr::summarise(n = n(),.groups="drop")
@@ -25,7 +28,7 @@ if(FALSE){
   
   #population data
   pop_df = load_pop_year_age_ctn_ctz(last_year = last_year) #population ctn 1987-2024 or 1987-2025
-  pop_mun_df_list = load_pop_year_age_mun_ctz(mun_df = mun_df) #population mun 2011-2025, list of df, one for each aggregation level (national, canton, district, municipality)
+  pop_mun_df_list = load_pop_year_age_mun_ctz(mun_df = mun_df) #population mun 2011-2024, list of df, one for each aggregation level (national, canton, district, municipality)
   pop_mun_df = pop_mun_df_list[["municipality"]]#reg_id is historical region id (e.g., for municipality levels it corresponds to hist_mun_id)
   pop_detctz_df = load_pop_year_age_ctn_detctz()
   
@@ -81,6 +84,7 @@ if(FALSE){
 
 #load cleaned, aggregated data
 load(ifelse(last_year==2024,"savepoint/cleaned_df.RData","savepoint/cleaned2025_df.RData"))
+birth_df = load_birth_data(mun_df = new_mun_df, rerun=FALSE,last_year=last_year)
 #group four mun_id from Appenzel district because birth are reported jointly by Appenzell municipality for some years
 new_birth_df = birth_df %>% 
   dplyr::mutate(mother_mun_name = if_else(mother_mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mother_mun_name),
@@ -133,8 +137,7 @@ lapply(configs, function(cfg){
 }) %>% rbindlist() %>% print()
 
 #2. Extrapolate to finer levels-------------------------------------------------
-# For 2025: pop by municipality has actual 2025 data; pop by district and by
-# citizenship x region stop at 2024, so 2024 pop is used as proxy for 2025.
+# For 2025: pop by municipality, by district and by citizenship x region stop at 2024, so 2024 pop is used as proxy for 2025.
 lapply(configs, function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
   fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",cfg$save.date,"_",cfg$mod_name,"_seedid",cfg$seed_id,".RDS"))
@@ -144,7 +147,7 @@ lapply(configs, function(cfg){
   get_pred_birth_draw_by_dist(fit, stan_df, pop_dist_df, new_birth_df,
                               n_draw_subset = 100, cfg$save.date, cfg$mod_name, cfg$seed_id, cfg$res_path)
 
-  # by municipality (actual 2025 pop); p_childless adjustment only for parity models
+  # by municipality (2025 pop imputed from 2024); p_childless adjustment only for parity models
   for(use.p_childless in use.p_childless_v){
     get_pred_birth_draw_by_mun(fit, stan_df, new_pop_mun_df, new_birth_df,
                                new_mun_sf = new_mun_sf, n_draw_subset = 100,

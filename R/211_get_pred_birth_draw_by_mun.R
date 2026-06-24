@@ -73,7 +73,7 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   print("---")
   #draws by year and age
   pred_n_birth_draw_df = pred_n_birth_draw_df %>% 
-    filter(year %in% 2011:2024) %>% 
+    filter(year %in% 2011:last_year) %>% 
     group_by(year,age,draw) %>% #sum over month
     dplyr::summarise(n_pred = sum(n_pred),.groups = "drop")
   print("---")
@@ -86,7 +86,7 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   #births by year and mun_id----------------------------------------------------
   birth_year_mun_df = birth_df %>% 
     filter(mother_citizenship2 %in% filter_ctz) %>% 
-    filter(year %in% 2011:2024) %>% 
+    filter(year %in% 2011:last_year) %>% 
     group_by(year,mun_id=mother_mun_id) %>% 
     dplyr::summarise(n_birth=n(),.groups="drop")
   
@@ -119,7 +119,9 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   #distribute over mun_id, only for 2011-2024 (multinomial)
   pred_n_birth_mun_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
-    inner_join(pop_mun_df2, by=c("year","age"),relationship = "many-to-many")  %>%
+    dplyr::mutate(year_pop = pmin(year, max(pop_detctz_df2$year))) %>%
+    inner_join(pop_mun_df2, by=c("year_pop"="year","age"),relationship = "many-to-many")  %>%
+    dplyr::select(-year_pop) %>%
     group_by(draw,year,age) %>%
     dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
     as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%

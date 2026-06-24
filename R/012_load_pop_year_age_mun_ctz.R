@@ -59,6 +59,8 @@ load_pop_year_age_mun_ctz = function(mun_df){
       filter(year %in% c(2011,2024,2025),age==20) %>% 
       group_by(reg_agg_level,year) %>% 
       dplyr::summarise(n=sum(n))
+    
+    pop_df %>% filter(year==2025,reg_agg_level=="municipality",reg_name =="Zürich",age==15,citizenship=="swiss")
   }
   
   #extrapolate numbers by month
@@ -76,7 +78,7 @@ load_pop_year_age_mun_ctz = function(mun_df){
                              rule = 2)$y) %>%
     ungroup() %>% 
     dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n) %>% 
-    filter(!(year==2025 & month>1))
+    filter(year<2025)
   
   #list of dataframe by level of aggregation
   pop_df_list <- split(pop_df, pop_df$reg_agg_level)
