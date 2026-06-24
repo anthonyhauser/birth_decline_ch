@@ -119,9 +119,7 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   #distribute over mun_id, only for 2011-2024 (multinomial)
   pred_n_birth_mun_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
-    dplyr::mutate(year_pop = pmin(year, max(pop_mun_df2$year))) %>%
-    inner_join(pop_mun_df2, by=c("year_pop"="year","age"),relationship = "many-to-many")  %>%
-    dplyr::select(-year_pop) %>%
+    inner_join(pop_mun_df2, by=c("year","age"),relationship = "many-to-many")  %>%
     group_by(draw,year,age) %>%
     dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
     as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
