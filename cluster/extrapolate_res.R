@@ -48,6 +48,13 @@ load(ifelse(last_year==2024,
             paste0(code_root_path,"savepoint/cleaned2025_cluster_df.RData")))
 
 ##########################################
+#Check stan diagnostics
+standiag = readRDS(paste0(res_path, save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
+if(!all(standiag$is.stan.ok)){
+  stop("Results from stan model cannot be used due to pathological behaviours reported during the run, check diagnostic statistics.")
+}
+
+##########################################
 #Load stan fit and stan_df
 fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",save.date,"_",mod_name,"_seedid",seed_id,".RDS"))
 stan_df = readRDS(paste0(res_path,mod_name,"_standf.RDS"))

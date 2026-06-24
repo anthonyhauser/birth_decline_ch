@@ -49,6 +49,13 @@ load(ifelse(last_year==2024,
             paste0(code_root_path,"savepoint/cleaned2025_cluster_df.RData")))
 
 ##########################################
+#Check stan diagnostics
+standiag = readRDS(paste0(res_path, save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
+if(!all(standiag$is.stan.ok)){
+  stop("Results from stan model cannot be used due to pathological behaviours reported during the run, check diagnostic statistics.")
+}
+
+##########################################
 #Summarise excess births
 
 #1) nationally
