@@ -18,7 +18,14 @@ execute:
   warning: false
   message: true
   comment: ""
-    
+params:
+  save.date: "20260309"
+  save.date2: "20260320"
+  seed_id: 1
+  res_path: "results/"
+  ntile_year_suffix: ""
+  last_year: 2024
+
 editor: visual
 ---
 
@@ -26,37 +33,33 @@ editor: visual
 ```{r, include=FALSE}
 source("../R/000_setup.R")
 
-ctz_name =  c("swiss","non-swiss","") #c("swiss","non-swiss") #c("swiss","non-swiss"), "swiss", "non-swiss"
-filter_parity=c("all", "first", "second")
+save.date         = params$save.date
+save.date2        = params$save.date2
+seed_id           = params$seed_id
+res_path          = params$res_path
+ntile_year_suffix = params$ntile_year_suffix
+last_year         = params$last_year
 
-mod_df = expand.grid(ctz_name = ctz_name,
-                     filter_parity = filter_parity,stringsAsFactors = FALSE) %>% 
-    filter(ctz_name=="" | filter_parity=="all") %>% 
-  .[c(3,1,2,4,5),]
-subgroup_names=c("Main analyis", "Swiss","Non-Swiss","First births","Second and higher-order births")
+subgroup_names = c("Main analyis", "Swiss","Non-Swiss","First births","Second and higher-order births")
 
-mod_df <- mod_df %>%
-    pmap(function(ctz_name, filter_parity) {
-        print("---")
-        filter_ctz = if (ctz_name == "") c("swiss","non-swiss") else ctz_name
-        print(filter_ctz)
-        effect_on_age_shift <- "cal_year"
-        seed_id <- 1
-        mod_name0 <- "mod8"
-        mod_name <- if_else(effect_on_age_shift == "cal_year", mod_name0,
-                            paste0(mod_name0, "_birthyear"))
-        mod_name <- paste0(mod_name,
-                           ifelse(length(filter_ctz) == 2, "", paste0("_", filter_ctz)))
-        mod_name <- if_else(filter_parity == "all", mod_name,
-                            paste0(mod_name, "_", filter_parity))
-        save.date <- if (filter_parity != "all") "20260320" else "20260309"
-        
-        data.frame(ctz_name = ctz_name,
-                   filter_parity = filter_parity,
-                   mod_name = mod_name,
-                   save.date = save.date,
-                   seed_id = seed_id)
-    }) %>% rbindlist()
+make_mod_name = function(filter_ctz, filter_parity, last_year){
+  mod_name = "mod8"
+  mod_name = paste0(mod_name, ifelse(length(filter_ctz)==2, "", paste0("_", filter_ctz)))
+  mod_name = if_else(filter_parity=="all", mod_name, paste0(mod_name, "_", filter_parity))
+  mod_name = if_else(last_year!=2025, mod_name, paste0(mod_name, "_", last_year))
+  mod_name
+}
+
+# configs in display order: main, swiss, non-swiss, first, second
+mod_df = data.frame(
+  ctz_name      = c("",        "swiss", "non-swiss", "",       ""),
+  filter_parity = c("all",     "all",   "all",       "first",  "second"),
+  stringsAsFactors = FALSE
+)
+mod_df$mod_name  = mapply(function(ctz, par) make_mod_name(if(ctz=="") c("swiss","non-swiss") else ctz, par, last_year),
+                          mod_df$ctz_name, mod_df$filter_parity)
+mod_df$save.date = ifelse(mod_df$filter_parity != "all", save.date2, save.date)
+mod_df$seed_id   = seed_id
 
 gamma_month_df_list = list()
 birth_prob_by_age_df_list = list()
@@ -67,29 +70,29 @@ excess_birth_adj2_mun_df_list = list()
 excess_birth_year_adj2_mun_df_list = list()
 excess_by_ntiles_df_list = list()
 for(i in 1:5){
-  gamma_month_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_gammamonth.RDS"))
-  birth_prob_by_age_df_list[[i]] =  readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_birthprob.RDS"))
-  gp_rel_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_gp_rel.RDS"))
-  
-  excess_birth_year_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_year_df",".RDS"))
-  excess_birth_year_month_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_year_month_df",".RDS"))
-  
-  excess_birth_adj2_mun_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i], ifelse(i %in% c(4,5),"_childless",""),
-                                                 "_seedid",mod_df$seed_id[i],
-                                                 "_","excess_birth_adj2_mun_df",".RDS"))
-  excess_birth_year_adj2_mun_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],ifelse(i %in% c(4,5),"_childless",""),
-                                                      "_seedid",mod_df$seed_id[i],
-                                                      "_","excess_birth_year_adj2_mun_df",".RDS"))
-  
-  excess_by_ntiles_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_ntiles_df",".RDS"))
+  gamma_month_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_gammamonth.RDS"))
+  birth_prob_by_age_df_list[[i]] =  readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_birthprob.RDS"))
+  gp_rel_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_gp_rel.RDS"))
+
+  excess_birth_year_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_year_df",".RDS"))
+  excess_birth_year_month_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_year_month_df",".RDS"))
+
+  excess_birth_adj2_mun_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],ifelse(i %in% c(4,5),"_childless",""),
+                                                "_seedid",mod_df$seed_id[i],
+                                                "_","excess_birth_adj2_mun_df",".RDS"))
+  excess_birth_year_adj2_mun_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],ifelse(i %in% c(4,5),"_childless",""),
+                                                     "_seedid",mod_df$seed_id[i],
+                                                     "_","excess_birth_year_adj2_mun_df",".RDS"))
+
+  excess_by_ntiles_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],ntile_year_suffix,"_","excess_birth_ntiles_df",".RDS"))
 }
 
 #excess by ctz region, only for main analysis and analysis filter on non-swiss
 excess_birth_ctzreg_df_list = list()
 excess_birth_year_ctzreg_df_list = list()
 for(i in c(1,3)){
-  excess_birth_ctzreg_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_ctzreg_df",".RDS"))
-  excess_birth_year_ctzreg_df_list[[i]] = readRDS(paste0(code_root_path,"results/",mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_year_ctzreg_df",".RDS"))
+  excess_birth_ctzreg_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_ctzreg_df",".RDS"))
+  excess_birth_year_ctzreg_df_list[[i]] = readRDS(paste0(code_root_path,res_path,mod_df$save.date[i],"_",mod_df$mod_name[i],"_seedid",mod_df$seed_id[i],"_","excess_birth_year_ctzreg_df",".RDS"))
 }
 
 
@@ -110,7 +113,7 @@ fig1_txt = 'p1 = excess_birth_year_month_df %>%
 
 #fertility
 p2 = birth_prob_by_age_df %>% 
-    filter(year %in% c(2000,2010,2024)) %>% 
+    filter(year %in% c(2000,2010,last_year)) %>%
     ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
     geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
     geom_line(aes(col=factor(year)))+
@@ -300,7 +303,7 @@ p5 = excess_birth_year_ctzreg_df %>%
   facet_wrap(ctz_region~.,nrow=3) +
   geom_hline(yintercept = 0, lty=2) +
   scale_y_continuous(name = "Relative excess birth",breaks=c(-0.2,0,0.2,0.4,0.6,0.8,1),labels = scales::percent)+
-  scale_x_continuous(name="",breaks=c(2011,2015,2020,2024))+
+  scale_x_continuous(name="",breaks=c(2011,2015,2020,last_year))+
   scale_color_manual( name = "",
                       values = rel_pop_detctz_df$fill_col,
                       breaks = rel_pop_detctz_df$ctz_region)+
@@ -342,7 +345,7 @@ for (i in 1:5) {
    "```{r, echo=FALSE}",
     paste0("#| label: fig-plot1_", i),
     
-    '#| fig-cap: "**Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and 2024). C. Age of fertility peak according to calendar year."',
+    paste0('#| fig-cap: "**Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to ', last_year, '. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and ', last_year, '). C. Age of fertility peak according to calendar year."'),
     "#| fig-width: 10",
     "#| fig-height: 6",
     "",
@@ -381,7 +384,7 @@ for (i in 1:5) {
    "```{r, echo=FALSE}",
     paste0("#| label: fig-plot2_", i),
 
-    '#| fig-cap: "**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Relative excess birth by year from 2000 to 2024. C. Relative excess birth by month between 2020 and 2024."',
+    paste0('#| fig-cap: "**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to ', last_year, '. B. Relative excess birth by year from 2000 to ', last_year, '. C. Relative excess birth by month between 2020 and ', last_year, '."'),
     "#| fig-width: 10",
     "#| fig-height: 6",
     "",
@@ -401,7 +404,7 @@ for (i in 1:5) {
    "```{r, echo=FALSE}",
     paste0("#| label: fig-plot3_", i),
 
-    '#| fig-cap: "**Excess birth by municipality**. Relative excess birth by municipality between 2017 and 2024."',
+    paste0('#| fig-cap: "**Excess birth by municipality**. Relative excess birth by municipality between 2017 and ', last_year, '."'),
     "#| fig-width: 10",
     "#| fig-height: 6",
     "",
@@ -443,7 +446,7 @@ for (i in 1:5) {
    "```{r, echo=FALSE}",
     paste0("#| label: fig-plot5_", i),
 
-    '#| fig-cap: "**Excess birth by maternal citizenship**: A. Relative excess birth by citizenship aggregated by region of the world in 2011-2024. B. Relative excess birth by citizenship over years."',
+    paste0('#| fig-cap: "**Excess birth by maternal citizenship**: A. Relative excess birth by citizenship aggregated by region of the world in 2011-', last_year, '. B. Relative excess birth by citizenship over years."'),
     "#| fig-width: 8",
     "#| fig-height: 10",
     "",

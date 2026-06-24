@@ -18,7 +18,15 @@ execute:
   warning: false
   message: true
   comment: ""
-    
+params:
+  mod_name: "mod8"
+  save.date: "20260309"
+  save.date2: "20260320"
+  seed_id: 1
+  res_path: "results/"
+  ntile_year_suffix: ""
+  last_year: 2024
+
 editor: visual
 ---
 
@@ -26,19 +34,20 @@ editor: visual
 source("../R/000_setup.R")
 
 #define models
-mod_name = "mod8"
-save.date = "20260309"
-save.date2 = "20260320"
-seed_id = 1
-res_path = paste0("results/", ifelse(grepl("_2025$", mod_name), "2025/", ""))
-ntile_year_suffix = "_2017_2024"
+mod_name          = params$mod_name
+save.date         = params$save.date
+save.date2        = params$save.date2
+seed_id           = params$seed_id
+res_path          = params$res_path
+ntile_year_suffix = params$ntile_year_suffix
+last_year         = params$last_year
 
 effect_on_age_shift = ifelse(grepl("birthyear", mod_name), "birth_year", "cal_year")
-  
+
 filter_parity = dplyr::case_when(grepl("second", mod_name) ~ "second",
                                  grepl("first", mod_name)  ~ "first",
                                  TRUE ~ "all")
-  
+
 filter_ctz2 = dplyr::case_when(grepl("non-swiss", mod_name) ~ "non-swiss",
                                grepl("swiss", mod_name) ~ "swiss",
                                TRUE ~ "all")
@@ -119,7 +128,7 @@ p1 = excess_birth_year_month_df %>%
 
 #fertility
 p2 = birth_prob_by_age_df %>% 
-    filter(year %in% c(2000,2010,2024)) %>% 
+    filter(year %in% c(2000,2010,last_year)) %>%
     ggplot(aes(x=mother_age,y=est,ymin=lwb,ymax=upb))+
     geom_ribbon(aes(fill=factor(year)),alpha=0.2)+
     geom_line(aes(col=factor(year)))+
@@ -160,7 +169,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig1.png"),
        width = 10, height = 6,units = "in", dpi = 600)
 ```
 
-**Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and 2024). C. Age of fertility peak according to calendar year.
+**Model fit**. A. Monthly number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Fertility curve. Probability of having a child (by month) according to maternal age for different calendar years (2000, 2010 and 2024). C. Age of fertility peak according to calendar year.
 :::
 
 <div>
@@ -271,7 +280,7 @@ p5 = excess_birth_year_ctzreg_df %>%
   facet_wrap(region_group~.,nrow=2,scales="free_y") +
   geom_hline(yintercept = 0, lty=2) +
    scale_y_continuous(name = "Relative excess birth",breaks=c(-0.2,0,0.2,0.4,0.6,0.8,1),labels = scales::percent)+
-  scale_x_continuous(name="",breaks=c(2011,2015,2020,2024))+
+  scale_x_continuous(name="",breaks=c(2011,2015,2020,last_year))+
   scale_color_manual( name = "",
                         values = rel_pop_detctz_df$fill_col,
                         breaks = rel_pop_detctz_df$ctz_region)+
@@ -303,7 +312,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig2.pdf"),
        width = 12, height = 8, units = "in")
 ```
 
-**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to 2024. B. Relative excess birth by year from 2000 to 2024. C. Relative excess birth by month between 2020 and 2024. D. Relative excess birth by citizenship aggregated by region of the world in 2011-2024. E. Relative excess birth by citizenship over years.
+**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2011-2024. E. Relative excess birth by citizenship over years.
 
 </div>
 
@@ -336,7 +345,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig3.png"),
        width = 10, height = 6,units = "in", dpi = 600)
 ```
 
-**Excess birth by municipality**. Relative excess birth by municipality between 2017 and 2024.
+**Excess birth by municipality**. Relative excess birth by municipality between 2017 and `r last_year`.
 
 </div>
 
