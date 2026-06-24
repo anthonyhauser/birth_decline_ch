@@ -126,6 +126,12 @@ lapply(configs, function(cfg){
                   seed_id             = cfg$seed_id)
 })
 
+#stan diagnostics---------------------------------------------------------------
+lapply(configs, function(cfg){
+  readRDS(paste0(cfg$res_path, cfg$save.date,"_",cfg$mod_name,"_seedid",cfg$seed_id,"_standiag.RDS")) %>%
+    dplyr::mutate(mod_name = cfg$mod_name)
+}) %>% rbindlist() %>% print()
+
 #2. Extrapolate to finer levels-------------------------------------------------
 # For 2025: pop by municipality has actual 2025 data; pop by district and by
 # citizenship x region stop at 2024, so 2024 pop is used as proxy for 2025.
