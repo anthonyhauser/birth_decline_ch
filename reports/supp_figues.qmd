@@ -283,11 +283,11 @@ rel_pop_detctz_df$fill_col = c(eu_colors,rest_colors)
 
 p4 = excess_birth_ctzreg_df %>%
   left_join(rel_pop_detctz_df,by="ctz_region") %>% 
+  dplyr::mutate(ctz_region4 = factor(ctz_region4, levels = rel_pop_detctz_df$ctz_region4)) %>% 
   ggplot(aes(x=ctz_region4,y=rel_exc_mean,ymin=rel_exc_lwb,ymax=rel_exc_upb,col=ctz_region4))+
   geom_hline(yintercept = 0, lty=2)+
   geom_pointrange()+
-  scale_x_discrete(name="",
-                   limits = rel_pop_detctz_df$ctz_region4)+
+  scale_x_discrete(name="")+
   scale_y_continuous(name = "Relative excess birth",breaks=c(-0.2,0,0.2,0.4,0.6,0.8,1),labels = scales::percent)+
   scale_color_manual( name = "Region",
                       values = rel_pop_detctz_df$fill_col,
@@ -295,6 +295,7 @@ p4 = excess_birth_ctzreg_df %>%
   theme(legend.position = "none")
 p5 = excess_birth_year_ctzreg_df %>%
   left_join(rel_pop_detctz_df, by="ctz_region") %>% 
+  dplyr::mutate(ctz_region = factor(ctz_region, levels = rel_pop_detctz_df$ctz_region)) %>% 
   ggplot(aes(x=year, y=rel_exc_mean, ymin=rel_exc_lwb, ymax=rel_exc_upb)) +
   geom_ribbon(aes(fill=ctz_region), alpha=0.1) +
   geom_line(aes(col=ctz_region)) +
