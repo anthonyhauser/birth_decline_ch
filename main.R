@@ -247,17 +247,15 @@ render_figures = function(qmd, save.date_rep, save.date2_rep, res_path_rep, ntil
 }
 
 
-for(save.date_rep in c("20260309", "20260625")){
-  is_2025       = save.date_rep == "20260625"
-  save.date2_rep        = if(is_2025) "20260625" else "20260320"
-  res_path_rep          = if(is_2025) "results/2025/" else "results/"
-  ntile_year_suffix_rep = if(is_2025) "_2017_2025" else ""
-  last_year_rep         = if(is_2025) 2025 else 2024
-  mod_name_rep          = "mod8"
+fig_configs = list(
+  list(save.date_rep = "20260309", save.date2_rep = "20260320", res_path_rep = "results/",      ntile_year_suffix_rep = "",           last_year_rep = 2024),
+  list(save.date_rep = "20260625", save.date2_rep = "20260625", res_path_rep = "results/2025/", ntile_year_suffix_rep = "_2017_2025", last_year_rep = 2025)
+)
 
-  render_figures("reports/figures.qmd",     save.date_rep, save.date2_rep, res_path_rep, ntile_year_suffix_rep, last_year_rep, mod_name_rep)
-  render_figures("reports/supp_figues.qmd", save.date_rep, save.date2_rep, res_path_rep, ntile_year_suffix_rep, last_year_rep)
-}
+lapply(fig_configs, function(cfg){
+  render_figures("reports/figures.qmd",     cfg$save.date_rep, cfg$save.date2_rep, cfg$res_path_rep, cfg$ntile_year_suffix_rep, cfg$last_year_rep, mod_name_rep = "mod8")
+  render_figures("reports/supp_figues.qmd", cfg$save.date_rep, cfg$save.date2_rep, cfg$res_path_rep, cfg$ntile_year_suffix_rep, cfg$last_year_rep)
+})
 
 
 save.date_rep="20260625"
