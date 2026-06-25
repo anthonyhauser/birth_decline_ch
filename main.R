@@ -203,8 +203,7 @@ lapply(configs, function(cfg){
 
 
 ################################################################################################################################################################
-#report
-
+#report and figures
 old_configs = list(
   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "all",    save.date = "20260309", seed_id = 1),
   list(filter_ctz = c("swiss","non-swiss"), filter_parity = "first",  save.date = "20260320", seed_id = 1),
@@ -232,7 +231,11 @@ render_report = function(cfg, last_year_rep){
 lapply(old_configs, function(cfg) render_report(cfg, last_year_rep = 2024))
 lapply(configs,     function(cfg) render_report(cfg, last_year_rep = last_year))
 
-#figures and supplementary figures---------------------------------------------
+#figures and supplementary figures----------------------------------------------
+fig_configs = list(
+  list(save.date_rep = "20260309", save.date2_rep = "20260320", res_path_rep = "results/",      ntile_year_suffix_rep = "",           last_year_rep = 2024),
+  list(save.date_rep = "20260625", save.date2_rep = "20260625", res_path_rep = "results/2025/", ntile_year_suffix_rep = "_2017_2025", last_year_rep = 2025)
+)
 render_figures = function(qmd, save.date_rep, save.date2_rep, res_path_rep, ntile_year_suffix_rep, last_year_rep, mod_name_rep = NULL){
   extra_params = if(!is.null(mod_name_rep)) list(mod_name = mod_name_rep) else list()
   quarto::quarto_render(input = qmd,
@@ -246,28 +249,14 @@ render_figures = function(qmd, save.date_rep, save.date2_rep, res_path_rep, ntil
                                                 last_year         = last_year_rep)))
 }
 
-
-fig_configs = list(
-  list(save.date_rep = "20260309", save.date2_rep = "20260320", res_path_rep = "results/",      ntile_year_suffix_rep = "",           last_year_rep = 2024),
-  list(save.date_rep = "20260625", save.date2_rep = "20260625", res_path_rep = "results/2025/", ntile_year_suffix_rep = "_2017_2025", last_year_rep = 2025)
-)
-
 lapply(fig_configs, function(cfg){
   render_figures("reports/figures.qmd",     cfg$save.date_rep, cfg$save.date2_rep, cfg$res_path_rep, cfg$ntile_year_suffix_rep, cfg$last_year_rep, mod_name_rep = "mod8")
   render_figures("reports/supp_figues.qmd", cfg$save.date_rep, cfg$save.date2_rep, cfg$res_path_rep, cfg$ntile_year_suffix_rep, cfg$last_year_rep)
 })
 
-
-save.date_rep="20260625"
-save.date2_rep
-res_path_rep
-ntile_year_suffix_rep
-last_year_rep
-mod_name_rep
-
-
 ################################################################################################################################################################
 ################################################################################################################################################################
+#Not used
 
 p_childless_df =  get_prob_childless_by_mun(new_birth_df, new_pop_mun_df, filter_ctz, p_mun_changes = 0.06)
 age_childless=30
