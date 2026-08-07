@@ -39,7 +39,7 @@ res_path          = params$res_path
 ntile_year_suffix = params$ntile_year_suffix
 last_year         = params$last_year
 
-subgroup_names = c("Main analyis", "Swiss","Non-Swiss","First births","Second and higher-order births")
+subgroup_names = c("Main analysis", "Subgroup analysis: Swiss resident","Subgroup analysis: non-Swiss resident","Subgroup analysis: first birth","Subgroup analysis: second and higher-order births")
 
 make_mod_name = function(filter_ctz, filter_parity, last_year){
   mod_name = "mod8"
@@ -364,7 +364,7 @@ for (i in 1:5) {
     
     '#| fig-cap: "**Model fit**. Effect of month on the probability of having a child."',
     "#| fig-width: 5",
-    "#| fig-height: 4",
+    "#| fig-height: 3",
     "",
     
     fig1b_txt,
@@ -384,8 +384,8 @@ for (i in 1:5) {
     paste0("#| label: fig-plot2_", i),
 
     paste0('#| fig-cap: "**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to ', last_year, '. B. Relative excess birth by year from 2000 to ', last_year, '. C. Relative excess birth by month between 2020 and ', last_year, '."'),
-    "#| fig-width: 10",
-    "#| fig-height: 6",
+    "#| fig-width: 8",
+    "#| fig-height: 8",
     "",
 
     fig2_txt,

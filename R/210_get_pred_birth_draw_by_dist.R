@@ -106,7 +106,7 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::summarise(n=sum(n),.groups="drop") 
   print("---")
 
-  #distribute over region, only for 2011-2024
+  #distribute over region, only for 2011-2024, assuming 2025 is the same distribution as 2024
   pred_n_birth_reg_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
     dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level

@@ -61,7 +61,7 @@ mod_name_first    = paste0(mod_name, "_first",     year_suffix)
 mod_name_second   = paste0(mod_name, "_second",    year_suffix)
 ```
 
-```{r}
+```{r,include=FALSE}
 
 #load results
 #stan_diag_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name,"_seedid",seed_id,"_standiag.RDS"))
@@ -123,7 +123,7 @@ excess_by_ntiles_second_df = readRDS(paste0(code_root_path,res_path,save.date2,"
 
 # Figures
 
-::: {#fig-myfig}
+::: {#fig-fig1}
 ```{r,  fig.height=6,fig.width=10}
 p1 = excess_birth_year_month_df %>% 
   ggplot(aes(x=date))+
@@ -181,6 +181,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig1.png"),
 
 <div>
 
+::: {#fig-fig2}
 ```{r,  fig.height=8,fig.width=12}
 #national, year
 plot_df1 = excess_birth_year_df %>% 
@@ -319,12 +320,15 @@ ggsave(filename = paste0(code_root_path,"figure/fig2.pdf"),
        width = 12, height = 8, units = "in")
 ```
 
+
 **Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2011-`r last_year`. E. Relative excess birth by citizenship over years.
+:::
 
 </div>
 
 <div>
 
+::: {#fig-fig3}
 ```{r,  fig.height=6,fig.width=10}
 fig3 = excess_birth_adj2_mun_df %>% 
   #left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
@@ -353,11 +357,13 @@ ggsave(filename = paste0(code_root_path,"figure/fig3.png"),
 ```
 
 **Excess birth by municipality**. Relative excess birth by municipality between 2017 and `r last_year`.
+:::
 
 </div>
 
 <div>
 
+::: {#fig-fig4}
 ```{r,  fig.height=6,fig.width=10}
 #plot
 fig4 = excess_by_ntiles_df %>% 
@@ -379,12 +385,14 @@ ggsave(filename = paste0(code_root_path,"figure/fig4.png"),
        width = 10, height = 6,units = "in", dpi = 600)
 ```
 
-**Relative excess birth stratified by variable deciles**
+**Relative excess births stratified by municipality-level variable deciles**: Relative excess births according to four municipality-level variables: population density, childcare service density, socioeconomic position (SEP), and the share of votes supporting the introduction of paid paternity leave in the Swiss popular vote of 2020.
+:::
 
 </div>
 
 <div>
 
+::: {#fig-fig5}
 ```{r,  fig.height=8,fig.width=10}
 
 subgroup_col = c("black", "darkred", "darkorange", "darkgreen","darkblue")
@@ -444,7 +452,7 @@ p2 = excess_birth_year_subgroup_df %>%
   ggplot(aes(x = year)) +
   geom_ribbon(aes(ymin = rel_exc_lwb ,ymax=rel_exc_upb ,fill=subgroup),alpha = 0.2) +
   geom_line(aes(y = rel_exc_mean , col=subgroup))+
-  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_line(aes(y = rel_exc_mean_all))+ #linetype=3, linewidth = 2)+
   geom_hline( aes(yintercept = 0),    linetype = 2) +
   scale_x_continuous(name="Year")+
   scale_y_continuous(name="Relative excess birth",labels=scales::percent)+
@@ -466,7 +474,7 @@ p3 = excess_by_ntiles_subgroup_df %>%
   geom_ribbon(aes(fill=subgroup),alpha = 0.2) +
   geom_line(aes(col=subgroup)) +
   geom_point(aes(col=subgroup)) +
-  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_line(aes(y = rel_exc_mean_all))+
   geom_hline(aes(yintercept = 0), linetype = 2)+
   scale_x_continuous(name="Population decile",breaks=c(1:10))+
   scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
@@ -484,7 +492,7 @@ p4 = excess_birth_year_subgroup_df %>%
   ggplot(aes(x = year)) +
   geom_ribbon(aes(ymin = rel_exc_lwb ,ymax=rel_exc_upb ,fill=subgroup),alpha = 0.2) +
   geom_line(aes(y = rel_exc_mean , col=subgroup))+
-  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_line(aes(y = rel_exc_mean_all))+
   geom_hline( aes(yintercept = 0),    linetype = 2) +
   scale_x_continuous(name="Year")+
   scale_y_continuous(name="Relative excess birth",labels=scales::percent)+
@@ -507,7 +515,7 @@ p5 = excess_by_ntiles_subgroup_df %>%
   geom_ribbon(aes(fill=subgroup),alpha = 0.2) +
   geom_line(aes(col=subgroup)) +
   geom_point(aes(col=subgroup)) +
-  geom_line(aes(y = rel_exc_mean_all),linetype=3, linewidth = 2)+
+  geom_line(aes(y = rel_exc_mean_all))+
   geom_hline(aes(yintercept = 0), linetype = 2)+
   scale_x_continuous(name="Population decile",breaks=c(1:10))+
   scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
@@ -552,7 +560,8 @@ ggsave(filename = paste0(code_root_path,"figure/fig5.png"),
        width = 10, height = 8,units = "in", dpi = 600)
 ```
 
-**Sub-group excess births**:
+**Sub-group excess births**: A. Fertility curve by maternal citizenship. Probability of having a child per month according to maternal age for Swiss (red) and non-Swiss (yellow) residents. B. Relative excess births by year from 2000 to 2025 according to maternal citizenship. C. Relative excess births according to municipality-level population density deciles, by maternal citizenship. D. Relative excess births by year from 2000 to 2025 according to birth parity, distinguishing first births (green) from higher-order births (blue). E. Relative excess births according to municipality-level population density deciles, by birth parity. The estimate from the main analysis (black line) is shown for comparison. Lines represent posterior means and shaded areas the 95% credible intervals (95% CrI).
+::: 
 
 </div>
 
@@ -577,3 +586,4 @@ if(FALSE){
     scale_y_continuous(labels = scales::percent)
 }
 ```
+

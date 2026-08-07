@@ -83,12 +83,14 @@ for(use.p_childless in use.p_childless_v){
   summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
                              excess_birth_year_adj2_mun_draw_df,
                              excess_birth_year_mun_draw_df,
-                             save.date, paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id, res_path)
+                             save.date, paste0(mod_name,ifelse(use.p_childless,"_childless","")), seed_id, res_path,
+                             year_range = 2017:last_year)
 }
 
 #5) ctz region x canton
 excess_birth_year_ctz_draw_df = readRDS(paste0(res_path,save.date,"_",mod_name,"_","seedid",seed_id,"_","excess_birth_year_ctn_ctzreg_draw_df",".RDS"))
-excess_birth_ctzreg = summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, mod_name, seed_id, res_path)
+excess_birth_ctzreg = summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, save.date, mod_name, seed_id, res_path,
+                                                    year_range = 2017:last_year)
 
 ##########################################
 #Excess birth by ntiles
