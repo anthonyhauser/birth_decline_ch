@@ -30,6 +30,7 @@ sep_df2 = sep_df %>% filter(plz %in% plz_mult_munid) %>% dplyr::select(plz,e_lv9
   dplyr::mutate(dist = sqrt((e_lv95 - e_lv95_village)^2 + (n_lv95 - n_lv95_village)^2)) %>% 
   group_by(plz,e_lv95,n_lv95) %>% 
   slice_min(dist) %>% ungroup()
+sep_df2 =  sep_df %>% filter(plz %in% plz_mult_munid) 
 
 #Issue 2: find mun_id
 plz_munid_missing_df <- data.frame(plz = c(3000, 8000, 6000, 2500, 4000, 7446, 1200),
