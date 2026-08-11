@@ -1,3 +1,5 @@
+
+#old version can be deleted
 sep_df = readRDS("data/sep_data/pop_reg_sep_df.RDS") 
 sep_df = sep_df %>% dplyr::select(plz,e_lv95,n_lv95,age,sex,ssep3,ssep3_d) %>% as.tibble()
 
@@ -30,7 +32,7 @@ sep_df2 = sep_df %>% filter(plz %in% plz_mult_munid) %>% dplyr::select(plz,e_lv9
   dplyr::mutate(dist = sqrt((e_lv95 - e_lv95_village)^2 + (n_lv95 - n_lv95_village)^2)) %>% 
   group_by(plz,e_lv95,n_lv95) %>% 
   slice_min(dist) %>% ungroup()
-sep_df2 =  sep_df %>% filter(plz %in% plz_mult_munid) 
+#sep_df2 =  sep_df %>% filter(plz %in% plz_mult_munid) 
 
 #Issue 2: find mun_id
 plz_munid_missing_df <- data.frame(plz = c(3000, 8000, 6000, 2500, 4000, 7446, 1200),
@@ -41,8 +43,8 @@ plz_munid_df2 = rbind(plz_munid_df2 %>% filter(!is.na(mun_id)),
                       plz_munid_missing_df)
 
 sep_df3 = rbind(sep_df1 %>%  left_join(plz_munid_df2 %>% dplyr::select(plz,mun_id) %>% distinct(),by="plz"),
-      sep_df %>% filter(plz %in% plz_mult_munid) %>% 
-        left_join(sep_df2 %>% dplyr::select(plz,e_lv95,n_lv95,mun_id),by=c("plz","e_lv95","n_lv95")))
+                sep_df %>% filter(plz %in% plz_mult_munid) %>% 
+                  left_join(sep_df2 %>% dplyr::select(plz,e_lv95,n_lv95,mun_id),by=c("plz","e_lv95","n_lv95")))
 
 sep_df3 =sep_df3 %>% 
   group_by(mun_id) %>% 
