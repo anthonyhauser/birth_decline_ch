@@ -320,7 +320,6 @@ ggsave(filename = paste0(code_root_path,"figure/fig2.pdf"),
        width = 12, height = 8, units = "in")
 ```
 
-
 **Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2011-`r last_year`. E. Relative excess birth by citizenship over years.
 :::
 
@@ -345,6 +344,7 @@ fig3 = excess_birth_adj2_mun_df %>%
     mid = "lightyellow",
     high = "green",
     midpoint = 0,
+    breaks=c(-0.2,0,0.2),
     labels = scales::percent_format(accuracy = 1),
     #limits=c(-0.4,0.4)
   ) +
@@ -561,7 +561,7 @@ ggsave(filename = paste0(code_root_path,"figure/fig5.png"),
 ```
 
 **Sub-group excess births**: A. Fertility curve by maternal citizenship. Probability of having a child per month according to maternal age for Swiss (red) and non-Swiss (yellow) residents. B. Relative excess births by year from 2000 to 2025 according to maternal citizenship. C. Relative excess births according to municipality-level population density deciles, by maternal citizenship. D. Relative excess births by year from 2000 to 2025 according to birth parity, distinguishing first births (green) from higher-order births (blue). E. Relative excess births according to municipality-level population density deciles, by birth parity. The estimate from the main analysis (black line) is shown for comparison. Lines represent posterior means and shaded areas the 95% credible intervals (95% CrI).
-::: 
+:::
 
 </div>
 
@@ -586,4 +586,3 @@ if(FALSE){
     scale_y_continuous(labels = scales::percent)
 }
 ```
-

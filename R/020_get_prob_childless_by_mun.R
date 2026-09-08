@@ -104,10 +104,30 @@ get_prob_childless_by_mun = function(birth_df, pop_mun_df,
     
     #####################
     #p_childless in big cities
+    # Communes > 10'000
+    mun_col <- pop_birth_mun_df2 %>% 
+      filter(n_pop_2024 > 20000) %>% 
+      distinct(mun_name, n_pop_2024) %>% 
+      arrange(n_pop_2024)
+    
+    # Palette rose → rouge
+    pal <- col_numeric( palette = c("violet", "darkred"),
+      domain = range(mun_col$n_pop_2024) )
+    
+    mun_col <- mun_col %>% 
+      mutate(colour = pal(n_pop_2024))
+    
     pop_birth_mun_df2 %>% 
-      filter(n_pop_2024>10000) %>% 
-      ggplot(aes(x=age,y=p_childless_pos2,col=mun_name)) +
-      geom_line()
+      ggplot(aes(x = age, y = p_childless_pos2, group = mun_name)) +
+      geom_line(data = ~ filter(.x, n_pop_2024 <= 20000),
+        colour = "lightgray",
+        alpha = 0.1 ) +
+      geom_line( data = ~ filter(.x, n_pop_2024 > 20000),
+        aes(colour = mun_name),
+        alpha = 1) +
+      scale_colour_manual(values = setNames(mun_col$colour, mun_col$mun_name)) +
+      labs(colour = "Commune",y="Proportion de femmes sans enfant")
+    
     #by population size of the city
     pop_birth_mun_df2 %>% 
       dplyr::mutate(n_pop_2024_group = cut(n_pop_2024,c(0,100,1000,5000,10000,Inf))) %>%  
