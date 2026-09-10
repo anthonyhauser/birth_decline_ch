@@ -1,5 +1,32 @@
 source("R/000_setup.R")
 
+slope_excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name_full,"_","seedid",seed_id,"_","slope_excess_birth_year_adj2_mun_df",".RDS"))
+slope_excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name_swiss,"_","seedid",seed_id,"_","slope_excess_birth_year_adj2_mun_df",".RDS"))
+slope_excess_birth_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name_full,"_","seedid",seed_id,"_","slope_excess_birth_year_mun_df",".RDS"))
+fig3 = slope_excess_birth_adj2_mun_df %>% 
+  #left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
+  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = slope_rel_exc_mean),color=NA)+
+  # geom_sf(aes(fill = if_else(slope_rel_exc_lwb > 0 | slope_rel_exc_upb < 0,
+  #                            slope_rel_exc_mean, NA_real_)), color = NA) +  # communes sans bordure
+  geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
+          fill = NA, color = "black", size = 0.3) +  # contours districts
+  geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
+  scale_fill_gradient2(
+    name = "Decrease in relative excess birth",
+    low = "red",
+    mid = "lightyellow",
+    high = "green",
+    midpoint = 0,#median(slope_excess_birth_mun_df$slope_rel_exc_mean),
+    labels = scales::percent_format(accuracy = 1),
+    na.value = "white"
+    #limits=c(-0.4,0.4)
+  ) +
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal")
+fig3
 
 load("savepoint/cleaned2025_df.RData")
 

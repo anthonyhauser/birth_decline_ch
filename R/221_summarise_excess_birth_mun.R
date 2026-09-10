@@ -1,9 +1,11 @@
 get_excess_est = function(var_group,draw_df){
   excess_df = draw_df %>%
+    #for each draw sum by var_group
     group_by(across(all_of(var_group)), draw) %>% 
     dplyr::summarise(n_birth = sum(n_birth),
                      n_pred = sum(n_pred),
                      n_exc = sum(n_exc),.groups="drop_last") %>% 
+    #summarise the number over draws
     dplyr::summarise(n_birth = n_birth[1],
                      n_exp_mean = mean(n_pred),
                      n_exp_lwb = quantile(n_pred,probs=0.025),
@@ -11,11 +13,14 @@ get_excess_est = function(var_group,draw_df){
                      n_exc_mean = mean(n_exc),
                      n_exc_lwb = quantile(n_exc,probs=0.025),
                      n_exc_upb = quantile(n_exc,probs=0.975),.groups="drop") %>% 
+    #relative excess : excess/mean(expectation)
     dplyr::mutate(rel_exc_mean = n_exc_mean/n_exp_mean,
                   rel_exc_lwb = n_exc_lwb/n_exp_mean,
                   rel_exc_upb = n_exc_upb/n_exp_mean) 
   return(excess_df)
 }
+
+
 
 summarise_excess_birth_mun = function(excess_birth_year_adj_mun_draw_df, excess_birth_year_adj2_mun_draw_df, excess_birth_year_mun_draw_df,
                                       save.date, mod_name, seed_id, res_path = "results/", year_range=2017:2024){
@@ -58,3 +63,6 @@ summarise_excess_birth_ctzreg = function(excess_birth_year_ctz_draw_df,
               excess_birth_ctzreg_ctn_df = excess_birth_ctzreg_ctn_df,
               excess_birth_ctzreg_df = excess_birth_ctzreg_df))
 }
+
+
+
