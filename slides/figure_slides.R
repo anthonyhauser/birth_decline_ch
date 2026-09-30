@@ -1,5 +1,20 @@
 source("R/000_setup.R")
 
+save.date="20260625"
+save.date2="20260625"
+mod_name = "mod8"
+seed_id = 1
+year_suffix       = "_2025"
+ntile_year_suffix = "_2017_2025"
+mod_name_full     = paste0(mod_name,             year_suffix)
+mod_name_swiss    = paste0(mod_name, "_swiss",     year_suffix)
+mod_name_nonswiss = paste0(mod_name, "_non-swiss", year_suffix)
+mod_name_first    = paste0(mod_name, "_first",     year_suffix)
+mod_name_second   = paste0(mod_name, "_second",    year_suffix)
+
+################################################################################
+#-------------------------------------------------------------------------------
+#Slope
 slope_excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name_full,"_","seedid",seed_id,"_","slope_excess_birth_year_adj2_mun_df",".RDS"))
 slope_excess_birth_adj2_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name_swiss,"_","seedid",seed_id,"_","slope_excess_birth_year_adj2_mun_df",".RDS"))
 slope_excess_birth_mun_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name_full,"_","seedid",seed_id,"_","slope_excess_birth_year_mun_df",".RDS"))
@@ -28,6 +43,8 @@ fig3 = slope_excess_birth_adj2_mun_df %>%
         legend.direction = "horizontal")
 fig3
 
+#-------------------------------------------------------------------------------
+#ICF
 load("savepoint/cleaned2025_df.RData")
 
 birth_df1 = birth_agg_df %>% 
@@ -61,25 +78,8 @@ ggsave(filename = paste0(code_root_path,"slides/images/icf_switzerland_2020_2025
        plot = fig1,
        width = 7, height = 4,units = "in", dpi = 600)
 
-
-
-birth_df2 = birth_agg_df %>% 
-  filter(mother_age %in% 15:50,year>=2000) %>% 
-  dplyr::rename(age=mother_age) %>% 
-  group_by(year,age) %>% 
-  dplyr::summarise(n=sum(n), .groups="drop_last") %>% 
-  dplyr::mutate(dist = n/sum(n)) %>% ungroup()
-
-birth_df2 %>% 
-  filter(year %in% c(2000,2010,2020,2025)) %>% 
-  
-  
-  
-  
-  
-  
-  
-  
+#-------------------------------------------------------------------------------
+#Correction for proportion of women susceptible of having children by municipality
 #load data 
 pop_birth_mun_df2 = readRDS(paste0(code_root_path,"savepoint/","p_childless_df.RDS"))
 
@@ -113,26 +113,6 @@ ggsave(filename = paste0(code_root_path,"slides/images/prop_childless.png"),
        plot = fig2,
        width = 8, height = 4,units = "in", dpi = 600)
 
-
-
-
-
-
-
-
-
-res_path="results/2025/"
-save.date="20260625"
-save.date2="20260625"
-mod_name = "mod8"
-seed_id = 1
-year_suffix       = "_2025"
-ntile_year_suffix = "_2017_2025"
-mod_name_full     = paste0(mod_name,             year_suffix)
-mod_name_swiss    = paste0(mod_name, "_swiss",     year_suffix)
-mod_name_nonswiss = paste0(mod_name, "_non-swiss", year_suffix)
-mod_name_first    = paste0(mod_name, "_first",     year_suffix)
-mod_name_second   = paste0(mod_name, "_second",    year_suffix)
 
 ################################################################################
 #Figure 1
@@ -548,3 +528,26 @@ ggsave(filename = paste0(code_root_path,"slides/images/fig5b.png"),
        plot = fig5b,
        width = 6, height = 8,units = "in", dpi = 600)
 
+
+
+
+
+#plot
+excess_by_ntiles_df = readRDS(paste0(code_root_path,res_path,save.date,"_",mod_name_full,"_","seedid",seed_id,ntile_year_suffix,"_","excess_birth_ntiles_df",".RDS"))
+fig4 = excess_by_ntiles_df %>% 
+  left_join(explanatory_var_df %>% 
+              dplyr::mutate(explanatory_var = paste0(explanatory_var,"_ntile")),by="explanatory_var") %>% 
+  filter(explanatory_var %in% c("pop_dens_building_ntile")) %>% 
+  dplyr::mutate(explanatory_var2 = factor(explanatory_var2, levels = explanatory_var_df$explanatory_var2)) %>% 
+  ggplot(aes(x = ntile, y = rel_exc_mean, ymin = rel_exc_lwb, ymax = rel_exc_upb))+
+  geom_ribbon(alpha = 0.2) +
+  geom_line() +
+  geom_point() +
+  geom_hline(aes(yintercept = 0), linetype = 2)+
+  scale_x_continuous(name="Population decile",breaks=c(1:10))+
+  scale_y_continuous(name="Relative excess birth",labels = scales::percent)+
+  facet_wrap(explanatory_var2~.,ncol=2)
+fig4 
+ggsave(filename = paste0(code_root_path,"slides/images/fig4_population_density.pdf"),
+       plot = fig4,
+       width = 6, height = 4,units = "in", dpi = 600)

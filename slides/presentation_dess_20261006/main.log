@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  30 SEP 2026 12:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  30 SEP 2026 12:08
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1459,41 +1459,108 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count558
-No file main.nav.
-<../template_unisante/logos/fondlausanne.jpg, id=13, 722.7pt x 406.8801pt>
+(main.nav)
+<../template_unisante/logos/fondlausanne.jpg, id=17, 722.7pt x 406.8801pt>
 File: ../template_unisante/logos/fondlausanne.jpg Graphic file (type jpg)
 <use ../template_unisante/logos/fondlausanne.jpg>
 Package pdftex.def Info: ../template_unisante/logos/fondlausanne.jpg  used on i
 nput line 54.
 (pdftex.def)             Requested size: 454.84026pt x 256.0748pt.
-[1
+ [1
 
 {C:/Users/an4818/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <../template
-_unisante/logos/fondlausanne.jpg>])
-Runaway argument?
-\vspace *{0.2cm} \centering \includegraphics [width=1\linewidth ,keep\ETC.
-! File ended while scanning use of \frame.
-<inserted text> 
-                \par 
-<*> ./main.tex
-              
-I suspect you have forgotten a `}', causing me
-to read past where you wanted me to stop.
-I'll try to recover; but if the error is serious,
-you'd better type `E' or `X' now and fix your file.
+_unisante/logos/fondlausanne.jpg>]
+LaTeX Font Info:    Trying to load font information for U+msa on input line 93.
 
-! Emergency stop.
-<*> ./main.tex
-              
-*** (job aborted, no legal \end found)
 
- 
+(C:\TEMP\MiKTeX2\tex/latex/amsfonts\umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 93.
+
+
+(C:\TEMP\MiKTeX2\tex/latex/amsfonts\umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inp
+ut line 93.
+
+(C:\TEMP\MiKTeX2\tex/latex/sansmathaccent\ot1mathkerncmss.fd
+File: ot1mathkerncmss.fd 2020/01/31 Fontinst v1.933 font definitions for OT1/ma
+thkerncmss.
+)
+<../images/icf_switzerland_2020_2025.png, id=27, 505.89pt x 289.08pt>
+File: ../images/icf_switzerland_2020_2025.png Graphic file (type png)
+<use ../images/icf_switzerland_2020_2025.png>
+Package pdftex.def Info: ../images/icf_switzerland_2020_2025.png  used on input
+ line 93.
+(pdftex.def)             Requested size: 152.96123pt x 87.40837pt.
+<../images/matthes_historical_birth.png, id=28, 986.68625pt x 489.83pt>
+File: ../images/matthes_historical_birth.png Graphic file (type png)
+<use ../images/matthes_historical_birth.png>
+Package pdftex.def Info: ../images/matthes_historical_birth.png  used on input 
+line 93.
+(pdftex.def)             Requested size: 191.20082pt x 94.91478pt.
+
+Overfull \vbox (62.33055pt too high) detected at line 93
+ []
+
+[2
+
+ <../images/icf_switzerland_2020_2025.png> <../images/matthes_historical_birth.
+png>] [3
+
+] [4
+
+] [5
+
+] [6
+
+] [7
+
+] [8
+
+]
+\tf@nav=\write7
+\openout7 = `main.nav'.
+
+\tf@toc=\write8
+\openout8 = `main.toc'.
+
+\tf@snm=\write9
+\openout9 = `main.snm'.
+
+ (main.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+ ***********
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 47949AC7C3DCEDDDEEFE3CD50587DDA1;103.
+Package logreq Info: Writing requests to 'main.run.xml'.
+\openout1 = `main.run.xml'.
+
+ ) 
 Here is how much of TeX's memory you used:
- 40066 strings out of 467871
- 789672 string characters out of 5432322
- 1685392 words of memory out of 5000000
- 68320 multiletter control sequences out of 15000+600000
- 629231 words of font info for 45 fonts, out of 8000000 for 9000
+ 40381 strings out of 467871
+ 797018 string characters out of 5432322
+ 1699596 words of memory out of 5000000
+ 68582 multiletter control sequences out of 15000+600000
+ 637104 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,11n,123p,695b,2905s stack positions out of 10000i,1000n,20000p,200000b,200000s
-!  ==> Fatal error occurred, no output PDF file produced!
+ 128i,13n,123p,695b,2905s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cmextra/cmex9.pfb><C:/TEMP/MiKTe
+X2/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/TEMP/MiKTeX2/fonts/type1/public
+/amsfonts/cm/cmmi9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmss10.p
+fb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/TEMP/MiKTeX2/f
+onts/type1/public/amsfonts/cm/cmss9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
+fonts/cm/cmssbx10.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi8.pf
+b><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi9.pfb><C:/TEMP/MiKTeX2/f
+onts/type1/public/amsfonts/cm/cmsy9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
+fonts/symbols/msam10.pfb>
+Output written on main.pdf (8 pages, 702324 bytes).
+PDF statistics:
+ 147 PDF objects out of 1000 (max. 8388607)
+ 18 named destinations out of 1000 (max. 500000)
+ 66 words of extra memory for PDF output out of 10000 (max. 10000000)
+
