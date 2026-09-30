@@ -1,0 +1,548 @@
+\documentclass[aspectratio=169,9pt]{beamer}
+\usepackage[french]{babel}
+\selectlanguage{french}
+\usepackage[utf8]{inputenc}
+\usepackage{framed}
+\usetheme{unisante}
+
+\usepackage{tikz, tikz-cd}
+\usepackage{pgf}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{qrcode}
+
+%%% Compact itemize, mirroring \compresslist from the poster %%%%%%%%%%%%%%%%%%%
+\newcommand{\compresslist}{%
+  \setlength{\itemsep}{2pt}%
+  \setlength{\parskip}{0pt}%
+  \setlength{\parsep}{0pt}%
+}
+\newcommand{\compressl}{%
+  \setlength{\itemsep}{4pt}%
+  \setlength{\parskip}{2pt}%
+  \setlength{\parsep}{2pt}%
+}
+\definecolor{monvert}{rgb}{0.0, 0.5, 0.0}
+\newcommand{\smallitem}[1]{{\fontsize{8pt}{9pt}\selectfont #1}}
+\setbeamerfont{footnote mark}{size=\tiny}
+\setbeamerfont{footnote}{size=\tiny}
+
+\title[]{Caractérisation de la baisse des naissances en Suisse : analyse statistique de 2000 à 2025}
+\author{Anthony Hauser, Julien Riou, Kaspar Staub}
+\institute{\normalsize Unisanté}
+\date{\normalsize Lausanne, 10 septembre 2026}
+
+%% Contenu
+\begin{document}
+	
+	
+	{
+		\setbeamertemplate{footline}{} 
+		\begin{frame}
+			\titlepage
+		\end{frame}
+	}
+	\addtocounter{framenumber}{-1}
+	
+	\section*{Introduction}
+
+%%% Background %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{La baisse de la fécondité : un phénomène global}
+\begin{minipage}[t]{0.4\linewidth}
+\textbf{Baisse de la natalité}
+\begin{itemize}\compresslist
+\item \textbf{Indice conjoncturel de fécondité} (ICF) : nombre moyen d'enfants par femme, mesuré sur une année.\footnote[frame]{Peeples L., \emph{Nature} 2025;644(8077):594--596.}
+\item Déclin de la fécondité sur \textbf{tous les continents}
+\item Dans de nombreux pays, l'ICF est désormais \textbf{inférieur au niveau de remplacement} ($\sim$2.1 enfants par femme)
+\item \textbf{Europe} : ICF $\approx$ 1.4
+\end{itemize}
+\end{minipage}
+\begin{minipage}[t]{0.56\linewidth}
+\textbf{Raisons du déclin}
+\begin{itemize}\compresslist
+\item \textbf{Report de la parentalité}: les femmes ont des enfants plus tard (\emph{tempo effect}).
+\item Mais aussi une \textbf{réduction de la fécondité au cours de la vie} (\emph{quantum effect}) : les femmes ont moins d'enfants.\footnote[frame]{ Hellstrand et al., \emph{Demography} 2021;58(4):1373--1399.}
+%étude par cohorte de femmes en âge de procréer, permet d'ajuster sur l'effect tempo et d'isoler l'effet quantum
+\end{itemize}
+\vspace*{0.2cm}
+\includegraphics[width=1\linewidth,keepaspectratio]{pictures/birth_decline_nature.png}
+\end{minipage}
+\end{frame}
+
+
+
+\begin{frame}{La baisse de la fécondité en Suisse}
+\begin{minipage}[t]{0.48\linewidth}
+\textbf{Evolution 2000-2025}
+\begin{itemize}\compresslist
+\item La baisse actuelle s'inscrit dans une \textbf{tendance de long terme}, déjà visible avant la pandémie.
+\item En Suisse, l'ICF atteint \textbf{1,29 en 2025}, son plus bas niveau historique.
+\item Exception: année 2021 où les naissances ont augmenté.
+%COVID-19 : un \textbf{« pandemic roller-coaster »}, avec une baisse initiale, un rebond en 2021, puis une nouvelle baisse à partir de 2022.
+
+\end{itemize}
+\vspace*{0.2cm}
+\centering
+\includegraphics[width=0.8\linewidth,keepaspectratio]{pictures/icf_switzerland_2020_2025.png}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\linewidth}
+\textbf{Comparaison historique}
+\begin{itemize}\compresslist
+\item Historiquement, les pandémies (1889–90, 1918–20, 1957) coincidaient avec un \textbf{déclin des naissances}, généralement suivies d'un \textbf{rebond}.\footnote[frame]{Matthes et al., \emph{Population Studies} 2025;79(3):463–478.}
+\item On observe aussi que la phase de déclin observé actuellement n'a rien de nouveau.
+\end{itemize}%permet de remettre en perspective
+\vspace*{0.2cm}
+\centering
+\includegraphics[width=1\linewidth,keepaspectratio]{pictures/matthes_historical_birth.png}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}{Une baisse de la natalité hétérogène}
+
+\begin{minipage}[h!]{0.48\linewidth}
+\textbf{Excès/Déficit de la natalité en Suisse}
+\begin{itemize}\compresslist
+\item Définition: Natalité observée -- Natalité attendue
+\item \textbf{Des différences selon les populations}\footnote[frame]{Matthes et al., \emph{Population Studies} 2025;79(3):463–478.}
+\begin{itemize}\compresslist
+\item Région
+\item Nationalité
+\item Parité
+\item Âge maternel
+\end{itemize}
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.48\linewidth}
+\textbf{Des analyses encore limitées}
+\begin{itemize}\compresslist
+\item Analyse \textbf{par sous-groupe} : tendances décrites séparément, sans \textbf{comparaison directe} des déficits
+\item Ne prend pas en compte \textbf{l'âge maternel} % ce qui peut expliquer certaines différences observées par sous-groupe
+\begin{itemize}\compresslist 
+\item Différences de \textbf{structure par âge}
+\item \textbf{Report de la parentalité}: augmentation de l'âge à la maternité
+\end{itemize}
+\end{itemize}
+\end{minipage}
+
+\vfill
+
+\centering
+\includegraphics[width=0.9\linewidth,keepaspectratio]{pictures/matthes_excess_subgroup.png}
+\end{frame}
+
+\begin{frame}{Objectifs}
+
+\begin{itemize}\compresslist
+\item \textbf{Quantifier l’évolution de la natalité en Suisse (2000–2025)} en tenant compte de la structure de la population par âge et du report de la parentalité.
+
+\item \textbf{Explorer les différences géographiques} de natalité et leurs déterminants.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Données}
+
+\begin{minipage}[t]{0.31\linewidth}
+\textbf{Naissances}\
+\textbf{(BEVNAT, OFS)}
+\begin{itemize}\compresslist
+\item Données individuelles, \textbf{2000--2025}
+\item Naissances vivantes, mères \textbf{15--50 ans}
+\item Âge, commune de résidence, nationalité, parité, mois et année
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.31\linewidth}
+\textbf{Population}\
+\textbf{(OFS)}
+\begin{itemize}\compresslist
+\item Femmes 15--50 ans
+\item Données par \textbf{âge, année, nationalité et commune}
+\item 2000--2025 selon le niveau de stratification
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.31\linewidth}
+\textbf{Contexte géographique}\
+\textbf{et socio-économique}
+\begin{itemize}\compresslist
+\item Densité de population
+\item Position socio-économique ("SEP") par commune
+%\item Typologie urbain--rural
+\item Résultats de votations liées aux politiques familiales
+\item Densité des offres de garde d'enfants
+\end{itemize}
+\end{minipage}
+
+\end{frame}
+
+\begin{frame}{Modèle bayésien: calculer l'excès/déficit de naissance au niveau national en 2000-2025}
+\begin{itemize}\compresslist
+\item\textbf{Excès/déficit de naissance:} différence entre le nombre de naissances observé et le nombre attendu:\vspace{-0.05cm}
+$$E_{a}(t) = y_{a}(t) - \tilde{\mu}_{a}(t)\qquad\qquad E^r_{a}(t) = \dfrac{E_{a}(t)}{\tilde{\mu}_{a}(t)}$$
+
+\vspace{0.1cm}
+\item \textbf{Nombre attendu de naissances :} \emph{nombre de naissances si le niveau de fécondité était resté constant au cours des 25 dernières années.}\vspace{0.15cm}
+\begin{itemize}\compresslist
+\item Évolution du \textbf{nombre de femmes} en âge de procréer et de leur \textbf{structure par âge}
+\item \textbf{Report de la maternité} vers des âges plus élevés
+\item \textbf{Pas de tendance temporelle de la fécondité}
+\end{itemize}
+
+\vspace{0.15cm}
+\item\textbf{Modèle bayésien:} Pour chaque âge $a$, on estime le nombre de naissance par mois:
+\vspace{0cm}
+$$y_{a}(t) \sim \text{Negative-Binomial}\big(\mu_{a}(t),\phi\big)$$
+$$\log \mu_{a}(t) =  \textcolor{red}{f}(a+\textcolor{orange}{\theta(t)}) + \textcolor{blue}{\lambda_m(t)} + 
+\textcolor{monvert}{\lambda_y(t)} + 
+\log N_{a,t}$$
+\vspace{0.05cm}
+\begin{itemize}\compresslist
+\item  \textcolor{red}{Fécondité par âge}: probabilité d'avoir un enfant pour une femme d'âge $a$ (processus Gaussien).
+\item  \textcolor{orange}{Report de la maternité} (processus Gaussien)
+\item \textbf{\textcolor{blue}{Effet aléatoire mensuel}}
+\item \textbf{\textcolor{monvert}{Effet aléatoire annuel}}: corrélation des naissances d'une certaine années
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Estimation de l'excès/déficit de naissances au niveau communal}
+\textbf{Désagrégation de la natalité attendue au niveau national}
+
+\begin{itemize}\compresslist
+\item L'espérance nationale des naissances est \textbf{répartie entre les communes} selon la structure de la population féminine.
+\item Pour chaque mois et groupe d'âge, les naissances attendues sont distribuées entre les $C$ communes selon leur \textbf{part de femmes de cet âge}.
+\item Cette désagrégation est réalisée à l'aide d'une \textbf{distribution multinomiale}.
+\end{itemize}
+$$
+\tilde{\mu}_{a,c}(t) \sim \mathrm{Multinomial}\left(\tilde{\mu}_{a}(t),p_{t,a}(1),\ldots, p_{t,a}(C)\right) \qquad \text{avec }p_{t,a}(c) = \dfrac{N_{a,c}(t)}{\sum_c N_{a,c}(t)}
+$$
+\vspace{0.1cm}
+
+\textbf{Excès de naissances au niveau communal}
+$$E_{a,c}(t) = y_{a,c}(t) - \tilde{\mu}_{a,c}(t)\qquad\qquad E^r_{a,c}(t) = \dfrac{E_{a,c}(t)}{\tilde{\mu}_{a,c}(t)}$$
+\vspace{0.1cm}
+
+\textbf{Autre niveau de désagrégation}
+\begin{itemize}\compresslist
+\item \textbf{Nationalité de la mère}: regroupée en 9 régions du monde.%projeter par nationalité
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Analyses par sous-groupe}
+
+\begin{minipage}[t]{0.55\linewidth}
+Le modèle est réestimé en restreignant l'analyse à certains sous-groupes:
+\begin{itemize}\compresslist
+\item \textbf{Nationalité}
+\begin{itemize}\compresslist
+\item Mères suisses
+\item Mères non suisses
+\end{itemize}
+\item \textbf{Parité}
+\begin{itemize}\compresslist
+\item Premières naissances
+\item Naissances de rang supérieur
+\end{itemize}
+\end{itemize}
+\vspace*{0.3cm}
+\centering
+\includegraphics[width=1.1\linewidth,keepaspectratio]{pictures/prop_childless.png}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\linewidth}
+\textbf{Limite pour la parité}
+
+\begin{itemize}\compresslist
+\item Dénominateur pas disponible pour la parité: nombre de femmes sans enfant
+\item Limite l'interprétation de l'analyse par commune car \emph{proportion de femmes sans enfant} varie géographiquement (p.ex. villes)
+\item La \emph{proportion de femmes sans enfant} est estimée empriquement par commune et utilisée pour corriger le dénominateur.
+\end{itemize}
+
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}{Calibration du modèle}
+
+\begin{minipage}[h!]{0.34\linewidth}
+\textbf{A. Naissances observées vs. attendues}
+\begin{itemize}\compresslist
+\item Naissances attendues sous \textbf{fécondité constante}
+\item Variation observée \textbf{plus grande qu'attendues}
+\end{itemize}
+
+\textbf{B. Variation au cours de l'année}
+\begin{itemize}\compresslist
+\item \textbf{Pic en été}, puis diminution progressive jusqu'à l'hiver
+\end{itemize}
+
+\textbf{C--D. Fonction de fécondité par âge}
+\begin{itemize}\compresslist
+\item Déplacement du \textbf{pic de fécondité} vers la droite.
+\item Augmentation de \textbf{2,5 ans en 25 ans}
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.64\linewidth}
+\hspace*{0.1cm}
+\centering
+\includegraphics[width=1.05\linewidth,keepaspectratio]{pictures/fig1.png}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}{Déficit de naissances à l'échelle nationale}
+
+\begin{minipage}[h!]{0.4\linewidth}
+
+\textbf{A-B. Excès/déficit relatif au cours du temps}
+
+\begin{itemize}\compresslist
+\item Déclin quasi continu depuis $\sim$2015
+\item En 2025 : \textbf{déficit de 12\%}
+\end{itemize}
+
+\textbf{C. Excès de 2021}
+\begin{itemize}\compresslist
+\item Deux périodes d'excès : \textbf{début d'année et automne}
+\item Survenues $\sim$9 mois après les vagues de COVID-19 de 2020
+\end{itemize}
+
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.56\linewidth}
+\centering
+\includegraphics[width=\linewidth,keepaspectratio]{pictures/fig2a.pdf}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}{Déficit des naissances par nationalité }
+\begin{minipage}[h!]{0.42\linewidth}
+\textbf{A. Déficit moyen entre 2017 et 2025 par région du monde}
+\begin{itemize}\compresslist
+\item Forte hétérogénéité entre régions
+\item Suisse : \textbf{déficit de 10\%}
+\item Afrique : \textbf{excès de 62\%}
+\end{itemize}
+\textbf{B. Évolution au cours du temps}
+\begin{itemize}\compresslist
+\item Déclin marqué dans \textbf{toutes les régions}
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.54\linewidth}
+\centering
+\includegraphics[width=\linewidth,keepaspectratio]{pictures/fig2b.pdf}
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Variation spatiale du déficit des naissances}
+\begin{minipage}[h!]{0.3\linewidth}
+\textbf{Excès/déficit relatif moyen entre 2017 et 2025}
+\begin{itemize}\compresslist
+\item Forte hétérogénéité entre communes
+\item Déficit plus élevé dans les \textbf{grandes agglomérations}
+\end{itemize}
+\textbf{Exceptions régionales}
+\begin{itemize}\compresslist
+\item Déficit marqué au \textbf{Tessin} et dans certaines parties du \textbf{Valais et des Grisons}
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.66\linewidth}
+\hspace*{-0.6cm}
+\centering
+\includegraphics[width=1.28\linewidth,keepaspectratio]{pictures/fig3.png}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}{Facteurs contextuels associés au déclin de la natalité}
+\begin{minipage}[h!]{0.56\linewidth}
+\textbf{Méthode}
+\begin{enumerate}\compresslist
+\item Les communes sont réparties en \textbf{10 groupes (déciles)} en fonction de la valeur de chaque variable
+\item Pour chaque décile, calcul de l'\textbf{excès/déficit moyen} de naissances.
+\end{enumerate}
+\vspace{0.1cm}
+\centering
+\includegraphics[width=\linewidth,keepaspectratio]{pictures/fig4.png}
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.4\linewidth}
+\textbf{Densité de population}
+\begin{itemize}\compresslist
+\item Excès de naissances dans les communes à \textbf{faible densité}
+\item $\sim$\textbf{+5\%} dans le décile le moins dense vs. \textbf{$-$15\%} dans le plus dense
+\end{itemize}
+
+\textbf{Position socio-économique}
+\begin{itemize}\compresslist
+\item Pas d'association monotone claire
+\item Excès de naissances aux niveaux de \textbf{SEP très faibles et très élevés}
+\end{itemize}
+\textbf{Services et politiques familiales}
+\begin{itemize}\compresslist
+\item Pas d'association positive avec les services de garde ou le soutien à l'extension du congé paternité
+\item Associations négatives, probablement liées à la \textbf{densité de population}
+\end{itemize}
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Analyse par sous-groupe: nationalité}
+
+\begin{minipage}[h!]{0.56\linewidth}
+\textbf{A. Fécondité}
+\begin{itemize}\compresslist
+\item Profil de fécondité \textbf{plus précoce et plus prolongé} chez les mères non suisses
+\item ICF moyen : \textbf{1,88} vs. \textbf{1,35} enfant par femme
+\end{itemize}
+
+\textbf{B. Excès/déficit relatif de naissances}
+\begin{itemize}\compresslist
+\item Déclin marqué ces dernières années dans les \textbf{deux groupes}
+\end{itemize}
+
+\textbf{C. Impact de la densité}
+\begin{itemize}\compresslist
+\item Association avec la densité \textbf{plus forte chez les mères suisses}
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.4\linewidth}
+\centering
+\includegraphics[width=\linewidth,keepaspectratio]{pictures/fig5a.png}
+\end{minipage}
+
+\end{frame}
+
+\begin{frame}{Analyse par sous-groupe: parité}
+
+\begin{minipage}[h!]{0.56\linewidth}
+\textbf{A. Fécondité}
+\begin{itemize}
+    \item Fort chevauchement des deux courbes de fécondité
+\end{itemize}
+\textbf{B. Excès/déficit relatif de naissances}
+\begin{itemize}\compresslist
+\item Déclin similaire au cours de la dernière décennie
+\item Excès de 2021 \textbf{quasi absent pour les premières naissances}
+\item Excès de 2021 plus marqué pour les \textbf{naissances d'ordre supérieur}
+\end{itemize}
+
+\textbf{C. Impact de la densité}
+\begin{itemize}\compresslist
+\item Peu de variation selon la densité pour les \textbf{premières naissances}
+\item Association négative \textbf{plus forte pour les naissances d'ordre supérieur}
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[h!]{0.4\linewidth}
+\centering
+\includegraphics[width=\linewidth,keepaspectratio]{pictures/fig5b.png}
+\end{minipage}
+
+\end{frame}
+
+
+
+\begin{frame}{Résumé}
+
+\begin{itemize}\compresslist
+
+\item \textbf{Une baisse généralisée des naissances}
+  \begin{itemize}\compresslist
+  \item Déficit de natalité depuis le milieu des années 2010, malgré le \textbf{report de la maternité}
+  \end{itemize}
+\vspace{0.2cm}
+\item \textbf{Des différences entre les groupes et les régions}
+  \begin{itemize}\compresslist
+  \item Différences selon la \textbf{nationalité et la parité}, mais une tendance générale à la baisse
+  \item Déficits plus marqués dans les \textbf{villes et agglomérations}
+  \item Impact de la densité plus marqué chez les \textbf{mères suisses ayant déjà eu un enfant}
+  \end{itemize}
+\vspace{0.2cm}
+\item \textbf{Des mécanismes qui restent à comprendre}
+  \begin{itemize}\compresslist
+  \item \textbf{Contraintes économiques} : p. ex. niveau socio-économique (SEP)
+  \item \textbf{Contraintes pratiques} : p. ex. offre de garde d'enfants
+  \item \textbf{Changements de valeurs} : p. ex. préférences concernant la parentalité
+  \end{itemize}
+  $\Rightarrow$ Données individuelles nécessaires pour étudier ces mécanismes (données hospitalières)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Pourquoi la fécondité diminue-t-elle ?}
+
+\begin{minipage}[t]{0.48\linewidth}
+\textbf{Biologique}
+\begin{itemize}\compresslist
+\item Diminution de la \textbf{fertilité}
+\item Report de la parentalité vers des âges où la \textbf{fertilité est plus basse}%, dont l'impact est souvent sous-estimé
+\end{itemize}
+\textbf{Socio-démographique}
+\begin{itemize}\compresslist
+\item Augmentation de l'\textbf{âge à la parentalité} réduisant la période reproductive et la possibilité d'avoir un \textbf{nombre élevé d'enfants}
+\end{itemize}
+\vfill
+\vspace{0.5cm}
+\centering
+\includegraphics[width=0.8\linewidth,keepaspectratio]{pictures/fig_desir_enfant.png}
+
+{\tiny Source : DFI.}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\linewidth}
+\textbf{Sociétal / social}
+\begin{itemize}\compresslist
+\item \textbf{Évolution des valeurs} et individualisation des choix de vie
+\item \textbf{Incertitudes face à l'avenir}
+\item \textbf{Contraintes financières}
+\item Épanouissement \textbf{personnel et professionnel}
+\end{itemize}
+
+\vfill
+\vspace{0.5cm}
+\centering
+\includegraphics[width=1\linewidth,keepaspectratio]{pictures/fig_charls2023_raisons.png}
+{\tiny Source : CHARLS 2023, enquête nationale suisse sur la fertilité (UZH).}
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Résumé}
+
+\begin{itemize}\compresslist
+
+\item \textbf{Une baisse généralisée des naissances}
+  \begin{itemize}\compresslist
+  \item Déficit de natalité depuis le milieu des années 2010, malgré le \textbf{report de la maternité}
+  \end{itemize}
+\vspace{0.2cm}
+\item \textbf{Des différences entre les groupes et les régions}
+  \begin{itemize}\compresslist
+  \item Différences selon la \textbf{nationalité et la parité}, mais une tendance générale à la baisse
+  \item Déficits plus marqués dans les \textbf{villes et agglomérations}
+  \item Impact de la densité plus marqué chez les \textbf{mères suisses ayant déjà eu un enfant}
+  \end{itemize}
+\vspace{0.2cm}
+\item \textbf{Des mécanismes qui restent à comprendre}
+  \begin{itemize}\compresslist
+  \item \textbf{Contraintes économiques} : p. ex. niveau socio-économique (SEP)
+  \item \textbf{Contraintes pratiques} : p. ex. offre de garde d'enfants
+  \item \textbf{Changements de valeurs} : p. ex. préférences concernant la parentalité
+  \end{itemize}
+  $\Rightarrow$ Données individuelles nécessaires pour étudier ces mécanismes (données hospitalières)
+\end{itemize}
+\end{frame}
+
+\end{document}

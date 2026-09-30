@@ -1,0 +1,61 @@
+\ProvidesPackage{beamerthemeunisante}[2024/02/16 beamerthemeunisante]
+
+\setlength{\unitlength}{1cm}
+\DeclareOptionBeamer{compress}{\beamer@compresstrue}
+\ProcessOptionsBeamer
+
+\mode<presentation>
+
+\usecolortheme{seagull}
+\usecolortheme{unired}
+
+\let\Tiny=\tiny
+
+\addtobeamertemplate{title page}{
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[above right,inner sep=0pt] at (current page.south west)
+    {
+      \includegraphics[height=\paperheight]{logos/fondlausanne.jpg}
+    };
+  \end{tikzpicture}
+}{}
+
+\setbeamercovered{transparent=20}
+
+\setbeamercolor{itemize item}{fg=unired}
+
+\setbeamercolor{alerted text}{fg=unired}
+
+\setbeamertemplate{footline}
+{%
+  \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
+    leftskip=.3cm,rightskip=.3cm plus1fil]{author in head/foot}
+    \leavevmode{\usebeamerfont{author in head/foot}%
+      \insertshorttitle}
+    \hfill%
+    {\insertframenumber}%
+\end{beamercolorbox}%
+}
+
+\setbeamertemplate{navigation symbols}{}
+
+
+\definecolor{LightGray}{gray}{0.9}
+\usepackage[
+backend=biber,
+style=apa,     
+sorting=ynt
+]{biblatex}
+\addbibresource{refs.bib}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Plan}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+\AtBeginSubsection[]
+
+\mode
+<all>

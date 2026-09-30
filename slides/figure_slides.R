@@ -15,7 +15,7 @@ fig3 = slope_excess_birth_adj2_mun_df %>%
           fill = NA, color = "black", size = 0.3) +  # contours districts
   geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
   scale_fill_gradient2(
-    name = "Decrease in relative excess birth",
+    name = "Change in relative excess birth",
     low = "red",
     mid = "lightyellow",
     high = "green",

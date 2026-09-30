@@ -203,7 +203,8 @@ lapply(configs, function(cfg){
                    res_path   = paste0(code_root_path, cfg$res_path))
 })
 
-lapply(configs, function(cfg){
+#Slope of relative excess births
+lapply(configs[c(1,4,5)], function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
   
   # by municipality (with and without p_childless adjustment for parity models)
@@ -212,7 +213,7 @@ lapply(configs, function(cfg){
     excess_birth_year_mun_draw_df      = readRDS(paste0(cfg$res_path,cfg$save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",cfg$seed_id,"_excess_birth_year_mun_draw_df.RDS"))
     excess_birth_year_adj_mun_draw_df  = readRDS(paste0(cfg$res_path,cfg$save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",cfg$seed_id,"_excess_birth_year_adj_mun_draw_df.RDS"))
     excess_birth_year_adj2_mun_draw_df = readRDS(paste0(cfg$res_path,cfg$save.date,"_",cfg$mod_name,ifelse(use.p_childless,"_childless",""),"_seedid",cfg$seed_id,"_excess_birth_year_adj2_mun_draw_df.RDS"))
-    summarise_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
+    summarise_slope_excess_birth_mun(excess_birth_year_adj_mun_draw_df,
                                excess_birth_year_adj2_mun_draw_df,
                                excess_birth_year_mun_draw_df,
                                cfg$save.date, paste0(cfg$mod_name,ifelse(use.p_childless,"_childless","")), cfg$seed_id, cfg$res_path,
@@ -221,7 +222,7 @@ lapply(configs, function(cfg){
 print("step 1 done.")
 # by citizenship x region (canton level)
 excess_birth_year_ctz_draw_df = readRDS(paste0(cfg$res_path,cfg$save.date,"_",cfg$mod_name,"_seedid",cfg$seed_id,"_excess_birth_year_ctn_ctzreg_draw_df.RDS"))
-summarise_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, cfg$save.date, cfg$mod_name, cfg$seed_id, cfg$res_path,
+summarise_slope_excess_birth_ctzreg(excess_birth_year_ctz_draw_df, cfg$save.date, cfg$mod_name, cfg$seed_id, cfg$res_path,
                               year_range = 2017:last_year)
 
 })
