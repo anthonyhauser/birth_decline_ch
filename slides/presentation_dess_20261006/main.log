@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  30 SEP 2026 12:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  2 OCT 2026 17:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1494,15 +1494,15 @@ File: ../images/icf_switzerland_2020_2025.png Graphic file (type png)
 <use ../images/icf_switzerland_2020_2025.png>
 Package pdftex.def Info: ../images/icf_switzerland_2020_2025.png  used on input
  line 93.
-(pdftex.def)             Requested size: 152.96123pt x 87.40837pt.
+(pdftex.def)             Requested size: 159.333pt x 91.04744pt.
 <../images/matthes_historical_birth.png, id=28, 986.68625pt x 489.83pt>
 File: ../images/matthes_historical_birth.png Graphic file (type png)
 <use ../images/matthes_historical_birth.png>
 Package pdftex.def Info: ../images/matthes_historical_birth.png  used on input 
 line 93.
-(pdftex.def)             Requested size: 191.20082pt x 94.91478pt.
+(pdftex.def)             Requested size: 159.333pt x 79.0994pt.
 
-Overfull \vbox (62.33055pt too high) detected at line 93
+Overfull \vbox (67.02916pt too high) detected at line 93
  []
 
 [2
@@ -1512,13 +1512,54 @@ png>] [3
 
 ] [4
 
-] [5
+]
+<../images/fig1.png, id=63, 722.7pt x 578.16pt>
+File: ../images/fig1.png Graphic file (type png)
+<use ../images/fig1.png>
+Package pdftex.def Info: ../images/fig1.png  used on input line 200.
+(pdftex.def)             Requested size: 267.68404pt x 214.14522pt.
 
-] [6
+Overfull \hbox (17.64857pt too wide) in paragraph at lines 200--200
+ []|  [] 
+ []
 
-] [7
+[5
 
-] [8
+ <../images/fig1.png>]
+<../images/fig2.pdf, id=72, 867.24pt x 578.16pt>
+File: ../images/fig2.pdf Graphic file (type pdf)
+<use ../images/fig2.pdf>
+Package pdftex.def Info: ../images/fig2.pdf  used on input line 224.
+(pdftex.def)             Requested size: 231.03711pt x 154.02328pt.
+ [6
+
+ <../images/fig2.pdf>]
+<../images/fig4_population_density.pdf, id=90, 433.62pt x 289.08pt>
+File: ../images/fig4_population_density.pdf Graphic file (type pdf)
+<use ../images/fig4_population_density.pdf>
+Package pdftex.def Info: ../images/fig4_population_density.pdf  used on input l
+ine 255.
+(pdftex.def)             Requested size: 181.64018pt x 121.09517pt.
+<../images/fig3.png, id=91, 722.7pt x 433.62pt>
+File: ../images/fig3.png Graphic file (type png)
+<use ../images/fig3.png>
+Package pdftex.def Info: ../images/fig3.png  used on input line 255.
+(pdftex.def)             Requested size: 191.20082pt x 114.71687pt.
+
+Overfull \vbox (80.09004pt too high) detected at line 255
+ []
+
+[7
+
+ <../images/fig4_population_density.pdf> <../images/fig3.png>]
+<../images/fig5.png, id=108, 722.7pt x 578.16pt>
+File: ../images/fig5.png Graphic file (type png)
+<use ../images/fig5.png>
+Package pdftex.def Info: ../images/fig5.png  used on input line 278.
+(pdftex.def)             Requested size: 231.03711pt x 184.82971pt.
+ [8
+
+ <../images/fig5.png>] [9
 
 ]
 \tf@nav=\write7
@@ -1542,10 +1583,10 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 40381 strings out of 467871
- 797018 string characters out of 5432322
- 1699596 words of memory out of 5000000
- 68582 multiletter control sequences out of 15000+600000
+ 40434 strings out of 467871
+ 798326 string characters out of 5432322
+ 1699593 words of memory out of 5000000
+ 68633 multiletter control sequences out of 15000+600000
  637104 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,13n,123p,695b,2905s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1558,9 +1599,9 @@ fonts/cm/cmssbx10.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi8.pf
 b><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi9.pfb><C:/TEMP/MiKTeX2/f
 onts/type1/public/amsfonts/cm/cmsy9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
 fonts/symbols/msam10.pfb>
-Output written on main.pdf (8 pages, 702324 bytes).
+Output written on main.pdf (9 pages, 5961542 bytes).
 PDF statistics:
- 147 PDF objects out of 1000 (max. 8388607)
- 18 named destinations out of 1000 (max. 500000)
- 66 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 180 PDF objects out of 1000 (max. 8388607)
+ 20 named destinations out of 1000 (max. 500000)
+ 91 words of extra memory for PDF output out of 10000 (max. 10000000)
 
