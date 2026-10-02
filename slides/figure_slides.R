@@ -1,5 +1,6 @@
 source("R/000_setup.R")
 
+res_path = "results/2025/"
 save.date="20260625"
 save.date2="20260625"
 mod_name = "mod8"
@@ -333,13 +334,8 @@ ggsave(filename = paste0(code_root_path,"slides/images/fig2b.pdf"),
        plot = fig2b,
        width = 8, height = 8, units = "in")
 
-
-
-
 ################################################################################
 #Figure 5
-
-
 subgroup_col = c("black", "darkred", "darkorange", "darkgreen","darkblue")
 subgroup_names = c("all", "swiss","non-swiss","first","second")
 subgroup_names2 = c("All", "Swiss","Non-Swiss","1st births","2nd+ births")
@@ -524,6 +520,9 @@ p6 = excess_by_ntiles_subgroup_df %>%
                     breaks =subgroup_names)+
   theme(legend.position = "none")
 
+fig5b = cowplot::plot_grid(p4,p5,p6,
+                           labels = c("A.","B.","C."),nrow=3,rel_heights = c(1,1,1))
+
 ggsave(filename = paste0(code_root_path,"slides/images/fig5b.png"),
        plot = fig5b,
        width = 6, height = 8,units = "in", dpi = 600)
@@ -550,4 +549,4 @@ fig4 = excess_by_ntiles_df %>%
 fig4 
 ggsave(filename = paste0(code_root_path,"slides/images/fig4_population_density.pdf"),
        plot = fig4,
-       width = 6, height = 4,units = "in", dpi = 600)
+       width = 7, height = 4.5,units = "in", dpi = 600)
