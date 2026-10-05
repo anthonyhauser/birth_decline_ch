@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  5 OCT 2026 14:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  5 OCT 2026 14:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1470,20 +1470,20 @@ nput line 54.
 
 {C:/Users/an4818/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <../template
 _unisante/logos/fondlausanne.jpg>]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 94.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 96.
 
 
 (C:\TEMP\MiKTeX2\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 94.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 96.
 
 
 (C:\TEMP\MiKTeX2\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inp
-ut line 94.
+ut line 96.
 
 (C:\TEMP\MiKTeX2\tex/latex/sansmathaccent\ot1mathkerncmss.fd
 File: ot1mathkerncmss.fd 2020/01/31 Fontinst v1.933 font definitions for OT1/ma
@@ -1493,35 +1493,38 @@ thkerncmss.
 File: ../images/icf_switzerland_2020_2025.png Graphic file (type png)
 <use ../images/icf_switzerland_2020_2025.png>
 Package pdftex.def Info: ../images/icf_switzerland_2020_2025.png  used on input
- line 94.
+ line 96.
 (pdftex.def)             Requested size: 159.333pt x 91.04744pt.
 <../images/matthes_historical_birth.png, id=28, 986.68625pt x 489.83pt>
 File: ../images/matthes_historical_birth.png Graphic file (type png)
 <use ../images/matthes_historical_birth.png>
 Package pdftex.def Info: ../images/matthes_historical_birth.png  used on input 
-line 94.
+line 96.
 (pdftex.def)             Requested size: 159.333pt x 79.0994pt.
- [2
+
+Overfull \vbox (9.50488pt too high) detected at line 96
+ []
+
+[2
 
  <../images/icf_switzerland_2020_2025.png> <../images/matthes_historical_birth.
 png>] [3
 
-]
-[4
+] [4
 
 ]
 <../images/fig1.png, id=63, 722.7pt x 578.16pt>
 File: ../images/fig1.png Graphic file (type png)
 <use ../images/fig1.png>
-Package pdftex.def Info: ../images/fig1.png  used on input line 201.
+Package pdftex.def Info: ../images/fig1.png  used on input line 204.
 (pdftex.def)             Requested size: 267.68404pt x 214.14522pt.
 
-Overfull \hbox (12.74759pt too wide) in paragraph at lines 201--201
+Overfull \hbox (12.74759pt too wide) in paragraph at lines 204--204
  [][] 
  []
 
 
-Overfull \vbox (3.62695pt too high) detected at line 201
+Overfull \vbox (18.01987pt too high) detected at line 204
  []
 
 [5
@@ -1530,7 +1533,7 @@ Overfull \vbox (3.62695pt too high) detected at line 201
 <../images/fig2.pdf, id=72, 867.24pt x 578.16pt>
 File: ../images/fig2.pdf Graphic file (type pdf)
 <use ../images/fig2.pdf>
-Package pdftex.def Info: ../images/fig2.pdf  used on input line 225.
+Package pdftex.def Info: ../images/fig2.pdf  used on input line 229.
 (pdftex.def)             Requested size: 231.03711pt x 154.02328pt.
  [6
 
@@ -1538,10 +1541,10 @@ Package pdftex.def Info: ../images/fig2.pdf  used on input line 225.
 <../images/fig3.png, id=90, 722.7pt x 433.62pt>
 File: ../images/fig3.png Graphic file (type png)
 <use ../images/fig3.png>
-Package pdftex.def Info: ../images/fig3.png  used on input line 253.
+Package pdftex.def Info: ../images/fig3.png  used on input line 259.
 (pdftex.def)             Requested size: 271.66628pt x 162.99747pt.
 
-Overfull \hbox (3.99156pt too wide) in paragraph at lines 253--253
+Overfull \hbox (3.99156pt too wide) in paragraph at lines 259--259
    [] 
  []
 
@@ -1549,10 +1552,10 @@ Overfull \hbox (3.99156pt too wide) in paragraph at lines 253--253
 File: ../images/fig4_population_density.pdf Graphic file (type pdf)
 <use ../images/fig4_population_density.pdf>
 Package pdftex.def Info: ../images/fig4_population_density.pdf  used on input l
-ine 253.
+ine 259.
 (pdftex.def)             Requested size: 143.8016pt x 92.44408pt.
 
-Overfull \vbox (3.26012pt too high) detected at line 253
+Overfull \vbox (17.65303pt too high) detected at line 259
  []
 
 [7
@@ -1561,7 +1564,7 @@ Overfull \vbox (3.26012pt too high) detected at line 253
 <../images/fig5.png, id=108, 722.7pt x 578.16pt>
 File: ../images/fig5.png Graphic file (type png)
 <use ../images/fig5.png>
-Package pdftex.def Info: ../images/fig5.png  used on input line 276.
+Package pdftex.def Info: ../images/fig5.png  used on input line 283.
 (pdftex.def)             Requested size: 231.03711pt x 184.82971pt.
  [8
 
@@ -1589,11 +1592,11 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 40432 strings out of 467871
- 798303 string characters out of 5432322
+ 40433 strings out of 467871
+ 798318 string characters out of 5432322
  1699593 words of memory out of 5000000
- 68631 multiletter control sequences out of 15000+600000
- 637104 words of font info for 73 fonts, out of 8000000 for 9000
+ 68632 multiletter control sequences out of 15000+600000
+ 637455 words of font info for 74 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,13n,123p,695b,2905s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cmextra/cmex9.pfb><C:/TEMP/MiKTe
@@ -1605,7 +1608,7 @@ fonts/cm/cmssbx10.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi8.pf
 b><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi9.pfb><C:/TEMP/MiKTeX2/f
 onts/type1/public/amsfonts/cm/cmsy9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
 fonts/symbols/msam10.pfb>
-Output written on main.pdf (9 pages, 5961324 bytes).
+Output written on main.pdf (9 pages, 5963821 bytes).
 PDF statistics:
  180 PDF objects out of 1000 (max. 8388607)
  20 named destinations out of 1000 (max. 500000)
