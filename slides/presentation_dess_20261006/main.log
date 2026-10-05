@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  5 OCT 2026 14:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  5 OCT 2026 18:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1262,7 +1262,7 @@ threplacing.code.tex))
 
 Package french3.ldf Warning: OT1 encoding should not be used for French.
 (french3.ldf)                Add \usepackage[T1]{fontenc} to the preamble
-(french3.ldf)                of your document; reported on input line 47.
+(french3.ldf)                of your document; reported on input line 49.
 
 
 Package biblatex Warning: 'babel/polyglossia' detected but 'csquotes' missing.
@@ -1273,24 +1273,24 @@ Package biblatex Warning: 'babel/polyglossia' detected but 'csquotes' missing.
 (main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1316,7 +1316,7 @@ LaTeX Font Info:    ... okay on input line 47.
 * \marginparwidth=4.0pt
 * \marginparsep=10.0pt
 * \columnsep=10.0pt
-* \skip\footins=8.0pt plus 4.0pt minus 2.0pt
+* \skip\footins=4.0pt plus 4.0pt minus 2.0pt
 * \hoffset=0.0pt
 * \voffset=0.0pt
 * \mag=1000
@@ -1347,63 +1347,63 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 (C:\TEMP\MiKTeX2\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 47.
+Package hyperref Info: Link coloring OFF on input line 49.
  (main.out) (main.out)
 \@outlinefile=\write6
 \openout6 = `main.out'.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 47.
+(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 49.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 47.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 49.
 \symnumbers=\mathgroup6
 \sympureletters=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/cmr/m/n on input line 47.
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 47.
+(Font)                  OT1/cmss/m/n --> OT1/cmr/m/n on input line 49.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 47.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 47.
-LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 47.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 49.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 47.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> OT1/cmss/m/n on input line 47.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 47.
+(Font)                  OT1/cmss/bx/n --> OT1/cmss/m/n on input line 49.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> OT1/cmss/m/it on input line 47.
+(Font)                  OT1/cmr/m/it --> OT1/cmss/m/it on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> OT1/cmss/m/it on input line 47.
-LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 47.
+(Font)                  OT1/cmr/bx/it --> OT1/cmss/m/it on input line 49.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 47.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 47.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 49.
 LaTeX Font Info:    Overwriting symbol font `numbers' in version `bold'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 47.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 49.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 47.
+(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `bold'
-(Font)                  OT1/cmss/b/n --> OT1/cmr/b/n on input line 47.
+(Font)                  OT1/cmss/b/n --> OT1/cmr/b/n on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmss/b/n --> OT1/cmss/b/n on input line 47.
+(Font)                  OT1/cmss/b/n --> OT1/cmss/b/n on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 47.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 47.
+(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 49.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/b/n on input line 47.
-LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 47.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/b/n on input line 49.
+LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 49.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `normal'
 (Font)                  OT1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 4
-7.
+9.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
 (Font)                  OT1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 4
-7.
+9.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
 (Font)                  OT1/mathkerncmss/m/sl --> OT1/mathkerncmss/bx/sl on inp
-ut line 47.
+ut line 49.
 
 (C:\TEMP\MiKTeX2\tex/latex/translator\translator-basic-dictionary-English.dict
 Dictionary: translator-basic-dictionary, Language: English 
@@ -1427,7 +1427,7 @@ Dictionary: translator-numbers-dictionary, Language: English
 t
 Dictionary: translator-theorem-dictionary, Language: English 
 )
-LaTeX Info: Redefining \degres on input line 47.
+LaTeX Info: Redefining \degres on input line 49.
 Package biblatex Info: Trying to load language 'french' -> 'french-apa'...
 Package biblatex Info: ... file 'french-apa.lbx' found.
  (C:\TEMP\MiKTeX2\tex/latex/biblatex-apa\french-apa.lbx
@@ -1453,8 +1453,8 @@ Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'main.bbl' not found.
 
 No file main.bbl.
-Package biblatex Info: Reference section=0 on input line 47.
-Package biblatex Info: Reference segment=0 on input line 47.
+Package biblatex Info: Reference section=0 on input line 49.
+Package biblatex Info: Reference segment=0 on input line 49.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
@@ -1464,26 +1464,26 @@ Package caption Info: End \AtBeginDocument code.
 File: ../template_unisante/logos/fondlausanne.jpg Graphic file (type jpg)
 <use ../template_unisante/logos/fondlausanne.jpg>
 Package pdftex.def Info: ../template_unisante/logos/fondlausanne.jpg  used on i
-nput line 54.
+nput line 56.
 (pdftex.def)             Requested size: 454.84026pt x 256.0748pt.
  [1
 
 {C:/Users/an4818/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <../template
 _unisante/logos/fondlausanne.jpg>]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 96.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 98.
 
 
 (C:\TEMP\MiKTeX2\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 96.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 98.
 
 
 (C:\TEMP\MiKTeX2\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inp
-ut line 96.
+ut line 98.
 
 (C:\TEMP\MiKTeX2\tex/latex/sansmathaccent\ot1mathkerncmss.fd
 File: ot1mathkerncmss.fd 2020/01/31 Fontinst v1.933 font definitions for OT1/ma
@@ -1493,35 +1493,31 @@ thkerncmss.
 File: ../images/icf_switzerland_2020_2025.png Graphic file (type png)
 <use ../images/icf_switzerland_2020_2025.png>
 Package pdftex.def Info: ../images/icf_switzerland_2020_2025.png  used on input
- line 96.
+ line 98.
 (pdftex.def)             Requested size: 159.333pt x 91.04744pt.
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/b/it' instead on input line 96.
+(Font)              using `OT1/cmss/b/it' instead on input line 98.
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/b/it' undefined
-(Font)              using `OT1/cmss/b/n' instead on input line 96.
+(Font)              using `OT1/cmss/b/n' instead on input line 98.
 
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <6> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 96.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 98.
 <../images/matthes_historical_birth.png, id=28, 986.68625pt x 489.83pt>
 File: ../images/matthes_historical_birth.png Graphic file (type png)
 <use ../images/matthes_historical_birth.png>
 Package pdftex.def Info: ../images/matthes_historical_birth.png  used on input 
-line 96.
+line 98.
 (pdftex.def)             Requested size: 159.333pt x 79.0994pt.
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/b/it' instead on input line 96.
+(Font)              using `OT1/cmss/b/it' instead on input line 98.
 
 LaTeX Font Info:    Font shape `OT1/cmss/b/it' in size <6> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 96.
-
-Overfull \vbox (4.9528pt too high) detected at line 96
- []
-
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 98.
 [2
 
  <../images/icf_switzerland_2020_2025.png> <../images/matthes_historical_birth.
@@ -1533,12 +1529,12 @@ png>] [3
 <../images/fig1.png, id=63, 722.7pt x 578.16pt>
 File: ../images/fig1.png Graphic file (type png)
 <use ../images/fig1.png>
-Package pdftex.def Info: ../images/fig1.png  used on input line 204.
+Package pdftex.def Info: ../images/fig1.png  used on input line 205.
 (pdftex.def)             Requested size: 254.93645pt x 203.94699pt.
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/b/it' instead on input line 204.
+(Font)              using `OT1/cmss/b/it' instead on input line 205.
 
 [5
 
@@ -1546,16 +1542,16 @@ LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
 <../images/fig2.pdf, id=72, 867.24pt x 722.7pt>
 File: ../images/fig2.pdf Graphic file (type pdf)
 <use ../images/fig2.pdf>
-Package pdftex.def Info: ../images/fig2.pdf  used on input line 229.
+Package pdftex.def Info: ../images/fig2.pdf  used on input line 230.
 (pdftex.def)             Requested size: 242.58966pt x 202.15611pt.
 
-Overfull \hbox (11.55255pt too wide) in paragraph at lines 229--229
+Overfull \hbox (11.55255pt too wide) in paragraph at lines 230--230
  [][] 
  []
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/b/it' instead on input line 229.
+(Font)              using `OT1/cmss/b/it' instead on input line 230.
 
 [6
 
@@ -1563,34 +1559,34 @@ LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
 <../images/fig3.pdf, id=90, 722.7pt x 433.62pt>
 File: ../images/fig3.pdf Graphic file (type pdf)
 <use ../images/fig3.pdf>
-Package pdftex.def Info: ../images/fig3.pdf  used on input line 259.
+Package pdftex.def Info: ../images/fig3.pdf  used on input line 260.
 (pdftex.def)             Requested size: 271.66628pt x 162.99747pt.
 
-Overfull \hbox (3.99156pt too wide) in paragraph at lines 259--259
+Overfull \hbox (3.99156pt too wide) in paragraph at lines 260--260
    [] 
  []
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/b/it' instead on input line 259.
+(Font)              using `OT1/cmss/b/it' instead on input line 260.
 
 <../images/fig4_population_density.pdf, id=91, 505.89pt x 325.215pt>
 File: ../images/fig4_population_density.pdf Graphic file (type pdf)
 <use ../images/fig4_population_density.pdf>
 Package pdftex.def Info: ../images/fig4_population_density.pdf  used on input l
-ine 259.
+ine 260.
 (pdftex.def)             Requested size: 158.93959pt x 102.1753pt.
 
-Overfull \hbox (7.56898pt too wide) in paragraph at lines 259--259
+Overfull \hbox (7.56898pt too wide) in paragraph at lines 260--260
  [] 
  []
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/b/it' instead on input line 259.
+(Font)              using `OT1/cmss/b/it' instead on input line 260.
 
 
-Overfull \vbox (1.15083pt too high) detected at line 259
+Overfull \vbox (1.15083pt too high) detected at line 260
  []
 
 [7
@@ -1599,15 +1595,15 @@ Overfull \vbox (1.15083pt too high) detected at line 259
 <../images/fig5.pdf, id=117, 722.7pt x 650.43pt>
 File: ../images/fig5.pdf Graphic file (type pdf)
 <use ../images/fig5.pdf>
-Package pdftex.def Info: ../images/fig5.pdf  used on input line 283.
+Package pdftex.def Info: ../images/fig5.pdf  used on input line 284.
 (pdftex.def)             Requested size: 226.41537pt x 203.77496pt.
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/b/it' instead on input line 283.
+(Font)              using `OT1/cmss/b/it' instead on input line 284.
 
 
-Overfull \vbox (1.10562pt too high) detected at line 283
+Overfull \vbox (1.10562pt too high) detected at line 284
  []
 
 [8
@@ -1640,10 +1636,10 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 40436 strings out of 467871
- 798410 string characters out of 5432322
+ 40437 strings out of 467871
+ 798418 string characters out of 5432322
  1699593 words of memory out of 5000000
- 68635 multiletter control sequences out of 15000+600000
+ 68636 multiletter control sequences out of 15000+600000
  637749 words of font info for 75 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,13n,123p,695b,2905s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1656,7 +1652,7 @@ fonts/cm/cmssbx10.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi8.pf
 b><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi9.pfb><C:/TEMP/MiKTeX2/f
 onts/type1/public/amsfonts/cm/cmsy9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
 fonts/symbols/msam10.pfb>
-Output written on main.pdf (9 pages, 3112258 bytes).
+Output written on main.pdf (9 pages, 3112206 bytes).
 PDF statistics:
  197 PDF objects out of 1000 (max. 8388607)
  20 named destinations out of 1000 (max. 500000)
