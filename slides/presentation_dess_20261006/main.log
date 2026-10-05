@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  5 OCT 2026 14:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  5 OCT 2026 14:54
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1495,6 +1495,17 @@ File: ../images/icf_switzerland_2020_2025.png Graphic file (type png)
 Package pdftex.def Info: ../images/icf_switzerland_2020_2025.png  used on input
  line 96.
 (pdftex.def)             Requested size: 159.333pt x 91.04744pt.
+
+
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/b/it' instead on input line 96.
+
+
+LaTeX Font Warning: Font shape `OT1/cmss/b/it' undefined
+(Font)              using `OT1/cmss/b/n' instead on input line 96.
+
+LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <6> not available
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 96.
 <../images/matthes_historical_birth.png, id=28, 986.68625pt x 489.83pt>
 File: ../images/matthes_historical_birth.png Graphic file (type png)
 <use ../images/matthes_historical_birth.png>
@@ -1502,7 +1513,13 @@ Package pdftex.def Info: ../images/matthes_historical_birth.png  used on input
 line 96.
 (pdftex.def)             Requested size: 159.333pt x 79.0994pt.
 
-Overfull \vbox (9.50488pt too high) detected at line 96
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/b/it' instead on input line 96.
+
+LaTeX Font Info:    Font shape `OT1/cmss/b/it' in size <6> not available
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 96.
+
+Overfull \vbox (4.9528pt too high) detected at line 96
  []
 
 [2
@@ -1517,58 +1534,85 @@ png>] [3
 File: ../images/fig1.png Graphic file (type png)
 <use ../images/fig1.png>
 Package pdftex.def Info: ../images/fig1.png  used on input line 204.
-(pdftex.def)             Requested size: 267.68404pt x 214.14522pt.
-
-Overfull \hbox (12.74759pt too wide) in paragraph at lines 204--204
- [][] 
- []
+(pdftex.def)             Requested size: 254.93645pt x 203.94699pt.
 
 
-Overfull \vbox (18.01987pt too high) detected at line 204
- []
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/b/it' instead on input line 204.
 
 [5
 
  <../images/fig1.png>]
-<../images/fig2.pdf, id=72, 867.24pt x 578.16pt>
+<../images/fig2.pdf, id=72, 867.24pt x 722.7pt>
 File: ../images/fig2.pdf Graphic file (type pdf)
 <use ../images/fig2.pdf>
 Package pdftex.def Info: ../images/fig2.pdf  used on input line 229.
-(pdftex.def)             Requested size: 231.03711pt x 154.02328pt.
- [6
+(pdftex.def)             Requested size: 242.58966pt x 202.15611pt.
+
+Overfull \hbox (11.55255pt too wide) in paragraph at lines 229--229
+ [][] 
+ []
+
+
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/b/it' instead on input line 229.
+
+[6
 
  <../images/fig2.pdf>]
-<../images/fig3.png, id=90, 722.7pt x 433.62pt>
-File: ../images/fig3.png Graphic file (type png)
-<use ../images/fig3.png>
-Package pdftex.def Info: ../images/fig3.png  used on input line 259.
+<../images/fig3.pdf, id=90, 722.7pt x 433.62pt>
+File: ../images/fig3.pdf Graphic file (type pdf)
+<use ../images/fig3.pdf>
+Package pdftex.def Info: ../images/fig3.pdf  used on input line 259.
 (pdftex.def)             Requested size: 271.66628pt x 162.99747pt.
 
 Overfull \hbox (3.99156pt too wide) in paragraph at lines 259--259
    [] 
  []
 
+
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/b/it' instead on input line 259.
+
 <../images/fig4_population_density.pdf, id=91, 505.89pt x 325.215pt>
 File: ../images/fig4_population_density.pdf Graphic file (type pdf)
 <use ../images/fig4_population_density.pdf>
 Package pdftex.def Info: ../images/fig4_population_density.pdf  used on input l
 ine 259.
-(pdftex.def)             Requested size: 143.8016pt x 92.44408pt.
+(pdftex.def)             Requested size: 158.93959pt x 102.1753pt.
 
-Overfull \vbox (17.65303pt too high) detected at line 259
+Overfull \hbox (7.56898pt too wide) in paragraph at lines 259--259
+ [] 
+ []
+
+
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/b/it' instead on input line 259.
+
+
+Overfull \vbox (1.15083pt too high) detected at line 259
  []
 
 [7
 
- <../images/fig3.png> <../images/fig4_population_density.pdf>]
-<../images/fig5.png, id=108, 722.7pt x 578.16pt>
-File: ../images/fig5.png Graphic file (type png)
-<use ../images/fig5.png>
-Package pdftex.def Info: ../images/fig5.png  used on input line 283.
-(pdftex.def)             Requested size: 231.03711pt x 184.82971pt.
- [8
+ <../images/fig3.pdf> <../images/fig4_population_density.pdf>]
+<../images/fig5.pdf, id=117, 722.7pt x 650.43pt>
+File: ../images/fig5.pdf Graphic file (type pdf)
+<use ../images/fig5.pdf>
+Package pdftex.def Info: ../images/fig5.pdf  used on input line 283.
+(pdftex.def)             Requested size: 226.41537pt x 203.77496pt.
 
- <../images/fig5.png>] [9
+
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/b/it' instead on input line 283.
+
+
+Overfull \vbox (1.10562pt too high) detected at line 283
+ []
+
+[8
+
+ <../images/fig5.pdf>] [9
 
 ]
 \tf@nav=\write7
@@ -1585,6 +1629,10 @@ Package pdftex.def Info: ../images/fig5.png  used on input line 283.
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 47949AC7C3DCEDDDEEFE3CD50587DDA1;103.
 Package logreq Info: Writing requests to 'main.run.xml'.
@@ -1592,11 +1640,11 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 40433 strings out of 467871
- 798318 string characters out of 5432322
+ 40436 strings out of 467871
+ 798410 string characters out of 5432322
  1699593 words of memory out of 5000000
- 68632 multiletter control sequences out of 15000+600000
- 637455 words of font info for 74 fonts, out of 8000000 for 9000
+ 68635 multiletter control sequences out of 15000+600000
+ 637749 words of font info for 75 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,13n,123p,695b,2905s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cmextra/cmex9.pfb><C:/TEMP/MiKTe
@@ -1608,9 +1656,9 @@ fonts/cm/cmssbx10.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi8.pf
 b><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmssi9.pfb><C:/TEMP/MiKTeX2/f
 onts/type1/public/amsfonts/cm/cmsy9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
 fonts/symbols/msam10.pfb>
-Output written on main.pdf (9 pages, 5963821 bytes).
+Output written on main.pdf (9 pages, 3112258 bytes).
 PDF statistics:
- 180 PDF objects out of 1000 (max. 8388607)
+ 197 PDF objects out of 1000 (max. 8388607)
  20 named destinations out of 1000 (max. 500000)
  91 words of extra memory for PDF output out of 10000 (max. 10000000)
 

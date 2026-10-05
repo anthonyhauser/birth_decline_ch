@@ -318,6 +318,9 @@ ggsave(filename = paste0(code_root_path,"figure/fig2.tiff"),
 ggsave(filename = paste0(code_root_path,"figure/fig2.pdf"),
        plot = fig2,
        width = 12, height = 8, units = "in")
+ggsave(filename = paste0(code_root_path,"slides/images/fig2.pdf"),
+       plot = fig2,
+       width = 12, height = 10, units = "in")
 ```
 
 **Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2011-`r last_year`. E. Relative excess birth by citizenship over years.
@@ -351,7 +354,38 @@ fig3 = excess_birth_adj2_mun_df %>%
   theme(legend.position = "bottom",
         legend.direction = "horizontal")
 fig3
+
+fig3 = excess_birth_adj2_mun_df %>% 
+  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = rel_exc_mean), color = NA) +
+  geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
+          fill = NA, color = "black", size = 0.3) +
+  geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
+  scale_fill_gradient2(
+    name = "Relative excess birth",
+    low = "red",
+    mid = "lightyellow",
+    high = "green",
+    midpoint = 0,
+    breaks = c(-0.2, 0, 0.2),
+    labels = scales::percent_format(accuracy = 1),
+    #limits = c(-0.4, 0.4)
+  ) +
+  theme_void() +                                  # supprime axes x/y, ticks, grille
+  theme(
+    legend.position      = c(0.05, 0.95),         # haut-gauche (coord. relatives 0–1)
+    legend.justification = c(0, 1),               # ancre le coin haut-gauche de la légende
+    legend.direction     = "vertical"
+  )
+fig3
+
 ggsave(filename = paste0(code_root_path,"figure/fig3.png"),
+       plot = fig3,
+       width = 10, height = 6,units = "in", dpi = 600)
+
+ggsave(filename = paste0(code_root_path,"slides/images/fig3.pdf"),
        plot = fig3,
        width = 10, height = 6,units = "in", dpi = 600)
 ```
@@ -558,6 +592,10 @@ fig5
 ggsave(filename = paste0(code_root_path,"figure/fig5.png"),
        plot = fig5,
        width = 10, height = 8,units = "in", dpi = 600)
+
+ggsave(filename =  paste0(code_root_path,"slides/images/fig5.pdf"),
+       plot = fig5,
+       width = 10, height = 9,units = "in", dpi = 600)
 ```
 
 **Sub-group excess births**: A. Fertility curve by maternal citizenship. Probability of having a child per month according to maternal age for Swiss (red) and non-Swiss (yellow) residents. B. Relative excess births by year from 2000 to 2025 according to maternal citizenship. C. Relative excess births according to municipality-level population density deciles, by maternal citizenship. D. Relative excess births by year from 2000 to 2025 according to birth parity, distinguishing first births (green) from higher-order births (blue). E. Relative excess births according to municipality-level population density deciles, by birth parity. The estimate from the main analysis (black line) is shown for comparison. Lines represent posterior means and shaded areas the 95% credible intervals (95% CrI).
