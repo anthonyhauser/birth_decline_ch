@@ -116,10 +116,13 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   print("---")
   ##############################################################################
   #Calculate draws of predicted numbers of birth by mun_id and year
-  #distribute over mun_id (multinomial); the join is on year directly, so a prediction
-  #year without matching municipality population raises an error (no silent capping)
+  #distribute over mun_id (multinomial); the join is on year and age directly, so any
+  #prediction year/age without matching municipality population raises an error (no silent drop)
   if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_mun_df2$year))){
     stop("Year mismatch: some prediction years have no municipality population data (pop_mun_df).")
+  }
+  if(!all(unique(pred_n_birth_draw_df$age) %in% unique(pop_mun_df2$age))){
+    stop("Age mismatch: some prediction ages have no municipality population data (pop_mun_df).")
   }
   pred_n_birth_mun_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%

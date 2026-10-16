@@ -106,10 +106,16 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::summarise(n=sum(n),.groups="drop") 
   print("---")
 
-  #distribute over region; the join is on year directly, so a prediction year without
-  #matching district population raises an error (no silent capping)
+  #distribute over region; the join is on year, month and age directly, so any prediction
+  #year/month/age without matching district population raises an error (no silent drop)
   if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_dist_df$year))){
     stop("Year mismatch: some prediction years have no district population data (pop_dist_df).")
+  }
+  if(!all(unique(pred_n_birth_draw_df$month) %in% unique(pop_dist_df$month))){
+    stop("Month mismatch: some prediction months have no district population data (pop_dist_df).")
+  }
+  if(!all(unique(pred_n_birth_draw_df$age) %in% unique(pop_dist_df$age))){
+    stop("Age mismatch: some prediction ages have no district population data (pop_dist_df).")
   }
   pred_n_birth_reg_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
@@ -124,11 +130,17 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::mutate(n_birth = replace_na(n_birth,0))
   print("---")
 
-  #distribute over ctz; the join is on year directly, so a prediction year without
-  #matching citizenship population raises an error (no silent capping)
+  #distribute over ctz; the join is on year, month and age directly, so any prediction
+  #year/month/age without matching citizenship population raises an error (no silent drop)
   if(ctz_name==""){
     if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_ctz_df$year))){
       stop("Year mismatch: some prediction years have no citizenship population data (pop_ctz_df).")
+    }
+    if(!all(unique(pred_n_birth_draw_df$month) %in% unique(pop_ctz_df$month))){
+      stop("Month mismatch: some prediction months have no citizenship population data (pop_ctz_df).")
+    }
+    if(!all(unique(pred_n_birth_draw_df$age) %in% unique(pop_ctz_df$age))){
+      stop("Age mismatch: some prediction ages have no citizenship population data (pop_ctz_df).")
     }
     pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>%
       dplyr::rename(n_pred_nat = n_pred) %>%
