@@ -1,4 +1,4 @@
-load_pop_year_age_mun_ctz = function(mun_df){
+load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
   #from https://www.pxweb.bfs.admin.ch/pxweb/fr/
   file_names = c("pop_mun_age_14.xlsx",#added because the numbers correspond to the population at 31 Dec
                  "pop_mun_age_15_35_permanent.xlsx",
@@ -86,7 +86,7 @@ load_pop_year_age_mun_ctz = function(mun_df){
     }) %>%
     ungroup() %>%
     dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n) %>% 
-    filter(year<2025)
+    filter(year < last_year+1)
   
   #list of dataframe by level of aggregation
   pop_df_list <- split(pop_df, pop_df$reg_agg_level)

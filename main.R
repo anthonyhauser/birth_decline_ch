@@ -28,7 +28,7 @@ if(FALSE){
   
   #population data
   pop_df = load_pop_year_age_ctn_ctz(last_year = last_year) #population ctn 1987-2024 or 1987-2025
-  pop_mun_df_list = load_pop_year_age_mun_ctz(mun_df = mun_df) #population mun 2011-2024, list of df, one for each aggregation level (national, canton, district, municipality)
+  pop_mun_df_list = load_pop_year_age_mun_ctz(mun_df = mun_df, last_year = last_year) #population mun 2011-2024 or 2011-2025, list of df, one for each aggregation level (national, canton, district, municipality)
   pop_mun_df = pop_mun_df_list[["municipality"]]#reg_id is historical region id (e.g., for municipality levels it corresponds to hist_mun_id)
   pop_detctz_df = load_pop_year_age_ctn_detctz()
   
