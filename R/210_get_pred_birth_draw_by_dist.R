@@ -106,39 +106,41 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::summarise(n=sum(n),.groups="drop") 
   print("---")
 
-  #distribute over region; pop available up to the latest year, the pmin() below is a no-op
-  #when the population already covers the prediction year
+  #distribute over region; the join is on year directly, so a prediction year without
+  #matching district population raises an error (no silent capping)
+  if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_dist_df$year))){
+    stop("Year mismatch: some prediction years have no district population data (pop_dist_df).")
+  }
   pred_n_birth_reg_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
     dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
-    dplyr::mutate(year_pop = pmin(year, max(pop_dist_df$year))) %>%
-    inner_join(pop_dist_df %>% dplyr::rename(n_pop=n), by=c("year_pop"="year","month","age"),relationship = "many-to-many")  %>%
-    dplyr::select(-year_pop) %>%
+    inner_join(pop_dist_df %>% dplyr::rename(n_pop=n), by=c("year","month","age"),relationship = "many-to-many")  %>%
     group_by(draw,year, month, age) %>%
     dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
     as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
-    ungroup() %>% 
+    ungroup() %>%
     #add n_birth
-    left_join(birth_year_month_age_reg_df,by=c("year","month","age","dist_id"))  %>% 
+    left_join(birth_year_month_age_reg_df,by=c("year","month","age","dist_id"))  %>%
     dplyr::mutate(n_birth = replace_na(n_birth,0))
   print("---")
-  
-  #distribute over ctz; pop available up to the latest year, the pmin() below is a no-op
-  #when the population already covers the prediction year
+
+  #distribute over ctz; the join is on year directly, so a prediction year without
+  #matching citizenship population raises an error (no silent capping)
   if(ctz_name==""){
+    if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_ctz_df$year))){
+      stop("Year mismatch: some prediction years have no citizenship population data (pop_ctz_df).")
+    }
     pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>%
       dplyr::rename(n_pred_nat = n_pred) %>%
       dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
-      dplyr::mutate(year_pop = pmin(year, max(pop_ctz_df$year))) %>%
-      inner_join(pop_ctz_df %>% dplyr::rename(n_pop=n), by=c("year_pop"="year","month","age"),relationship = "many-to-many")  %>%
-      dplyr::select(-year_pop) %>%
+      inner_join(pop_ctz_df %>% dplyr::rename(n_pop=n), by=c("year","month","age"),relationship = "many-to-many")  %>%
       group_by(draw,year, month, age) %>%
       dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
       as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
-      ungroup() %>% 
+      ungroup() %>%
       #add n_birth
-      left_join(birth_year_month_age_ctz_df,by=c("year","month","age","citizenship"))  %>% 
-      dplyr::mutate(n_birth = replace_na(n_birth,0)) 
+      left_join(birth_year_month_age_ctz_df,by=c("year","month","age","citizenship"))  %>%
+      dplyr::mutate(n_birth = replace_na(n_birth,0))
   }else{
     pred_n_birth_ctz_draw_df = NA
   }

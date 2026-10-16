@@ -116,17 +116,18 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   print("---")
   ##############################################################################
   #Calculate draws of predicted numbers of birth by mun_id and year
-  #distribute over mun_id (multinomial); pop available from 2011 up to the latest year,
-  #the pmin() below is a no-op when the population already covers the prediction year
+  #distribute over mun_id (multinomial); the join is on year directly, so a prediction
+  #year without matching municipality population raises an error (no silent capping)
+  if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_mun_df2$year))){
+    stop("Year mismatch: some prediction years have no municipality population data (pop_mun_df).")
+  }
   pred_n_birth_mun_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
-    dplyr::mutate(year_pop = pmin(year, max(pop_mun_df2$year))) %>%
-    inner_join(pop_mun_df2, by=c("year_pop"="year","age"),relationship = "many-to-many")  %>%
-    dplyr::select(-year_pop) %>%
+    inner_join(pop_mun_df2, by=c("year","age"),relationship = "many-to-many")  %>%
     group_by(draw,year,age) %>%
     dplyr::mutate(n_pred = {p <- n_pop / sum(n_pop)
     as.vector(rmultinom(1, size = n_pred_nat[1], prob = p))}) %>%
-    ungroup() 
+    ungroup()
   print("---")
   #municipality, by year: sum over age (by year, mun_id and draw)---------------
   excess_birth_year_mun_draw_df = pred_n_birth_mun_draw_df %>% 
