@@ -23,8 +23,8 @@ excess_by_ntiles = function(save.date, mod_name, seed_id,
   
   #Variables
   df_var0 = excess_birth_year_mun_draw_df %>% dplyr::select(mun_id,mun_name) %>% distinct() %>% 
-    #add population of 2024
-    left_join(pop_mun_df %>% filter(year==2024,month==1) %>% 
+    #add population of the latest analysis year
+    left_join(pop_mun_df %>% filter(year==max(year_range),month==1) %>%
                 group_by(mun_id) %>% dplyr::summarise(n_pop = sum(n),.groups="drop"), by=c("mun_id")) %>% 
     #add rural urban (9 categories)
     left_join(rural_urban_df %>% dplyr::select(mun_id,urban_rural_type2),by="mun_id") %>% 
