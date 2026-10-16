@@ -3,7 +3,8 @@ load_pop_year_age_mun_ctz = function(mun_df){
   file_names = c("pop_mun_age_14.xlsx",#added because the numbers correspond to the population at 31 Dec
                  "pop_mun_age_15_35_permanent.xlsx",
                  #"pop_mun_age_15_35_nonpermanent.xlsx",
-                 "pop_mun_age_36_50_permanent.xlsx")
+                 "pop_mun_age_36_50_permanent.xlsx",
+                 "pop_mun_2025_age_14_49_permanent.xlsx")
                  #"pop_mun_age_36_50_nonpermanent.xlsx")
   
   # Prepend folder path
