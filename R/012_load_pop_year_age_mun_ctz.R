@@ -71,13 +71,20 @@ load_pop_year_age_mun_ctz = function(mun_df){
     # create a continuous time index and n_year only for month 1
     dplyr::mutate(t = year + (month - 1) / 12,
                   n_year = if_else(month == 1, n, NA_real_)) %>%
-    # linear interpolation (uses next year's value)
+    # linear interpolation (uses next year's value); robust to groups with <2 yearly
+    # values (e.g. a municipality that only appears in one year, like a recent merger)
     group_by(reg_agg_level, reg_id,reg_name, citizenship, age) %>%
-    dplyr::mutate(n = approx(t[!is.na(n_year)],
-                             n_year[!is.na(n_year)],
-                             xout = t,
-                             rule = 2)$y) %>%
-    ungroup() %>% 
+    dplyr::mutate(n = {
+      idx = !is.na(n_year)
+      if(sum(idx) >= 2){
+        approx(t[idx], n_year[idx], xout = t, rule = 2)$y
+      } else if(sum(idx) == 1){
+        rep(n_year[idx], length(t))   # single yearly value: carry it constant over months
+      } else {
+        rep(NA_real_, length(t))      # no yearly value at all
+      }
+    }) %>%
+    ungroup() %>%
     dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n) %>% 
     filter(year<2025)
   
