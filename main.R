@@ -137,24 +137,25 @@ lapply(configs, function(cfg){
 }) %>% rbindlist() %>% print()
 
 #2. Extrapolate to finer levels-------------------------------------------------
-# For 2025: pop by municipality, by district and by citizenship x region stop at 2024, so 2024 pop is used as proxy for 2025.
+# Population by municipality, district and citizenship x region is now available up to 2025,
+# so no imputation is needed (the pmin() caps in the distribution functions are therefore no-ops).
 lapply(configs, function(cfg){
   use.p_childless_v = if(cfg$filter_parity != "all") c(FALSE, TRUE) else FALSE
   fit     = readRDS(paste0(code_root_path,"results/cmdstan_draw/",cfg$save.date,"_",cfg$mod_name,"_seedid",cfg$seed_id,".RDS"))
   stan_df = readRDS(paste0(cfg$res_path, cfg$mod_name,"_standf.RDS"))
 
-  # by district and by ctz (2025 pop imputed from 2024)
+  # by district and by ctz
   get_pred_birth_draw_by_dist(fit, stan_df, pop_dist_df, new_birth_df,
                               n_draw_subset = 100, cfg$save.date, cfg$mod_name, cfg$seed_id, cfg$res_path)
 
-  # by municipality (2025 pop imputed from 2024); p_childless adjustment only for parity models
+  # by municipality; p_childless adjustment only for parity models
   for(use.p_childless in use.p_childless_v){
     get_pred_birth_draw_by_mun(fit, stan_df, new_pop_mun_df, new_birth_df,
                                new_mun_sf = new_mun_sf, n_draw_subset = 100,
                                cfg$save.date, cfg$mod_name, use.p_childless, cfg$seed_id, cfg$res_path)
   }
 
-  # by citizenship x region (no imputation of 2025, as already present in the data)
+  # by citizenship x region
   get_pred_birth_draw_by_ctzreg(fit, stan_df, pop_detctz_df, new_birth_df,
                                 n_draw_subset = 100, cfg$save.date, cfg$mod_name, cfg$seed_id, cfg$res_path)
 })

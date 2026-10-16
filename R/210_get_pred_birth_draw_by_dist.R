@@ -106,7 +106,8 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::summarise(n=sum(n),.groups="drop") 
   print("---")
 
-  #distribute over region, only for 2011-2024, assuming 2025 is the same distribution as 2024
+  #distribute over region; pop available up to the latest year, the pmin() below is a no-op
+  #when the population already covers the prediction year
   pred_n_birth_reg_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
     dplyr::select(-c(n_birth,n_pop)) %>% #remove because it's national level
@@ -122,7 +123,8 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::mutate(n_birth = replace_na(n_birth,0))
   print("---")
   
-  #distribute over ctz, only for 2011-2024 or 2011-2025, assuming 2025 is the same distribution as 2024
+  #distribute over ctz; pop available up to the latest year, the pmin() below is a no-op
+  #when the population already covers the prediction year
   if(ctz_name==""){
     pred_n_birth_ctz_draw_df = pred_n_birth_draw_df %>%
       dplyr::rename(n_pred_nat = n_pred) %>%

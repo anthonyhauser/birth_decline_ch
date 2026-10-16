@@ -116,7 +116,8 @@ get_pred_birth_draw_by_mun = function(fit, #cmdstanr fit
   print("---")
   ##############################################################################
   #Calculate draws of predicted numbers of birth by mun_id and year
-  #distribute over mun_id, only for 2011-2024 (multinomial)
+  #distribute over mun_id (multinomial); pop available from 2011 up to the latest year,
+  #the pmin() below is a no-op when the population already covers the prediction year
   pred_n_birth_mun_draw_df = pred_n_birth_draw_df %>%
     dplyr::rename(n_pred_nat = n_pred) %>%
     dplyr::mutate(year_pop = pmin(year, max(pop_mun_df2$year))) %>%
