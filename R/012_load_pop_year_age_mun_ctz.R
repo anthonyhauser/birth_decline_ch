@@ -1,4 +1,4 @@
-load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
+load_pop_year_age_mun_ctz = function(mun_df){
   #from https://www.pxweb.bfs.admin.ch/pxweb/fr/
   file_names = c("pop_mun_age_14.xlsx",#added because the numbers correspond to the population at 31 Dec
                  "pop_mun_age_15_35_permanent.xlsx",
@@ -85,10 +85,8 @@ load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
       }
     }) %>%
     ungroup() %>%
-    dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n) %>%
-    #keep up to last_year; the extra (last_year+1) anchor created by the +1 shift of the
-    #last 31-Dec snapshot is only used to interpolate last_year's months, then dropped
-    filter(year < last_year+1)
+    dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n) %>% 
+    filter(year<2025)
   
   #list of dataframe by level of aggregation
   pop_df_list <- split(pop_df, pop_df$reg_agg_level)
