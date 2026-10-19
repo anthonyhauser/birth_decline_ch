@@ -119,14 +119,17 @@ load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
   }
 
   if(FALSE){
-    #sanity check for communes that resulted from a merger in recent years
-    #(several hist_mun_id -> one mun_id): once aggregated by mun_id, the total population
-    #should be continuous across the merger year (sum of former communes ~ merged commune,
-    #no artificial jump/drop). Eyeball the yearly January totals below.
+    #sanity check for communes that resulted from a RECENT merger (in the last 3 years):
+    #once aggregated by mun_id, the total population should be continuous across the merger
+    #year (sum of former communes ~ merged commune, no artificial jump/drop).
+    #A recent merger = a mun_id whose former communes (hist_mun_id) were abolished
+    #(hist_mun_ab_date) within the last 3 years.
+    recent_cutoff = as.Date(paste0(last_year - 3, "-01-01"))
     merged_mun_ids = mun_df %>%
       group_by(mun_id) %>%
-      dplyr::summarise(n_hist = dplyr::n_distinct(hist_mun_id), .groups = "drop") %>%
-      filter(n_hist > 1) %>% pull(mun_id)
+      dplyr::summarise(recent_merge = any(!is.na(hist_mun_ab_date) & hist_mun_ab_date >= recent_cutoff),
+                       .groups = "drop") %>%
+      filter(recent_merge) %>% pull(mun_id)
     pop_df_list[["municipality"]] %>%
       filter(mun_id %in% merged_mun_ids, month == 1) %>%
       group_by(mun_id, mun_name, year) %>%
