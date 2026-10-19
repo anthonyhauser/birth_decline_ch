@@ -137,7 +137,7 @@ load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
     #A recent merger = a mun_id whose former communes (hist_mun_id) were abolished
     #(hist_mun_ab_date) within the last 3 years. The 'communes' column lists which
     #municipalities are summed into the current mun_id each year.
-    recent_cutoff = as.Date(paste0(last_year - 3, "-01-01"))
+    recent_cutoff = as.Date(paste0(last_year - 1, "-01-01"))
     merged_mun_ids = mun_df %>%
       group_by(mun_id) %>%
       dplyr::summarise(recent_merge = any(!is.na(hist_mun_ab_date) & hist_mun_ab_date >= recent_cutoff),
