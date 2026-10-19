@@ -1,4 +1,4 @@
-load_pop_year_age_mun_ctz = function(mun_df){
+load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
   #from https://www.pxweb.bfs.admin.ch/pxweb/fr/
   file_names = c("pop_mun_age_14.xlsx",#added because the numbers correspond to the population at 31 Dec
                  "pop_mun_age_15_35_permanent.xlsx",
@@ -64,45 +64,80 @@ load_pop_year_age_mun_ctz = function(mun_df){
     pop_df %>% filter(year==2025,reg_agg_level=="municipality",reg_name =="Zürich",age==15,citizenship=="swiss")
   }
   
+  #----------------------------------------------------------------------------
+  #Municipality level: map to mun_id (via new_mun_df) and AGGREGATE by mun_id BEFORE the
+  #monthly interpolation. Communes that merged in recent years (several hist_mun_id -> one
+  #mun_id, e.g. Grolley + Ponthaux -> Grolley-Ponthaux) then form a single continuous
+  #series over time, so the interpolation can use the real latest-year value of the merged
+  #commune instead of flat-extrapolating the former communes separately.
+  mun_agg = pop_df %>%
+    filter(reg_agg_level == "municipality") %>%
+    dplyr::mutate(reg_id = as.numeric(reg_id)) %>%
+    left_join(mun_df %>% dplyr::select(ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name, reg_id = hist_mun_id),
+              by = "reg_id") %>%
+    group_by(reg_agg_level, ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name, citizenship, age, year) %>%
+    dplyr::summarise(n = sum(n), .groups = "drop") %>%
+    #reuse reg_id/reg_name as the common grouping key for the interpolation below
+    dplyr::mutate(reg_id = as.character(mun_id), reg_name = mun_name)
+
+  #put municipality (now aggregated by mun_id) back with the other aggregation levels
+  pop_df = bind_rows(pop_df %>% filter(reg_agg_level != "municipality"),
+                     mun_agg)
+
   #extrapolate numbers by month
-  pop_df = pop_df %>% 
-    expand_grid(month=1:12) %>% 
+  pop_df = pop_df %>%
+    expand_grid(month=1:12) %>%
     arrange(reg_agg_level, reg_id,reg_name,citizenship,age,year,month) %>%
     # create a continuous time index and n_year only for month 1
     dplyr::mutate(t = year + (month - 1) / 12,
                   n_year = if_else(month == 1, n, NA_real_)) %>%
-    # linear interpolation (uses next year's value)
+    # linear interpolation (uses next year's value); the <2-value branch is a safety net
+    # (merged communes are now aggregated above, so they are no longer single-year series)
     group_by(reg_agg_level, reg_id,reg_name, citizenship, age) %>%
-    dplyr::mutate(n = approx(t[!is.na(n_year)],
-                             n_year[!is.na(n_year)],
-                             xout = t,
-                             rule = 2)$y) %>%
-    ungroup() %>% 
-    dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n) %>% 
-    filter(year<2025)
-  
+    dplyr::mutate(n = {
+      idx = !is.na(n_year)
+      if(sum(idx) >= 2){
+        approx(t[idx], n_year[idx], xout = t, rule = 2)$y
+      } else if(sum(idx) == 1){
+        rep(n_year[idx], length(t))   # single yearly value: carry it constant over months
+      } else {
+        rep(NA_real_, length(t))      # no yearly value at all
+      }
+    }) %>%
+    ungroup() %>%
+    dplyr::select(year,month,reg_agg_level, reg_id,reg_name,citizenship,age,n,
+                  ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name) %>%
+    filter(year < last_year+1)
+
   #list of dataframe by level of aggregation
   pop_df_list <- split(pop_df, pop_df$reg_agg_level)
-  
+
   if(FALSE){
     #check Swiss mother (i.e., mother_municipality 8100), with missing mun_id
-    birth_1987_2024 %>% 
+    birth_1987_2024 %>%
       filter(is.na(mother_mun_id),mother_municipality==8100)
   }
-  
-  #add municipality
-  pop_df_list[["municipality"]] = pop_df_list[["municipality"]] %>% 
-    dplyr::mutate(reg_id = as.numeric(reg_id)) %>% 
-    left_join(mun_df %>% dplyr::select(ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name, reg_id = hist_mun_id),
-              by="reg_id")
-  
+
   if(FALSE){
-    #check rows with missing mun_name, i.e., where reg_id could not be match with any hist_mun_id of mun_df: 0 row
+    #sanity check for communes that resulted from a merger in recent years
+    #(several hist_mun_id -> one mun_id): once aggregated by mun_id, the total population
+    #should be continuous across the merger year (sum of former communes ~ merged commune,
+    #no artificial jump/drop). Eyeball the yearly January totals below.
+    merged_mun_ids = mun_df %>%
+      group_by(mun_id) %>%
+      dplyr::summarise(n_hist = dplyr::n_distinct(hist_mun_id), .groups = "drop") %>%
+      filter(n_hist > 1) %>% pull(mun_id)
+    pop_df_list[["municipality"]] %>%
+      filter(mun_id %in% merged_mun_ids, month == 1) %>%
+      group_by(mun_id, mun_name, year) %>%
+      dplyr::summarise(n = sum(n), .groups = "drop") %>%
+      arrange(mun_id, year) %>%
+      print(n = 200)
+  }
+
+  if(FALSE){
+    #check rows with missing mun_name, i.e., where reg_id could not be matched with any hist_mun_id of mun_df: 0 row
     pop_df_list[["municipality"]] %>% filter(is.na(mun_name))
-    #check row with reg_name different than mun_name, mostly changes of municipality names
-    pop_df_list[["municipality"]] %>% 
-      filter(reg_name!=mun_name) %>% 
-      dplyr::select(-c(year,month,age,n,citizenship)) %>% distinct() %>% print(n=50)
   }
   
   return(pop_df_list)
