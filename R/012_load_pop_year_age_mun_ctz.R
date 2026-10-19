@@ -80,6 +80,18 @@ load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
     #reuse reg_id/reg_name as the common grouping key for the interpolation below
     dplyr::mutate(reg_id = as.character(mun_id), reg_name = mun_name)
 
+  #per mun_id x year: list of former communes summed into it (for the sanity check below).
+  #Built before the aggregation overwrites reg_name, so merged communes show their
+  #components (e.g. "Grolley, Ponthaux" before the merger, "Grolley-Ponthaux" after).
+  mun_components = pop_df %>%
+    filter(reg_agg_level == "municipality") %>%
+    dplyr::mutate(reg_id = as.numeric(reg_id)) %>%
+    left_join(mun_df %>% dplyr::select(mun_id, mun_name, reg_id = hist_mun_id), by = "reg_id") %>%
+    group_by(mun_id, mun_name, year) %>%
+    dplyr::summarise(n        = sum(n),
+                     communes = paste(sort(unique(reg_name)), collapse = ", "),
+                     .groups  = "drop")
+
   #put municipality (now aggregated by mun_id) back with the other aggregation levels
   pop_df = bind_rows(pop_df %>% filter(reg_agg_level != "municipality"),
                      mun_agg)
@@ -123,17 +135,16 @@ load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
     #once aggregated by mun_id, the total population should be continuous across the merger
     #year (sum of former communes ~ merged commune, no artificial jump/drop).
     #A recent merger = a mun_id whose former communes (hist_mun_id) were abolished
-    #(hist_mun_ab_date) within the last 3 years.
+    #(hist_mun_ab_date) within the last 3 years. The 'communes' column lists which
+    #municipalities are summed into the current mun_id each year.
     recent_cutoff = as.Date(paste0(last_year - 3, "-01-01"))
     merged_mun_ids = mun_df %>%
       group_by(mun_id) %>%
       dplyr::summarise(recent_merge = any(!is.na(hist_mun_ab_date) & hist_mun_ab_date >= recent_cutoff),
                        .groups = "drop") %>%
       filter(recent_merge) %>% pull(mun_id)
-    pop_df_list[["municipality"]] %>%
-      filter(mun_id %in% merged_mun_ids, month == 1) %>%
-      group_by(mun_id, mun_name, year) %>%
-      dplyr::summarise(n = sum(n), .groups = "drop") %>%
+    mun_components %>%
+      filter(mun_id %in% merged_mun_ids) %>%
       arrange(mun_id, year) %>%
       print(n = 200)
   }
