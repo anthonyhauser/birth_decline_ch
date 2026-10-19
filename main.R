@@ -32,9 +32,16 @@ if(FALSE){
   pop_mun_df = pop_mun_df_list[["municipality"]]#reg_id is historical region id (e.g., for municipality levels it corresponds to hist_mun_id)
   pop_detctz_df = load_pop_year_age_ctn_detctz()
   
-  new_pop_mun_df = pop_mun_df %>% 
-    dplyr::mutate(mun_name = if_else(mun_id %in% mun_ids_to_agg, "Appenzell (aggregated)",mun_name),
-                  mun_id = if_else(mun_id %in% mun_ids_to_agg, 31010,mun_id))
+  new_pop_mun_df = bind_rows(
+    # everything except Appenzell: untouched, no grouping
+    pop_mun_df %>% filter(!(mun_id %in% mun_ids_to_agg)),
+    # the 4 Appenzell communes: sum them into one (group only by the strata that stay)
+    pop_mun_df %>% filter(mun_id %in% mun_ids_to_agg) %>%
+      group_by(reg_agg_level, ctn_abbr, ctn_id, dist_name, dist_id, year, month, age, citizenship) %>%
+      dplyr::summarise(n = sum(n), .groups = "drop") %>%
+      dplyr::mutate(mun_id = 31010, mun_name = "Appenzell (aggregated)",
+                    reg_id = "31010", reg_name = "Appenzell (aggregated)")
+  )
   
   #rural/urban, votation
   sep_df3 = readRDS("savepoint/sep_df3.RDS")
