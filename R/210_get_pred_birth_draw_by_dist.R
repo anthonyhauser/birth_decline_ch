@@ -106,13 +106,15 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
     dplyr::summarise(n=sum(n),.groups="drop") 
   print("---")
 
-  #distribute over region; the join is on year, month and age directly, so any prediction
-  #year/month/age without matching district population raises an error (no silent drop)
-  if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_dist_df$year))){
-    stop("Year mismatch: some prediction years have no district population data (pop_dist_df).")
-  }
-  if(!all(unique(pred_n_birth_draw_df$month) %in% unique(pop_dist_df$month))){
-    stop("Month mismatch: some prediction months have no district population data (pop_dist_df).")
+  #distribute over region; the join is on year, month and age. Prediction years earlier than
+  #the district population (which starts in 2011) are legitimately not distributed and are
+  #dropped by the inner_join; but any year WITHIN the population range that is missing (e.g. a
+  #missing latest year) raises an error instead of being silently dropped.
+  missing_year = setdiff(unique(pred_n_birth_draw_df$year)[unique(pred_n_birth_draw_df$year) >= min(pop_dist_df$year)],
+                         unique(pop_dist_df$year))
+  if(length(missing_year) > 0){
+    stop("Year mismatch: prediction year(s) ", paste(sort(missing_year), collapse=", "),
+         " within the district population range have no data (pop_dist_df).")
   }
   if(!all(unique(pred_n_birth_draw_df$age) %in% unique(pop_dist_df$age))){
     stop("Age mismatch: some prediction ages have no district population data (pop_dist_df).")
@@ -133,11 +135,11 @@ get_pred_birth_draw_by_dist = function(fit, #cmdstanr fit
   #distribute over ctz; the join is on year, month and age directly, so any prediction
   #year/month/age without matching citizenship population raises an error (no silent drop)
   if(ctz_name==""){
-    if(!all(unique(pred_n_birth_draw_df$year) %in% unique(pop_ctz_df$year))){
-      stop("Year mismatch: some prediction years have no citizenship population data (pop_ctz_df).")
-    }
-    if(!all(unique(pred_n_birth_draw_df$month) %in% unique(pop_ctz_df$month))){
-      stop("Month mismatch: some prediction months have no citizenship population data (pop_ctz_df).")
+    missing_year_ctz = setdiff(unique(pred_n_birth_draw_df$year)[unique(pred_n_birth_draw_df$year) >= min(pop_ctz_df$year)],
+                               unique(pop_ctz_df$year))
+    if(length(missing_year_ctz) > 0){
+      stop("Year mismatch: prediction year(s) ", paste(sort(missing_year_ctz), collapse=", "),
+           " within the citizenship population range have no data (pop_ctz_df).")
     }
     if(!all(unique(pred_n_birth_draw_df$age) %in% unique(pop_ctz_df$age))){
       stop("Age mismatch: some prediction ages have no citizenship population data (pop_ctz_df).")
