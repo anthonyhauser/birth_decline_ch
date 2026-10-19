@@ -70,25 +70,34 @@ load_pop_year_age_mun_ctz = function(mun_df, last_year = 2024){
   #mun_id, e.g. Grolley + Ponthaux -> Grolley-Ponthaux) then form a single continuous
   #series over time, so the interpolation can use the real latest-year value of the merged
   #commune instead of flat-extrapolating the former communes separately.
-  mun_agg = pop_df %>%
+  #municipality subset mapped to mun_id (via new_mun_df: hist_mun_id -> mun_id)
+  mun_joined = pop_df %>%
     filter(reg_agg_level == "municipality") %>%
     dplyr::mutate(reg_id = as.numeric(reg_id)) %>%
     left_join(mun_df %>% dplyr::select(ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name, reg_id = hist_mun_id),
-              by = "reg_id") %>%
-    group_by(reg_agg_level, ctn_abbr, ctn_id, dist_name, dist_id, mun_id, mun_name, citizenship, age, year) %>%
+              by = "reg_id")
+
+  #one identity row per mun_id, so a mun_id whose former communes disagree on
+  #canton/district/name in new_mun_df is NOT split into several rows (which would
+  #double-count that commune); the summation below is on mun_id only
+  mun_meta = mun_joined %>%
+    dplyr::distinct(mun_id, ctn_abbr, ctn_id, dist_name, dist_id, mun_name) %>%
+    group_by(mun_id) %>% dplyr::slice(1) %>% ungroup()
+
+  mun_agg = mun_joined %>%
+    group_by(reg_agg_level, mun_id, citizenship, age, year) %>%
     dplyr::summarise(n = sum(n), .groups = "drop") %>%
+    left_join(mun_meta, by = "mun_id") %>%
     #reuse reg_id/reg_name as the common grouping key for the interpolation below
     dplyr::mutate(reg_id = as.character(mun_id), reg_name = mun_name)
 
   #per mun_id x year: list of former communes summed into it (for the sanity check below).
-  #Built before the aggregation overwrites reg_name, so merged communes show their
+  #Built from mun_joined (reg_name still present), so merged communes show their
   #components (e.g. "Grolley, Ponthaux" before the merger, "Grolley-Ponthaux" after).
-  mun_components = pop_df %>%
-    filter(reg_agg_level == "municipality") %>%
-    dplyr::mutate(reg_id = as.numeric(reg_id)) %>%
-    left_join(mun_df %>% dplyr::select(mun_id, mun_name, reg_id = hist_mun_id), by = "reg_id") %>%
-    group_by(mun_id, mun_name, year) %>%
-    dplyr::summarise(n        = sum(n),
+  mun_components = mun_joined %>%
+    group_by(mun_id, year) %>%
+    dplyr::summarise(mun_name = dplyr::first(mun_name),
+                     n        = sum(n),
                      communes = paste(sort(unique(reg_name)), collapse = ", "),
                      .groups  = "drop")
 
