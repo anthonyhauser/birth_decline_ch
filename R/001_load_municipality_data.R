@@ -1,6 +1,6 @@
 #municipality data: link number with municipality name, https://www.agvchapp.bfs.admin.ch/fr
 load_municipality_data = function(){
-  #load xml files (done one as takes time)
+  #load xml files (done only once as takes time)
   if(FALSE){
     library(xml2)
     doc <- read_xml(paste0(data_folder,"municipality_data/1.2.0/eCH0071_260101.xml"))
