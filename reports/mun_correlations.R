@@ -97,23 +97,48 @@ n_ok <- function(x, y, w) sum(is.finite(x) & is.finite(y) & is.finite(w))
 ## ---- variables to correlate -------------------------------------------------
 vars <- setdiff(names(df_var0), c("mun_id", "mun_name", "urban_rural_type2", "n_pop"))
 
-res <- bind_rows(lapply(vars, function(v){
-  x <- d[[v]]; y <- d$rel_exc; w <- d$n_pop
-  data.frame(
-    variable              = v,
-    n_mun                 = n_ok(x, y, w),
-    r_unadjusted          = wcor(x, y, w),
-    r_partial_adj_density = if (v == dens) NA_real_ else wpcor(x, y, d[[dens]], w)
-  )
-})) %>%
-  dplyr::mutate(across(c(r_unadjusted, r_partial_adj_density), ~ round(.x, 3))) %>%
-  arrange(desc(abs(r_unadjusted)))
+## ---- correlation table (with optional minimum-population filter) -------------
+# min_pop: drop municipalities with fewer than `min_pop` women aged 15-50 before
+# computing correlations. Small municipalities often have variable values of 0
+# simply because they are too small to host e.g. a childcare institution, not
+# because provision is genuinely low; filtering avoids that artefact.
+compute_correlations <- function(data = d, min_pop = 0){
+  dd <- data %>% filter(is.finite(n_pop), n_pop >= min_pop)
+  bind_rows(lapply(vars, function(v){
+    x <- dd[[v]]; y <- dd$rel_exc; w <- dd$n_pop
+    data.frame(
+      variable              = v,
+      n_mun                 = n_ok(x, y, w),
+      r_unadjusted          = wcor(x, y, w),
+      r_partial_adj_density = if (v == dens) NA_real_ else wpcor(x, y, dd[[dens]], w)
+    )
+  })) %>%
+    dplyr::mutate(min_pop = min_pop,
+                  across(c(r_unadjusted, r_partial_adj_density), ~ round(.x, 3))) %>%
+    arrange(desc(abs(r_unadjusted)))
+}
 
+## threshold(s) to use (edit as you like); set to 0 to keep all municipalities
+min_pop <- 200
+
+res <- compute_correlations(d, min_pop = min_pop)
+cat("\n== Correlations (min_pop = ", min_pop, ", municipalities kept = ",
+    sum(is.finite(d$n_pop) & d$n_pop >= min_pop), " of ", nrow(d), ") ==\n", sep = "")
 print(res, row.names = FALSE)
+
+## compare several thresholds in one table (optional)
+if (FALSE) {
+  do.call(rbind, lapply(c(0, 100, 200, 500, 1000), function(m)
+    compute_correlations(d, min_pop = m))) %>%
+    tidyr::pivot_wider(id_cols = variable, names_from = min_pop,
+                       names_prefix = "r_minpop_", values_from = r_unadjusted) %>%
+    print(n = 100)
+}
 
 ## ---- save -------------------------------------------------------------------
 out_file <- paste0(res_path, save.date, "_", mod_name, "_seedid", seed_id,
-                   "_mun_correlations_", min(year_range), "_", max(year_range), ".csv")
+                   "_mun_correlations_", min(year_range), "_", max(year_range),
+                   "_minpop", min_pop, ".csv")
 write.csv(res, out_file, row.names = FALSE)
 cat("\nSaved:", out_file, "\n")
 
