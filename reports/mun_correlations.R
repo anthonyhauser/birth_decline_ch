@@ -116,3 +116,28 @@ out_file <- paste0(res_path, save.date, "_", mod_name, "_seedid", seed_id,
                    "_mun_correlations_", min(year_range), "_", max(year_range), ".csv")
 write.csv(res, out_file, row.names = FALSE)
 cat("\nSaved:", out_file, "\n")
+
+
+
+library(ggplot2)
+
+plot_vars <- function(xvar, yvar = "rel_exc", data = d){
+  dd <- data[is.finite(data[[xvar]]) & is.finite(data[[yvar]]) & is.finite(data$n_pop), ]
+  r  <- wcor(dd[[xvar]], dd[[yvar]], dd$n_pop)          # weighted Pearson (from the script)
+  ggplot(dd, aes(.data[[xvar]], .data[[yvar]])) +
+    geom_point(aes(size = n_pop), alpha = 0.35, colour = "steelblue") +
+    geom_smooth(aes(weight = n_pop), method = "lm", se = TRUE,
+                colour = "darkred", linewidth = 0.8) +          # pop-weighted fit
+    scale_size_area(max_size = 10, name = "Population\n(female 15-50)",
+                    labels = scales::comma) +
+    labs(x = xvar, y = yvar,
+         title = paste0(yvar, " vs ", xvar),
+         subtitle = paste0("Weighted Pearson r = ", round(r, 3),
+                           " (n = ", nrow(dd), " municipalities)")) +
+    theme_minimal()
+}
+
+# examples:
+plot_vars("pop_dens")            + scale_x_continuous(limits = c(0,5400))           # relative excess vs population density
+plot_vars("rel_empl_mean") + scale_x_continuous(limits = c(0,0.1))             # vs childcare provision
+plot_vars("votation_paternity_leave")       # vs paternity-leave vote
