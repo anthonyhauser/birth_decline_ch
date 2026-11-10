@@ -27,7 +27,6 @@ params:
   ntile_year_suffix: ""
   last_year: 2024
 
-editor: visual
 ---
 
 ```{r,include=FALSE}
@@ -332,29 +331,6 @@ ggsave(filename = paste0(code_root_path,"slides/images/fig2.pdf"),
 
 ::: {#fig-fig3}
 ```{r,  fig.height=6,fig.width=10}
-fig3 = excess_birth_adj2_mun_df %>% 
-  #left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
-  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
-  st_as_sf() %>%
-  ggplot() +
-  geom_sf(aes(fill = rel_exc_mean), color = NA) +  # communes sans bordure
-  geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
-          fill = NA, color = "black", size = 0.3) +  # contours districts
-  geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
-  scale_fill_gradient2(
-    name = "Relative excess birth",
-    low = "red",
-    mid = "lightyellow",
-    high = "green",
-    midpoint = 0,
-    breaks=c(-0.2,0,0.2),
-    labels = scales::percent_format(accuracy = 1),
-    #limits=c(-0.4,0.4)
-  ) +
-  theme(legend.position = "bottom",
-        legend.direction = "horizontal")
-fig3
-
 fig3 = excess_birth_adj2_mun_df %>% 
   left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
   st_as_sf() %>%

@@ -25,8 +25,6 @@ params:
   res_path: "results/"
   ntile_year_suffix: ""
   last_year: 2024
-
-editor: visual
 ---
 
 ```{r, include=FALSE}
@@ -212,13 +210,12 @@ cowplot::plot_grid(p1,
                                       nrow=3,labels=c("A.","B.","C."))'
 
 fig3_txt = 'excess_birth_adj2_mun_df %>% 
-  #left_join(new_mun_df %>% dplyr::select(mun_id,dist_id) %>% distinct(), by="mun_id") %>% 
   left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
   st_as_sf() %>%
   ggplot() +
-  geom_sf(aes(fill = rel_exc_mean), color = NA) +  # communes sans bordure
+  geom_sf(aes(fill = rel_exc_mean), color = NA) +
   geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
-          fill = NA, color = "black", size = 0.3) +  # contours districts
+          fill = NA, color = "black", size = 0.3) +
   geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
   scale_fill_gradient2(
     name = "Relative excess birth",
@@ -226,11 +223,16 @@ fig3_txt = 'excess_birth_adj2_mun_df %>%
     mid = "lightyellow",
     high = "green",
     midpoint = 0,
+    breaks = c(-0.2, 0, 0.2),
     labels = scales::percent_format(accuracy = 1),
-    #limits=c(-0.4,0.4)
+    #limits = c(-0.4, 0.4)
   ) +
-  theme(legend.position = "bottom",
-        legend.direction = "horizontal")'
+  theme_void() +                                  # supprime axes x/y, ticks, grille
+  theme(
+    legend.position      = c(0.05, 0.95),         # haut-gauche (coord. relatives 0–1)
+    legend.justification = c(0, 1),               # ancre le coin haut-gauche de la légende
+    legend.direction     = "vertical"
+  )'
 
 fig4_txt ='
 childless_plot = ifelse(length(unique(excess_by_ntiles_df$childless))==2,TRUE,FALSE)
