@@ -45,58 +45,58 @@
 
 % --- left column: three model inputs, each feeding the model ---
 % A1 fertility by age
-\node[sub,font=\tiny\bfseries] at (2.0,12.22) {Fertility function};
-\draw[ax] (1.0,11.55)--(3.3,11.55);
-\draw[ax] (1.0,11.55)--(1.0,12.08);
-\draw[blue] (1.05,11.6) .. controls (1.45,11.62) and (1.7,12.0) .. (1.95,12.0)
-                        .. controls (2.2,12.0) and (2.45,11.62) .. (3.25,11.6);
-\draw[orng] (1.3,11.6)  .. controls (1.7,11.62) and (1.95,12.0) .. (2.2,12.0)
-                        .. controls (2.45,12.0) and (2.7,11.62) .. (3.3,11.6);
-\node[sub] at (2.1,11.4) {Age};
-\node[sub,rotate=90] at (0.8,11.82) {Fertility};
-\draw[blue] (2.5,12.05)--(2.63,12.05); \node[sub,anchor=west] at (2.65,12.05){2000};
-\draw[orng] (2.5,11.95)--(2.63,11.95); \node[sub,anchor=west] at (2.65,11.95){2025};
+\node[sub,font=\tiny\bfseries] at (2.0,12.08) {Fertility function};
+\draw[ax] (1.0,11.3)--(3.3,11.3);
+\draw[ax] (1.0,11.3)--(1.0,12.0);
+\draw[blue] (1.05,11.35) .. controls (1.45,11.37) and (1.7,11.95) .. (1.95,11.95)
+                         .. controls (2.2,11.95) and (2.45,11.37) .. (3.25,11.35);
+\draw[orng] (1.3,11.35)  .. controls (1.7,11.37) and (1.95,11.95) .. (2.2,11.95)
+                         .. controls (2.45,11.95) and (2.7,11.37) .. (3.3,11.35);
+\node[sub] at (2.1,11.15) {Age};
+\node[sub,rotate=90] at (0.8,11.65) {Fertility};
+\draw[blue] (2.55,11.95)--(2.68,11.95); \node[sub,anchor=west] at (2.7,11.95){2000};
+\draw[orng] (2.55,11.83)--(2.68,11.83); \node[sub,anchor=west] at (2.7,11.83){2025};
 
-% A2 population over time (two ages)
-\node[sub,font=\tiny\bfseries] at (2.0,11.13) {Population data};
-\draw[ax] (1.0,10.4)--(3.3,10.4);
-\draw[ax] (1.0,10.4)--(1.0,10.95);
-\draw[teal] (1.05,10.6)  .. controls (2.0,10.66) .. (3.25,10.7);
-\draw[purp] (1.05,10.48) .. controls (2.0,10.53) .. (3.25,10.56);
-\node[sub] at (2.1,10.25) {Time};
-\node[sub,rotate=90] at (0.8,10.67) {Pop. size};
-\draw[teal] (2.5,10.93)--(2.63,10.93);\node[sub,anchor=west] at (2.65,10.93){Age 15};
-\draw[purp] (2.5,10.83)--(2.63,10.83);\node[sub,anchor=west] at (2.65,10.83){Age 50};
+% A2 population over time (two ages; Age 15 declining, Age 50 rising)
+\node[sub,font=\tiny\bfseries] at (2.0,10.95) {Population data};
+\draw[ax] (1.0,10.15)--(3.3,10.15);
+\draw[ax] (1.0,10.15)--(1.0,10.85);
+\draw[teal] (1.05,10.63) .. controls (2.0,10.56) and (2.5,10.53) .. (3.25,10.47);
+\draw[purp] (1.05,10.40) .. controls (2.0,10.48) and (2.5,10.53) .. (3.25,10.62);
+\node[sub] at (2.1,10.0) {Time};
+\node[sub,rotate=90] at (0.8,10.5) {Pop. size};
+\draw[teal] (1.15,10.8)--(1.28,10.8);\node[sub,anchor=west] at (1.3,10.8){Age 15};
+\draw[purp] (2.0,10.8)--(2.13,10.8);\node[sub,anchor=west] at (2.15,10.8){Age 50};
 
-% A3 birth data over time (two ages, slight seasonal variation: 3 seasons = 3 up/down)
-\node[sub,font=\tiny\bfseries] at (2.0,9.97) {Birth data};
-\draw[ax] (1.0,9.25)--(3.3,9.25);
-\draw[ax] (1.0,9.25)--(1.0,9.8);
-\draw[teal] plot[domain=1.05:3.25,samples=80,smooth] (\x,{9.55+0.06*sin(3*(\x-1.05)/2.2*360)});
-\draw[purp] plot[domain=1.05:3.25,samples=80,smooth] (\x,{9.42+0.06*sin(3*(\x-1.05)/2.2*360)});
-\node[sub] at (2.1,9.1) {Time};
-\node[sub,rotate=90] at (0.8,9.52) {Births};
-\draw[teal] (2.5,9.78)--(2.63,9.78);\node[sub,anchor=west] at (2.65,9.78){Age 15};
-\draw[purp] (2.5,9.68)--(2.63,9.68);\node[sub,anchor=west] at (2.65,9.68){Age 50};
+% A3 birth data over time (seasonal sine + trend: Age 15 declining, Age 50 rising)
+\node[sub,font=\tiny\bfseries] at (2.0,9.8) {Birth data};
+\draw[ax] (1.0,9.0)--(3.3,9.0);
+\draw[ax] (1.0,9.0)--(1.0,9.7);
+\draw[teal] plot[domain=1.05:3.25,samples=80,smooth] (\x,{9.5-0.09*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.2*360)});
+\draw[purp] plot[domain=1.05:3.25,samples=80,smooth] (\x,{9.2+0.11*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.2*360)});
+\node[sub] at (2.1,8.85) {Time};
+\node[sub,rotate=90] at (0.8,9.35) {Births};
+\draw[teal] (1.15,9.65)--(1.28,9.65);\node[sub,anchor=west] at (1.3,9.65){Age 15};
+\draw[purp] (2.0,9.65)--(2.13,9.65);\node[sub,anchor=west] at (2.15,9.65){Age 50};
 
 % model box (three inputs -> one output)
-\node[box,align=center,font=\tiny,text=black!70] (model) at (5.0,11.0) {Neg-Bin\\model};
-\draw[flow] (3.4,11.8)  -- (model.west);
-\draw[flow] (3.4,10.68) -- (model.west);
-\draw[flow] (3.4,9.5)   -- (model.west);
+\node[box,align=center,font=\tiny,text=black!70] (model) at (5.0,11.0) {Bayesian\\model};
+\draw[flow] (3.4,11.65) -- (model.west);
+\draw[flow] (3.4,10.5)  -- (model.west);
+\draw[flow] (3.4,9.35)  -- (model.west);
 
-% A4 predicted (expected only) births by age over time, with seasonal variation,
-% shifted right (space for the incoming arrow) and lowered towards the x-axis.
-\node[sub,font=\tiny\bfseries] at (8.4,12.26) {Predicted births by age};
+% A4 predicted (expected only) births by age over time: seasonal sine + trend
+% (Age 15 declining, Age 50 rising); title kept close to the plot.
+\node[sub,font=\tiny\bfseries] at (8.4,11.85) {Predicted births by age};
 \draw[flow] (model.east) -- (6.5,11.0);
 \draw[ax] (7.0,10.0)--(10.0,10.0);
-\draw[ax] (7.0,10.0)--(7.0,11.5);
-\draw[teal,dashed] plot[domain=7.05:9.95,samples=80,smooth] (\x,{10.35+0.07*sin(3*(\x-7.05)/2.9*360)});
-\draw[purp,dashed] plot[domain=7.05:9.95,samples=80,smooth] (\x,{10.75+0.07*sin(3*(\x-7.05)/2.9*360)});
+\draw[ax] (7.0,10.0)--(7.0,11.6);
+\draw[teal,dashed] plot[domain=7.05:9.95,samples=80,smooth] (\x,{10.45-0.1*(\x-7.05)+0.07*sin(3*(\x-7.05)/2.9*360)});
+\draw[purp,dashed] plot[domain=7.05:9.95,samples=80,smooth] (\x,{10.7+0.12*(\x-7.05)+0.07*sin(3*(\x-7.05)/2.9*360)});
 \node[sub] at (8.5,9.85) {Time};
-\node[sub,rotate=90] at (6.8,10.75) {Births};
-\draw[teal,dashed] (7.2,11.35)--(7.36,11.35);\node[sub,anchor=west] at (7.38,11.35){Age 15};
-\draw[purp,dashed] (8.2,11.35)--(8.36,11.35);\node[sub,anchor=west] at (8.38,11.35){Age 50};
+\node[sub,rotate=90] at (6.8,10.8) {Births};
+\draw[teal,dashed] (7.2,11.45)--(7.36,11.45);\node[sub,anchor=west] at (7.38,11.45){Age 15};
+\draw[purp,dashed] (8.2,11.45)--(8.36,11.45);\node[sub,anchor=west] at (8.38,11.45){Age 50};
 
 % =================================================== PANEL B (top-right)
 \draw[panel] (10.6,8.7) rectangle (16,12.7);
