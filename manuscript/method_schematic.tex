@@ -189,55 +189,57 @@
 % \loff = how far left of the box centre the births plot sits; reduce it to slide the
 % births plot right and shrink the gap between the two plots.
 \def\loff{1.8}
-\node[box,minimum width=7.8cm,minimum height=1.7cm] (mbox) at ([xshift=6.75cm,yshift=0.3cm]ra3) {};
+\node[box,minimum width=7.8cm,minimum height=1.45cm] (mbox) at ([xshift=6.75cm,yshift=0.7cm]ra3) {};
+\node[sub,font=\tiny\bfseries,anchor=north west] at ([shift={(0.08,-0.06)}]mbox.north west) {Municipality \#1};
 % left: births -- sine+trend like panel B1 (obs solid vs exp dashed); means may differ
 \begin{scope}[shift={($(mbox.center)+(-\loff,0)-(9.3,6.0)$)}]
-  \node[sub,font=\tiny\bfseries] at (9.3,6.75) {Births: Municipality \#1};
+  \node[sub,font=\tiny\bfseries] at (9.3,6.4) {Births};
   \draw[ax] (8.0,5.45)--(10.6,5.45);
   \draw[ax] (8.0,5.45)--(8.0,6.4);
   \draw[agg,dashed] plot[domain=8.05:10.55,samples=80,smooth] (\x,{5.78+0.08*(\x-8.05)+0.055*sin(3*(\x-8.05)/2.5*360)});
   \draw[agg]        plot[domain=8.05:10.55,samples=80,smooth] (\x,{5.9-0.1*(\x-8.05)+0.07*sin(3*(\x-8.05)/2.5*360)});
-  \node[sub] at (9.3,5.28){time};
+  \node[sub] at (9.3,5.35){time};
 \end{scope}
 % right: excess / deficit = exactly observed - expected (same two expressions)
 \begin{scope}[shift={($(mbox.center)+(2.15,0)-(13.4,6.0)$)}]
-  \node[sub,font=\tiny\bfseries] at (13.4,6.75) {Excess / deficit --- Municipality \#1};
+  \node[sub,font=\tiny\bfseries] at (13.4,6.4) {Excess / deficit};
   \draw[ax] (12.0,5.4)--(14.6,5.4);
   \draw[ax] (12.0,5.4)--(12.0,6.4);
   \draw[zero] (12.0,5.8)--(14.6,5.8);
   \node[sub,anchor=east] at (11.93,5.8){0};
   \draw[agg] plot[domain=12.05:14.55,samples=100,smooth]
     (\x,{5.8+((5.9-0.1*(\x-12.05)+0.07*sin(3*(\x-12.05)/2.5*360))-(5.78+0.08*(\x-12.05)+0.055*sin(3*(\x-12.05)/2.5*360)))});
-  \node[sub] at (13.4,5.22){time};
+  \node[sub] at (13.4,5.35){time};
 \end{scope}
 % age-specific municipality rows feed the box (coloured by age)
 \draw[->,cA15,line width=1pt] (ra1.east) -- (mbox.west);
 \draw[->,cA50,line width=1pt] (rb1.east) -- (mbox.west);
 
 % vertical dots: municipalities 2 ... 2107 (right-side boxes)
-\node[vd] at ([yshift=-1.05cm]mbox) {$\vdots$};
+\node[vd] at ([yshift=-1.075cm]mbox) {$\vdots$};
 
 % Combined municipality box #2107: births (left) + excess/deficit (right), below #1.
-\node[box,minimum width=7.8cm,minimum height=1.7cm] (mboxb) at ([yshift=-2.1cm]mbox) {};
+\node[box,minimum width=7.8cm,minimum height=1.45cm] (mboxb) at ([yshift=-2.15cm]mbox) {};
+\node[sub,font=\tiny\bfseries,anchor=north west] at ([shift={(0.08,-0.06)}]mboxb.north west) {Municipality \#2107};
 % left: births -- higher observed, about the same expected as #1
 \begin{scope}[shift={($(mboxb.center)+(-\loff,0)-(9.3,6.0)$)}]
-  \node[sub,font=\tiny\bfseries] at (9.3,6.75) {Births: Municipality \#2107};
+  \node[sub,font=\tiny\bfseries] at (9.3,6.4) {Births};
   \draw[ax] (8.0,5.45)--(10.6,5.45);
   \draw[ax] (8.0,5.45)--(8.0,6.4);
   \draw[agg,dashed] plot[domain=8.05:10.55,samples=80,smooth] (\x,{5.78+0.08*(\x-8.05)+0.055*sin(3*(\x-8.05)/2.5*360)});
   \draw[agg]        plot[domain=8.05:10.55,samples=80,smooth] (\x,{6.05-0.06*(\x-8.05)+0.07*sin(3*(\x-8.05)/2.5*360)});
-  \node[sub] at (9.3,5.28){time};
+  \node[sub] at (9.3,5.35){time};
 \end{scope}
 % right: excess / deficit = exactly observed - expected (same two expressions)
 \begin{scope}[shift={($(mboxb.center)+(2.15,0)-(13.4,6.0)$)}]
-  \node[sub,font=\tiny\bfseries] at (13.4,6.75) {Excess / deficit --- Municipality \#2107};
+  \node[sub,font=\tiny\bfseries] at (13.4,6.4) {Excess / deficit};
   \draw[ax] (12.0,5.4)--(14.6,5.4);
   \draw[ax] (12.0,5.4)--(12.0,6.4);
   \draw[zero] (12.0,5.8)--(14.6,5.8);
   \node[sub,anchor=east] at (11.93,5.8){0};
   \draw[agg] plot[domain=12.05:14.55,samples=100,smooth]
     (\x,{5.8+((6.05-0.06*(\x-12.05)+0.07*sin(3*(\x-12.05)/2.5*360))-(5.78+0.08*(\x-12.05)+0.055*sin(3*(\x-12.05)/2.5*360)))});
-  \node[sub] at (13.4,5.22){time};
+  \node[sub] at (13.4,5.35){time};
 \end{scope}
 % Municipality 2107 rows feed the box (coloured by age)
 \draw[->,cA15,line width=1pt] (ra3.east) -- (mboxb.west);
