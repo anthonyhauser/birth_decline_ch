@@ -56,27 +56,27 @@
 % --- three parts: Data (population + births) -> Model (Bayesian box w/ fertility)
 %     -> Outcome (expected) ---
 % section labels, aligned on top of each part
-\node[font=\scriptsize\bfseries,text=tNavy] at (2.3,12.08) {Data};
+\node[font=\scriptsize\bfseries,text=tNavy] at (1.8,12.08) {Data};
 \node[font=\scriptsize\bfseries,text=tNavy] at (5.55,12.08) {Model};
 \node[font=\scriptsize\bfseries,text=tNavy] at (8.9,12.08) {Outcome};
 
 % ---- DATA (left): population over time (Age 15 declining, Age 50 rising) ----
-\node[sub,font=\tiny\bfseries] at (2.3,11.72) {Population};
-\draw[ax] (1.0,10.9)--(3.6,10.9);
-\draw[ax] (1.0,10.9)--(1.0,11.6);
-\draw[a15] (1.05,11.37) .. controls (2.0,11.30) and (2.6,11.27) .. (3.55,11.2);
-\draw[a50] (1.05,11.13) .. controls (2.0,11.21) and (2.6,11.27) .. (3.55,11.37);
-\node[sub] at (2.3,10.75) {Time};
-\node[sub,rotate=90] at (0.7,11.25) {Pop. size};
+\node[sub,font=\tiny\bfseries] at (1.8,11.72) {Population};
+\draw[ax] (0.5,10.9)--(3.1,10.9);
+\draw[ax] (0.5,10.9)--(0.5,11.6);
+\draw[a15] (0.55,11.37) .. controls (1.5,11.30) and (2.1,11.27) .. (3.05,11.2);
+\draw[a50] (0.55,11.13) .. controls (1.5,11.21) and (2.1,11.27) .. (3.05,11.37);
+\node[sub] at (1.8,10.75) {Time};
+\node[sub,rotate=90] at (0.2,11.25) {Pop. size};
 
 % ---- DATA (left): births over time (seasonal sine + trend) ----
-\node[sub,font=\tiny\bfseries] at (2.3,10.28) {Births};
-\draw[ax] (1.0,9.4)--(3.6,9.4);
-\draw[ax] (1.0,9.4)--(1.0,10.1);
-\draw[a15] plot[domain=1.05:3.55,samples=80,smooth] (\x,{9.9-0.08*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.5*360)});
-\draw[a50] plot[domain=1.05:3.55,samples=80,smooth] (\x,{9.6+0.1*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.5*360)});
-\node[sub] at (2.3,9.25) {Time};
-\node[sub,rotate=90] at (0.7,9.75) {Births};
+\node[sub,font=\tiny\bfseries] at (1.8,10.28) {Births};
+\draw[ax] (0.5,9.4)--(3.1,9.4);
+\draw[ax] (0.5,9.4)--(0.5,10.1);
+\draw[a15] plot[domain=0.55:3.05,samples=80,smooth] (\x,{9.9-0.08*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.5*360)});
+\draw[a50] plot[domain=0.55:3.05,samples=80,smooth] (\x,{9.6+0.1*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.5*360)});
+\node[sub] at (1.8,9.25) {Time};
+\node[sub,rotate=90] at (0.2,9.75) {Births};
 
 % ---- MODEL (middle): Bayesian model box with a feature list + fertility plot ----
 \node[box,minimum width=3.1cm,minimum height=2.3cm] (model) at (5.55,10.65) {};
@@ -93,8 +93,8 @@
 \node[sub] at (5.6,9.67) {age};
 
 % DATA -> MODEL
-\draw[flow] (3.7,11.25) -- (model.west);
-\draw[flow] (3.7,9.75)  -- (model.west);
+\draw[flow] (3.2,11.25) -- (model.west);
+\draw[flow] (3.2,9.75)  -- (model.west);
 
 % ---- OUTCOME (right): expected births by age (seasonal sine + trend) ----
 \node[sub,font=\tiny\bfseries] at (8.9,11.72) {Expected births by age};
