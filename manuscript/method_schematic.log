@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 16:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 16:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -512,20 +512,12 @@ LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 (Font)              scaled to size 4.74998pt on input line 48.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 9.49997pt on input line 145.
-LaTeX Font Info:    Font shape `OT1/phv/m/it' in size <5> not available
-(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 195.
-LaTeX Font Info:    Font shape `OT1/phv/m/sl' will be
-(Font)              scaled to size 4.74998pt on input line 195.
-LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 6.64998pt on input line 200.
-LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 6.64998pt on input line 200.
+(Font)              scaled to size 9.49997pt on input line 146.
  [1
 
 
 Non-PDF special ignored!
-<special> papersize=468.14389pt,373.34317pt
+<special> papersize=468.14389pt,342.95155pt
 {C:/Users/an4818/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/TEMP/MiKT
 eX2/fonts/enc/dvips/base/8r.enc}] (method_schematic.aux)
  ***********
@@ -534,19 +526,19 @@ L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14712 strings out of 467871
- 298453 string characters out of 5432322
- 764145 words of memory out of 5000000
- 43329 multiletter control sequences out of 15000+600000
- 640171 words of font info for 57 fonts, out of 8000000 for 9000
+ 14717 strings out of 467871
+ 298638 string characters out of 5432322
+ 779811 words of memory out of 5000000
+ 43337 multiletter control sequences out of 15000+600000
+ 636046 words of font info for 52 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  117i,7n,121p,423b,818s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/TEMP/MiKTeX2/fo
 nts/type1/urw/helvetic/uhvb8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhv
-r8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on method_schematic.pdf (1 page, 55181 bytes).
+r8a.pfb>
+Output written on method_schematic.pdf (1 page, 52075 bytes).
 PDF statistics:
- 30 PDF objects out of 1000 (max. 8388607)
+ 25 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

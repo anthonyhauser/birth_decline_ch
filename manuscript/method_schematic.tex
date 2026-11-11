@@ -129,7 +129,6 @@
 % =================================================== PANEL C (full width, below)
 \draw[panel] (0,1.1) rectangle (16,8.4);
 \node[ptitle,anchor=west] at (0.3,8.15) {C. Municipality-level estimate};
-\node[sub,anchor=west] at (0.3,7.9) {distribute national expected births (per age) to municipalities, then compute local excess/deficit};
 
 % national expected-births-by-age boxes
 % nA is the single absolute anchor for panel C; every other box is placed
@@ -143,7 +142,6 @@
 % ra1's offset is set so the Age-15 stack is vertically centred on nA, and nB (above)
 % is centred on the Age-50 stack.
 \node[row,fill=tTeal!15,draw=tTeal]   (ra1) at ([xshift=3.2cm,yshift=0.53cm]nA) {Age 15, Municipality 1};
-\node[sub] at ([yshift=0.33cm]ra1.north) {$\times$ age-specific population share};
 \node[row,fill=tTeal!8,draw=tTeal!40] (ra2) at ([yshift=-0.45cm]ra1) {Age 15, Municipality 2};
 \node[vd] (vda) at ([yshift=-0.32cm]ra2) {$\vdots$};
 \node[row,fill=tTeal!8,draw=tTeal!40] (ra3) at ([yshift=-0.28cm]vda) {Age 15, Municipality 2107};
@@ -193,14 +191,7 @@
 \end{scope}
 \draw[flow] (births.east) -- (exc.west);
 
-% repeat note
-\node[sub,align=center,text=black!55,font=\tiny\itshape] at ([yshift=-0.65cm]rb3)
-  {$\vdots$ same for each municipality (and district, citizenship, parity)};
 
-% =================================================== BANNER
-\node[draw=pEdge,fill=bFill,rounded corners=3pt,align=center,
-      font=\scriptsize\bfseries,text=tNavy,minimum width=15.6cm,inner sep=5pt] at (8,0.45)
-  {Fertility is estimated once nationally; spatial and subgroup variation comes from applying that common schedule to local population by age\\---\;no spatially-varying fertility model is fitted.};
 
 \end{tikzpicture}
 \end{document}
