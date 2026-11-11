@@ -218,7 +218,7 @@
 \node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdp) at (5.6,7.0) {Population};
 \node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdb) at (7.4,7.0) {Birth};
 % population share feeds the FIRST expected -> municipality (Age 50) arrow (dashed, L-shaped)
-\draw[dashed,draw=black!55,line width=.8pt] (mdp.west) -| ($(nB.east)!0.5!(rb1.west)$);
+\draw[dashed,draw=black!55,line width=.8pt] (mdp.west) -| ($(nA.east)!0.5!(ra1.west)$);
 \node[font=\tiny\itshape,text=black!60,anchor=east,align=right] at (2.6,4.3) {weighted\\by pop.};
 % observed births feed the births plot (dashed, L-shaped) -- into the TOP of the box now
 \draw[->,dashed,draw=black!55,line width=.8pt] (mdb.east) -| ([xshift=-2.15cm]mbox.north);
