@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 16:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 16:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -423,13 +423,13 @@ File: tikzlibrarypositioning.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 Package: helvet 2020/03/25 PSNFSS-v9.3 (WaS) 
 )
 LaTeX Font Info:    Trying to load font information for OT1+phv on input line 2
-0.
+4.
 
 (C:\TEMP\MiKTeX2\tex/latex/psnfss\ot1phv.fd
 File: ot1phv.fd 2020/03/25 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 9.49997pt on input line 20.
+(Font)              scaled to size 9.49997pt on input line 24.
 
 (C:\TEMP\MiKTeX2\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
@@ -438,20 +438,20 @@ File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 (method_schematic.aux)
 \openout1 = `method_schematic.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
  (C:\TEMP\MiKTeX2\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count320
@@ -504,19 +504,19 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 8.54997pt on input line 44.
+(Font)              scaled to size 8.54997pt on input line 53.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 8.54997pt on input line 44.
+(Font)              scaled to size 8.54997pt on input line 53.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 6.64998pt on input line 49.
+(Font)              scaled to size 6.64998pt on input line 58.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 6.64998pt on input line 49.
+(Font)              scaled to size 6.64998pt on input line 58.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 4.74998pt on input line 54.
+(Font)              scaled to size 4.74998pt on input line 63.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 4.74998pt on input line 54.
+(Font)              scaled to size 4.74998pt on input line 63.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 9.49997pt on input line 149.
+(Font)              scaled to size 9.49997pt on input line 153.
  [1
 
 
@@ -530,17 +530,17 @@ L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14724 strings out of 467871
- 298719 string characters out of 5432322
- 780352 words of memory out of 5000000
- 43343 multiletter control sequences out of 15000+600000
+ 14747 strings out of 467871
+ 299070 string characters out of 5432322
+ 779859 words of memory out of 5000000
+ 43366 multiletter control sequences out of 15000+600000
  638285 words of font info for 55 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 117i,7n,121p,423b,818s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 117i,7n,121p,423b,828s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/TEMP/MiKTeX2/fo
 nts/type1/urw/helvetic/uhvb8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhv
 r8a.pfb>
-Output written on method_schematic.pdf (1 page, 52046 bytes).
+Output written on method_schematic.pdf (1 page, 52252 bytes).
 PDF statistics:
  25 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
