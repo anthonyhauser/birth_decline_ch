@@ -109,6 +109,8 @@
 \draw[a50,dashed] (8.9,11.35)--(9.06,11.35);\node[sub,anchor=west] at (9.08,11.35){Age 50};
 
 % =================================================== PANEL B (top-right)
+% shifted +0.5 in x to widen the gap between panels A and B
+\begin{scope}[shift={(0.5,0)}]
 \draw[panel] (10.6,8.7) rectangle (16,12.7);
 \node[ptitle,anchor=west] at (10.9,12.45) {B. National estimate};
 % B1 observed (solid) vs expected (dashed) national births, in black.
@@ -135,6 +137,7 @@
   (\x,{9.7+2.5*((11.4875-0.05*(\x-11.65)+0.14*sin(3*(\x-11.65)/3.5*360))-(11.3125+0.05*(\x-11.65)+0.11*sin(3*(\x-11.65)/3.5*360)))});
 \node[sub] at (13.4,9.0){Time};
 \node[sub,rotate=90] at (11.15,9.7){Excess / deficit};
+\end{scope}
 
 % =================================================== PANEL C (full width, below)
 \draw[panel] (0,1.1) rectangle (16,8.4);
