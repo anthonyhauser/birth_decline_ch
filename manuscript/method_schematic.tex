@@ -20,8 +20,8 @@
   >={Stealth[length=5pt]},
   panel/.style={draw=pEdge,fill=pFill,rounded corners=4pt,line width=.9pt},
   box/.style={draw=pEdge,fill=white,rounded corners=3pt,line width=.7pt},
-  ptitle/.style={font=\bfseries,text=tNavy},
-  sub/.style={font=\scriptsize,text=black!60},
+  ptitle/.style={font=\small\bfseries,text=tNavy},
+  sub/.style={font=\tiny,text=black!60},
   ax/.style={black!45,line width=.5pt},
   teal/.style={draw=tTeal,line width=1pt},
   purp/.style={draw=tPurp,line width=1pt},
@@ -63,7 +63,7 @@
 \node[sub,rotate=90] at (0.78,9.4) {population};
 
 % --- model box ---
-\node[box,align=center,font=\scriptsize,text=black!70] (model) at (5.3,10.8)
+\node[box,align=center,font=\tiny,text=black!70] (model) at (6.1,10.8)
   {negative-binomial\\model};
 \draw[flow] (3.45,11.2) .. controls (4.3,11.1) and (4.5,10.95) .. (model.west);
 \draw[flow] (3.45,9.4)  .. controls (4.3,9.6)  and (4.5,10.5)  .. (model.west);
@@ -112,25 +112,25 @@
 % national expected-births-by-age boxes
 \draw[flow] (11.6,10.6) .. controls (6,10) and (3,8.6) .. (1.9,7.9);
 \node[sub] at (4.7,8.05){expected births by age (from A)};
-\node[box,fill=tTeal!15,draw=tTeal,align=center,font=\scriptsize,text=tTeal!50!black]
+\node[box,fill=tTeal!15,draw=tTeal,align=center,font=\tiny,text=tTeal!50!black]
   (nA) at (1.0,7.55) {Expected births\\Age 15 --- national};
-\node[box,fill=tPurp!18,draw=tPurp,align=center,font=\scriptsize,text=tPurp!50!black]
+\node[box,fill=tPurp!18,draw=tPurp,align=center,font=\tiny,text=tPurp!50!black]
   (nB) at (1.0,6.1) {Expected births\\Age 50 --- national};
 
 % distribution target rows
 \foreach \y/\txt/\fl/\st [count=\i] in {
   7.75/{Age 15 $\rightarrow$ Municipality 1}/tTeal!15/tTeal,
   7.37/{Age 15 $\rightarrow$ Municipality 2}/tTeal!8/tTeal!40}
-  \node[box,fill=\fl,draw=\st,font=\scriptsize,minimum width=3.6cm,inner sep=2pt] (ra\i) at (3.8,\y) {\txt};
+  \node[box,fill=\fl,draw=\st,font=\tiny,minimum width=3.6cm,inner sep=2pt] (ra\i) at (3.8,\y) {\txt};
 \node[font=\bfseries,text=black!55] at (3.8,7.08) {$\vdots$};
-\node[box,fill=tTeal!8,draw=tTeal!40,font=\scriptsize,minimum width=3.6cm,inner sep=2pt] (ra3) at (3.8,6.8) {Age 15 $\rightarrow$ Municipality 2107};
+\node[box,fill=tTeal!8,draw=tTeal!40,font=\tiny,minimum width=3.6cm,inner sep=2pt] (ra3) at (3.8,6.8) {Age 15 $\rightarrow$ Municipality 2107};
 \node[font=\bfseries,text=black!55] at (3.8,6.45) {$\vdots$};
 \foreach \y/\txt/\fl/\st [count=\i] in {
   6.15/{Age 50 $\rightarrow$ Municipality 1}/tPurp!18/tPurp,
   5.77/{Age 50 $\rightarrow$ Municipality 2}/tPurp!9/tPurp!40}
-  \node[box,fill=\fl,draw=\st,font=\scriptsize,minimum width=3.6cm,inner sep=2pt] (rb\i) at (3.8,\y) {\txt};
+  \node[box,fill=\fl,draw=\st,font=\tiny,minimum width=3.6cm,inner sep=2pt] (rb\i) at (3.8,\y) {\txt};
 \node[font=\bfseries,text=black!55] at (3.8,5.48) {$\vdots$};
-\node[box,fill=tPurp!9,draw=tPurp!40,font=\scriptsize,minimum width=3.6cm,inner sep=2pt] (rb3) at (3.8,5.2) {Age 50 $\rightarrow$ Municipality 2107};
+\node[box,fill=tPurp!9,draw=tPurp!40,font=\tiny,minimum width=3.6cm,inner sep=2pt] (rb3) at (3.8,5.2) {Age 50 $\rightarrow$ Municipality 2107};
 
 \node[sub] at (2.3,8.05) {$\times$ age-specific population share};
 
@@ -144,7 +144,7 @@
 
 % Municipality 1: box 1 (ra1) + box 4 (rb1) -> Births box
 \node[box,align=center,minimum width=3.4cm,minimum height=2.0cm] (births) at (7.4,6.9) {};
-\node[sub,font=\scriptsize\bfseries] at (7.4,7.6) {Births: Municipality 1};
+\node[sub,font=\tiny\bfseries] at (7.4,7.6) {Births: Municipality 1};
 \draw[ax] (6.1,6.35)--(8.7,6.35);
 \draw[ax] (6.1,6.35)--(6.1,7.3);
 \draw[exp] (6.15,6.55) .. controls (6.7,6.5) and (6.9,7.1) .. (7.4,7.1)
@@ -158,7 +158,7 @@
 % -> excess/deficit box
 \draw[flow] (births.south) -- (7.4,5.2);
 \node[box,align=center,minimum width=3.6cm,minimum height=2.2cm] (exc) at (7.4,4.0) {};
-\node[sub,font=\scriptsize\bfseries] at (7.4,4.85) {Excess / deficit --- Municipality 1};
+\node[sub,font=\tiny\bfseries] at (7.4,4.85) {Excess / deficit --- Municipality 1};
 \node[sub] at (7.4,4.62){observed $-$ expected};
 \draw[ax] (6.0,3.35)--(8.8,3.35);
 \draw[ax] (6.0,3.35)--(6.0,4.35);
@@ -168,12 +168,12 @@
                       .. controls (8.3,3.55) and (8.6,3.5) .. (8.75,3.5);
 \node[sub] at (7.4,3.18){time};
 
-\node[sub,align=center,text=black!55,font=\scriptsize\itshape] at (3.8,4.4)
+\node[sub,align=center,text=black!55,font=\tiny\itshape] at (3.8,4.4)
   {$\vdots$ same for each municipality\\(and district, citizenship, parity)};
 
 % ======================================================= BANNER
 \node[draw=pEdge,fill=bFill,rounded corners=3pt,align=center,
-      font=\small\bfseries,text=tNavy,minimum width=15.6cm,inner sep=5pt] at (8,0.1)
+      font=\scriptsize\bfseries,text=tNavy,minimum width=15.6cm,inner sep=5pt] at (8,0.1)
   {Fertility is estimated once nationally; spatial and subgroup variation comes from applying that common schedule to local population by age\\---\;no spatially-varying fertility model is fitted.};
 
 \end{tikzpicture}
