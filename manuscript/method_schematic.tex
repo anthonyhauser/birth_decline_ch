@@ -50,33 +50,33 @@
 ]
 
 % =================================================== PANEL A (top-left)
-\draw[panel] (0,8.7) rectangle (10.4,12.7);
+\draw[panel] (1,8.7) rectangle (10.4,12.7);
 \node[ptitle,anchor=west] at (0.3,12.45) {A. Model calibration (national level)};
 
 % --- three parts: Data (population + births) -> Model (Bayesian box w/ fertility)
 %     -> Outcome (expected) ---
 % section labels, aligned on top of each part
-\node[font=\scriptsize\bfseries,text=tNavy] at (1.8,12.08) {Data};
+\node[font=\scriptsize\bfseries,text=tNavy] at (2.2,12.08) {Data};
 \node[font=\scriptsize\bfseries,text=tNavy] at (5.55,12.08) {Model};
 \node[font=\scriptsize\bfseries,text=tNavy] at (8.9,12.08) {Outcome};
 
 % ---- DATA (left): population over time (Age 15 declining, Age 50 rising) ----
-\node[sub,font=\tiny\bfseries] at (1.8,11.72) {Population};
-\draw[ax] (0.5,10.9)--(3.1,10.9);
-\draw[ax] (0.5,10.9)--(0.5,11.6);
-\draw[a15] (0.55,11.37) .. controls (1.5,11.30) and (2.1,11.27) .. (3.05,11.2);
-\draw[a50] (0.55,11.13) .. controls (1.5,11.21) and (2.1,11.27) .. (3.05,11.37);
-\node[sub] at (1.8,10.75) {Time};
-\node[sub,rotate=90] at (0.2,11.25) {Pop. size};
+\node[sub,font=\tiny\bfseries] at (2.2,11.72) {Population};
+\draw[ax] (1.3,10.9)--(3.1,10.9);
+\draw[ax] (1.3,10.9)--(1.3,11.6);
+\draw[a15] (1.35,11.37) .. controls (1.9,11.30) and (2.4,11.27) .. (3.05,11.2);
+\draw[a50] (1.35,11.13) .. controls (1.9,11.21) and (2.4,11.27) .. (3.05,11.37);
+\node[sub] at (2.2,10.75) {Time};
+\node[sub,rotate=90] at (1.15,11.25) {Pop. size};
 
 % ---- DATA (left): births over time (seasonal sine + trend) ----
-\node[sub,font=\tiny\bfseries] at (1.8,10.28) {Births};
-\draw[ax] (0.5,9.4)--(3.1,9.4);
-\draw[ax] (0.5,9.4)--(0.5,10.1);
-\draw[a15] plot[domain=0.55:3.05,samples=80,smooth] (\x,{9.9-0.08*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.5*360)});
-\draw[a50] plot[domain=0.55:3.05,samples=80,smooth] (\x,{9.6+0.1*(\x-1.05)+0.05*sin(3*(\x-1.05)/2.5*360)});
-\node[sub] at (1.8,9.25) {Time};
-\node[sub,rotate=90] at (0.2,9.75) {Births};
+\node[sub,font=\tiny\bfseries] at (2.2,10.28) {Births};
+\draw[ax] (1.3,9.4)--(3.1,9.4);
+\draw[ax] (1.3,9.4)--(1.3,10.1);
+\draw[a15] plot[domain=1.35:3.05,samples=80,smooth] (\x,{9.9-0.08*(\x-1.35)+0.05*sin(3*(\x-1.35)/1.7*360)});
+\draw[a50] plot[domain=1.35:3.05,samples=80,smooth] (\x,{9.6+0.1*(\x-1.35)+0.05*sin(3*(\x-1.35)/1.7*360)});
+\node[sub] at (2.2,9.25) {Time};
+\node[sub,rotate=90] at (1.15,9.75) {Births};
 
 % ---- MODEL (middle): Bayesian model box with a feature list + fertility plot ----
 \node[box,minimum width=3.1cm,minimum height=2.3cm] (model) at (5.55,10.65) {};
@@ -109,8 +109,8 @@
 \draw[a50,dashed] (8.9,11.35)--(9.06,11.35);\node[sub,anchor=west] at (9.08,11.35){Age 50};
 
 % =================================================== PANEL B (top-right)
-% shifted +0.5 in x to widen the gap between panels A and B
-\begin{scope}[shift={(0.5,0)}]
+% shifted +1.5 in x to widen the gap between panels A and B
+\begin{scope}[shift={(1.5,0)}]
 \draw[panel] (10.6,8.7) rectangle (16,12.7);
 \node[ptitle,anchor=west] at (10.9,12.45) {B. National estimate};
 % B1 observed (solid) vs expected (dashed) national births, in black.
@@ -141,23 +141,25 @@
 
 % A (outcome) -> B : national expected births feed the national estimate
 % (horizontal, then vertical at mid-distance, then horizontal)
-\draw[flow,dashed] (10.2,10.35) -- (10.9,10.35) -- (10.9,11.4) -- (11.6,11.4);
+\draw[flow,dashed] (10.2,10.35) -- (11.25,10.35) -- (11.25,11.4) -- (12.6,11.4);
 
 % =================================================== PANEL C (full width, below)
-\draw[panel] (0,1.1) rectangle (16,8.4);
-\node[ptitle,anchor=west] at (0.3,8.15) {C. Municipality-level estimate};
+\draw[panel] (0,0.86) rectangle (16,8.16);
+\node[ptitle,anchor=west] at (0.3,7.91) {C. Municipality-level estimate};
 
 % national expected-births-by-age boxes
 % nA is the single absolute anchor for panel C; every other box is placed
 % relative to a neighbouring box, so the whole grid moves together if nA moves.
 \node[box,fill=cA15!15,draw=cA15,align=center,font=\tiny,text=cA15!60!black]
-  (nA) at (1.4,6.6) {Expected births\\Age 15 --- national};
+  (nA) at (1.4,6.36) {Expected births\\Age 15 --- national};
 \node[box,fill=cA50!15,draw=cA50,align=center,font=\tiny,text=cA50!70!black]
   (nB) at ([yshift=-2.75cm]nA) {Expected births\\Age 50 --- national};
 
 % A (outcome) -> C : national expected births (Age 15) feed the municipality step
 % down from the A->B corner, left across the top of C, down to nA, then into its left edge
-\draw[flow,dashed] (10.9,10.35) -- (10.9,8.5) -- (0.1,8.5) -- (0.1,6.6) -- (nA.west);
+\draw[flow,dashed] (11.25,10.35) -- (11.25,8.43) -- (0.1,8.43) -- (0.1,6.36) -- (nA.west);
+% continue the trunk down to the middle of the Age 50 national box
+\draw[dashed,draw=black!55,line width=1pt] (0.1,6.36) -- (0.1,6.36 -| nB);
 
 % municipality rows (Age 15 stack, then Age 50 stack), to the right of the national boxes.
 % ra1's offset is set so the Age-15 stack is vertically centred on nA, and nB (above)
@@ -209,15 +211,15 @@
 \draw[->,cA50,line width=1pt] (rb1.east) -- (mbox.west);
 
 % municipality-level data feeding the local step (centre-bottom)
-\node[font=\scriptsize\bfseries,text=tNavy] at (6.5,2.5) {Municipality-level data};
-\node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdp) at (5.6,1.9) {Population};
-\node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdb) at (7.4,1.9) {Birth};
+\node[font=\scriptsize\bfseries,text=tNavy] at (6.5,2.26) {Municipality-level data};
+\node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdp) at (5.6,1.66) {Population};
+\node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdb) at (7.4,1.66) {Birth};
 % population share feeds the expected -> municipality distribution (dashed, L-shaped)
 \draw[dashed,draw=black!55,line width=.8pt] (mdp.west) -| ($(nB.east)!0.5!(rb3.west)$);
-\node[font=\tiny\itshape,text=black!60,anchor=east,align=right] at (2.6,2.65) {weighted\\by pop.};
+\node[font=\tiny\itshape,text=black!60,anchor=east,align=right] at (2.6,2.41) {weighted\\by pop.};
 % observed births feed the births plot (dashed, L-shaped)
 \draw[->,dashed,draw=black!55,line width=.8pt] (mdb.east) -| ([xshift=-2.15cm]mbox.south);
-\node[font=\tiny\itshape,text=black!60,anchor=west] at (9.35,2.95) {observed births};
+\node[font=\tiny\itshape,text=black!60,anchor=west] at (9.35,2.71) {observed births};
 
 \end{tikzpicture}
 \end{document}
