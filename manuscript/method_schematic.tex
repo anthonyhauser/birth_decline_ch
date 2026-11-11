@@ -192,9 +192,9 @@
                           .. controls (14.3,5.6) and (14.6,5.55) .. (14.85,5.54);
   \node[sub] at (13.4,5.22){time};
 \end{scope}
-% age-specific municipality rows feed the box
-\draw[flow] (ra1.east) -- (mbox.west);
-\draw[flow] (rb1.east) -- (mbox.west);
+% age-specific municipality rows feed the box (coloured by age)
+\draw[->,cA15,line width=1pt] (ra1.east) -- (mbox.west);
+\draw[->,cA50,line width=1pt] (rb1.east) -- (mbox.west);
 
 % municipality-level data feeding the local step (centre-bottom)
 \node[font=\scriptsize\bfseries,text=tNavy] at (6.5,2.5) {Municipality-level data};
