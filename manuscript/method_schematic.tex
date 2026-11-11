@@ -155,6 +155,10 @@
 \node[box,fill=cA50!15,draw=cA50,align=center,font=\tiny,text=cA50!70!black]
   (nB) at ([yshift=-2.75cm]nA) {Expected births\\Age 50 --- national};
 
+% A (outcome) -> C : national expected births (Age 15) feed the municipality step
+% down from the A->B corner, left across the top of C, down to nA, then into its left edge
+\draw[flow,dashed] (10.9,10.35) -- (10.9,8.35) -- (0.1,8.35) -- (0.1,6.6) -- (nA.west);
+
 % municipality rows (Age 15 stack, then Age 50 stack), to the right of the national boxes.
 % ra1's offset is set so the Age-15 stack is vertically centred on nA, and nB (above)
 % is centred on the Age-50 stack.
