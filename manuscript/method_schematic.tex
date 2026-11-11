@@ -148,7 +148,7 @@
 \draw[flow,dashed] (10.7,10.35) -- (11.5,10.35) -- (11.5,11.4) -- (12.3,11.4);
 
 % =================================================== PANEL C (full width, below)
-\draw[panel] (0,0.86) rectangle (15.8,8.16);
+\draw[panel] (0,1.6) rectangle (15.8,8.16);
 \node[ptitle,anchor=west] at (0.3,7.91) {C. Municipality-level estimate};
 
 % national expected-births-by-age boxes
@@ -196,6 +196,7 @@
   \node[sub,font=\tiny\bfseries] at (9.3,6.4) {Births};
   \draw[ax] (8.0,5.45)--(10.6,5.45);
   \draw[ax] (8.0,5.45)--(8.0,6.4);
+  \node[sub,rotate=90] at (7.7,5.9) {Births};
   \draw[agg,dashed] plot[domain=8.05:10.55,samples=80,smooth] (\x,{5.78+0.08*(\x-8.05)+0.055*sin(3*(\x-8.05)/2.5*360)});
   \draw[agg]        plot[domain=8.05:10.55,samples=80,smooth] (\x,{5.9-0.1*(\x-8.05)+0.07*sin(3*(\x-8.05)/2.5*360)});
   \node[sub] at (9.3,5.35){time};
@@ -207,6 +208,7 @@
   \draw[ax] (12.0,5.4)--(12.0,6.4);
   \draw[zero] (12.0,5.8)--(14.6,5.8);
   \node[sub,anchor=east] at (11.93,5.8){0};
+  \node[sub,rotate=90] at (11.6,5.9) {Excess / deficit};
   \draw[agg] plot[domain=12.05:14.55,samples=100,smooth]
     (\x,{5.8+((5.9-0.1*(\x-12.05)+0.07*sin(3*(\x-12.05)/2.5*360))-(5.78+0.08*(\x-12.05)+0.055*sin(3*(\x-12.05)/2.5*360)))});
   \node[sub] at (13.4,5.35){time};
@@ -216,16 +218,17 @@
 \draw[->,cA50,line width=1pt] (rb1.east) -- (mbox.west);
 
 % vertical dots: municipalities 2 ... 2107 (right-side boxes)
-\node[vd] at ([yshift=-1.075cm]mbox) {$\vdots$};
+\node[vd] at ([yshift=-1.25cm]mbox) {$\vdots$};
 
 % Combined municipality box #2107: births (left) + excess/deficit (right), below #1.
-\node[box,minimum width=7.8cm,minimum height=1.45cm] (mboxb) at ([yshift=-2.15cm]mbox) {};
+\node[box,minimum width=7.8cm,minimum height=1.45cm] (mboxb) at ([yshift=-2.5cm]mbox) {};
 \node[sub,font=\tiny\bfseries,anchor=north west] at ([shift={(0.08,-0.0)}]mboxb.north west) {Municipality \#2107};
 % left: births -- higher observed, about the same expected as #1
 \begin{scope}[shift={($(mboxb.center)+(-\loff,0)-(9.3,6.0)$)}]
   \node[sub,font=\tiny\bfseries] at (9.3,6.4) {Births};
   \draw[ax] (8.0,5.45)--(10.6,5.45);
   \draw[ax] (8.0,5.45)--(8.0,6.4);
+  \node[sub,rotate=90] at (7.7,5.9) {Births};
   \draw[agg,dashed] plot[domain=8.05:10.55,samples=80,smooth] (\x,{5.78+0.08*(\x-8.05)+0.055*sin(3*(\x-8.05)/2.5*360)});
   \draw[agg]        plot[domain=8.05:10.55,samples=80,smooth] (\x,{6.05-0.06*(\x-8.05)+0.07*sin(3*(\x-8.05)/2.5*360)});
   \node[sub] at (9.3,5.35){time};
@@ -237,6 +240,7 @@
   \draw[ax] (12.0,5.4)--(12.0,6.4);
   \draw[zero] (12.0,5.8)--(14.6,5.8);
   \node[sub,anchor=east] at (11.93,5.8){0};
+  \node[sub,rotate=90] at (11.6,5.9) {Excess / deficit};
   \draw[agg] plot[domain=12.05:14.55,samples=100,smooth]
     (\x,{5.8+((6.05-0.06*(\x-12.05)+0.07*sin(3*(\x-12.05)/2.5*360))-(5.78+0.08*(\x-12.05)+0.055*sin(3*(\x-12.05)/2.5*360)))});
   \node[sub] at (13.4,5.35){time};
