@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 17:31
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 17:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -516,16 +516,16 @@ LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 (Font)              scaled to size 4.74998pt on input line 64.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 9.49997pt on input line 156.
+(Font)              scaled to size 9.49997pt on input line 163.
 LaTeX Font Info:    Font shape `OT1/phv/m/it' in size <5> not available
-(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 206.
+(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 213.
 LaTeX Font Info:    Font shape `OT1/phv/m/sl' will be
-(Font)              scaled to size 4.74998pt on input line 206.
+(Font)              scaled to size 4.74998pt on input line 213.
  [1
 
 
 Non-PDF special ignored!
-<special> papersize=377.0965pt,342.95155pt
+<special> papersize=388.47763pt,342.95155pt
 {C:/Users/an4818/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/TEMP/MiKT
 eX2/fonts/enc/dvips/base/8r.enc}] (method_schematic.aux)
  ***********
@@ -536,15 +536,15 @@ L3 programming layer <2025-12-24>
 Here is how much of TeX's memory you used:
  14839 strings out of 467871
  300976 string characters out of 5432322
- 791224 words of memory out of 5000000
+ 791486 words of memory out of 5000000
  43456 multiletter control sequences out of 15000+600000
  640171 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 117i,7n,121p,423b,842s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 117i,7n,121p,423b,844s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/TEMP/MiKTeX2/fo
 nts/type1/urw/helvetic/uhvb8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhv
 r8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on method_schematic.pdf (1 page, 62269 bytes).
+Output written on method_schematic.pdf (1 page, 62320 bytes).
 PDF statistics:
  30 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
