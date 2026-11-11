@@ -5,6 +5,9 @@
 \usepackage{amsmath}
 \usetikzlibrary{arrows.meta,calc}
 
+\usepackage[scaled]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
 \definecolor{tTeal}{HTML}{1B9E77}
 \definecolor{tPurp}{HTML}{7570B3}
 \definecolor{tBlue}{HTML}{2C7FB8}
@@ -36,34 +39,34 @@
 
 % =================================================== PANEL A (top-left)
 \draw[panel] (0,8.7) rectangle (10.4,12.7);
-\node[ptitle,anchor=west] at (0.3,12.45) {A $\cdot$ Model calibration (national level)};
+\node[ptitle,anchor=west] at (0.3,12.45) {A. Model calibration (national level)};
 
 % A1 fertility by age
-\node[sub] at (2.0,12.2) {fertility by age};
+\node[sub,font=\tiny\bfseries] at (2.0,12.2) {Fertility function};
 \draw[ax] (1.0,10.6)--(3.3,10.6);
 \draw[ax] (1.0,10.6)--(1.0,12.05);
 \draw[blue] (1.05,10.65) .. controls (1.45,10.7) and (1.7,11.95) .. (1.95,11.95)
                          .. controls (2.2,11.95) and (2.45,10.7) .. (3.25,10.65);
 \draw[orng] (1.3,10.65)  .. controls (1.7,10.7) and (1.95,11.95) .. (2.2,11.95)
                          .. controls (2.45,11.95) and (2.7,10.7) .. (3.3,10.65);
-\node[sub] at (2.1,10.42) {age};
-\node[sub,rotate=90] at (0.8,11.3) {fertility};
+\node[sub] at (2.1,10.42) {Age};
+\node[sub,rotate=90] at (0.8,11.3) {Fertility};
 \draw[blue] (2.55,11.95)--(2.72,11.95); \node[sub,anchor=west] at (2.74,11.95){2000};
 \draw[orng] (2.55,11.78)--(2.72,11.78); \node[sub,anchor=west] at (2.74,11.78){2025};
 
 % A2 population over time (two ages)
-\node[sub] at (2.0,10.3) {population over time (two ages)};
+\node[sub,font=\tiny\bfseries] at (2.0,10.3) {Population data};
 \draw[ax] (1.0,9.1)--(3.3,9.1);
 \draw[ax] (1.0,9.1)--(1.0,10.1);
 \draw[teal] (1.05,9.6) .. controls (2.0,9.68) .. (3.25,9.72);
 \draw[purp] (1.05,9.4) .. controls (2.0,9.46) .. (3.25,9.5);
 \draw[teal] (2.55,10.05)--(2.72,10.05);\node[sub,anchor=west] at (2.74,10.05){Age 15};
 \draw[purp] (2.55,9.88)--(2.72,9.88); \node[sub,anchor=west] at (2.74,9.88){Age 50};
-\node[sub] at (2.1,8.95) {time};
-\node[sub,rotate=90] at (0.8,9.6) {population};
+\node[sub] at (2.1,8.95) {Time};
+\node[sub,rotate=90] at (0.8,9.6) {Pop. size};
 
 % model box
-\node[box,align=center,font=\tiny,text=black!70] (model) at (5.0,11.0) {negative-binomial\\model};
+\node[box,align=center,font=\tiny,text=black!70] (model) at (5.0,11.0) {Neg-Bin\\model};
 \draw[flow] (3.35,11.3) .. controls (4.2,11.2) and (4.3,11.05) .. (model.west);
 \draw[flow] (3.35,9.6)  .. controls (4.2,9.8)  and (4.3,10.6)  .. (model.west);
 
@@ -87,7 +90,7 @@
 
 % =================================================== PANEL B (top-right)
 \draw[panel] (10.6,8.7) rectangle (16,12.7);
-\node[ptitle,anchor=west] at (10.9,12.45) {B $\cdot$ National estimate};
+\node[ptitle,anchor=west] at (10.9,12.45) {B. National estimate};
 \node[sub,anchor=west] at (10.9,12.2) {age-aggregated excess / deficit of births};
 \draw[ax] (11.6,10.4)--(15.2,10.4);
 \draw[ax] (11.6,10.4)--(11.6,12.0);
@@ -103,7 +106,7 @@
 
 % =================================================== PANEL C (full width, below)
 \draw[panel] (0,1.1) rectangle (16,8.4);
-\node[ptitle,anchor=west] at (0.3,8.15) {C $\cdot$ Municipality-level estimate};
+\node[ptitle,anchor=west] at (0.3,8.15) {C. Municipality-level estimate};
 \node[sub,anchor=west] at (0.3,7.9) {distribute national expected births (per age) to municipalities, then compute local excess/deficit};
 
 % national expected-births-by-age boxes
