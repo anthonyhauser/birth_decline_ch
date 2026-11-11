@@ -23,6 +23,7 @@
 
 \begin{document}
 \begin{tikzpicture}[
+  scale=0.8,
   font=\sffamily,
   >={Stealth[length=5pt]},
   panel/.style={draw=pEdge,fill=pFill,rounded corners=4pt,line width=.9pt},
@@ -78,7 +79,7 @@
 \node[sub,rotate=90] at (0.7,9.75) {Births};
 
 % ---- MODEL (middle): Bayesian model box with a feature list + fertility plot ----
-\node[box,minimum width=2.7cm,minimum height=2.3cm] (model) at (5.55,10.65) {};
+\node[box,minimum width=3.1cm,minimum height=2.3cm] (model) at (5.55,10.65) {};
 \node[sub,font=\tiny,text=black!75] at (5.55,11.6) {Bayesian model};
 \node[sub,anchor=west] at (4.35,11.37) {$\bullet$~Seasonality};
 \node[sub,anchor=west] at (4.35,11.17) {$\bullet$~Cross-year correlation};
