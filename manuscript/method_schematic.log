@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 13:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 13:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -419,7 +419,7 @@ File: tikzlibrarycalc.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count319
 )
-No file method_schematic.aux.
+(method_schematic.aux)
 \openout1 = `method_schematic.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
@@ -436,7 +436,7 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
-(C:\TEMP\MiKTeX2\tex/context/base/mkii\supp-pdf.mkii
+ (C:\TEMP\MiKTeX2\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count320
 \scratchdimen=\dimen270
@@ -490,7 +490,7 @@ File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 
 
 Non-PDF special ignored!
-<special> papersize=675.84995pt,386.42409pt
+<special> papersize=579.0487pt,383.53519pt
 {C:/Users/an4818/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
 (method_schematic.aux)
  ***********
@@ -499,22 +499,22 @@ L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14200 strings out of 467871
- 287771 string characters out of 5432322
- 714917 words of memory out of 5000000
- 42833 multiletter control sequences out of 15000+600000
- 630054 words of font info for 48 fonts, out of 8000000 for 9000
+ 14214 strings out of 467871
+ 287940 string characters out of 5432322
+ 714773 words of memory out of 5000000
+ 42838 multiletter control sequences out of 15000+600000
+ 632339 words of font info for 56 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  117i,7n,121p,423b,907s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/TEMP/MiKTeX2/f
-onts/type1/public/amsfonts/cm/cmbx7.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
-fonts/cm/cmbx9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:
-/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/TEMP/MiKTeX2/fonts/
-type1/public/amsfonts/cm/cmsy7.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts
-/cm/cmti7.pfb>
-Output written on method_schematic.pdf (1 page, 95482 bytes).
+onts/type1/public/amsfonts/cm/cmbx5.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/ams
+fonts/cm/cmbx7.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmbx9.pfb><C
+:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/TEMP/MiKTeX2/fonts/t
+ype1/public/amsfonts/cm/cmsy5.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/
+cm/cmsy9.pfb><C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmti7.pfb>
+Output written on method_schematic.pdf (1 page, 103161 bytes).
 PDF statistics:
- 44 PDF objects out of 1000 (max. 8388607)
+ 49 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
