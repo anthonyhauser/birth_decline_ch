@@ -101,27 +101,30 @@
 % =================================================== PANEL B (top-right)
 \draw[panel] (10.6,8.7) rectangle (16,12.7);
 \node[ptitle,anchor=west] at (10.9,12.45) {B. National estimate};
-% B1 observed (solid) vs expected (dashed) national births, in black
+% B1 observed (solid) vs expected (dashed) national births, in black.
+% Both carry the same seasonal sine; observed trends down and expected trends
+% up (expected rises a bit more) about the same mean -> excess early, deficit late.
 \node[sub,font=\tiny\bfseries] at (13.3,12.15) {Observed vs expected births};
-\draw[ax] (11.6,11.25)--(15.2,11.25);
-\draw[ax] (11.6,11.25)--(11.6,11.95);
-\draw[exp] (11.65,11.8) .. controls (13.4,11.72) .. (15.15,11.66);
-\draw[obs] plot[domain=11.65:15.15,samples=120,smooth] (\x,{11.76-0.097*(\x-11.65)+0.05*sin(3*(\x-11.65)/3.5*360)});
-\node[sub] at (13.4,11.1){Time};
-\node[sub,rotate=90] at (11.4,11.6){Births};
-\draw[obs] (11.72,11.9)--(11.87,11.9);\node[sub,anchor=west] at (11.89,11.9){obs.};
-\draw[exp] (12.5,11.9)--(12.65,11.9);\node[sub,anchor=west] at (12.67,11.9){exp.};
+\draw[ax] (11.6,10.85)--(15.2,10.85);
+\draw[ax] (11.6,10.85)--(11.6,11.95);
+\draw[obs] plot[domain=11.65:15.15,samples=120,smooth] (\x,{11.4875-0.05*(\x-11.65)+0.14*sin(3*(\x-11.65)/3.5*360)});
+\draw[exp] plot[domain=11.65:15.15,samples=120,smooth] (\x,{11.3125+0.05*(\x-11.65)+0.11*sin(3*(\x-11.65)/3.5*360)});
+\node[sub] at (13.4,10.7){Time};
+\node[sub,rotate=90] at (11.2,11.4){Births};
+\draw[obs] (11.72,11.88)--(11.87,11.88);\node[sub,anchor=west] at (11.89,11.88){obs.};
+\draw[exp] (12.5,11.88)--(12.65,11.88);\node[sub,anchor=west] at (12.67,11.88){exp.};
 
-% B2 age-aggregated excess / deficit of births
-\node[sub,font=\tiny\bfseries] at (13.3,10.75) {Excess / deficit of births};
-\draw[ax] (11.6,9.1)--(15.2,9.1);
-\draw[ax] (11.6,9.1)--(11.6,10.35);
-\draw[zero] (11.6,9.75)--(15.2,9.75);
-\node[sub,anchor=east] at (11.53,9.75){0};
-\draw[obs] (11.65,10.05) .. controls (12.6,10.2) and (13.3,10.15) .. (13.8,9.75)
-                         .. controls (14.3,9.35) and (14.8,9.3) .. (15.15,9.28);
-\node[sub] at (13.4,8.95){Time};
-\node[sub,rotate=90] at (11.4,9.72){Excess / deficit};
+% B2 excess / deficit of births, defined exactly as observed - expected (the same
+% two expressions as B1), scaled x2.5 about the zero line for visibility.
+\node[sub,font=\tiny\bfseries] at (13.3,10.45) {Excess / deficit of births};
+\draw[ax] (11.6,9.15)--(15.2,9.15);
+\draw[ax] (11.6,9.15)--(11.6,10.25);
+\draw[zero] (11.6,9.7)--(15.2,9.7);
+\node[sub,anchor=east] at (11.5,9.7){0};
+\draw[obs] plot[domain=11.65:15.15,samples=120,smooth]
+  (\x,{9.7+2.5*((11.4875-0.05*(\x-11.65)+0.14*sin(3*(\x-11.65)/3.5*360))-(11.3125+0.05*(\x-11.65)+0.11*sin(3*(\x-11.65)/3.5*360)))});
+\node[sub] at (13.4,9.0){Time};
+\node[sub,rotate=90] at (11.15,9.7){Excess / deficit};
 
 % =================================================== PANEL C (full width, below)
 \draw[panel] (0,1.1) rectangle (16,8.4);
