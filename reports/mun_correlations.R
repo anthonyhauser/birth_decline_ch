@@ -119,7 +119,7 @@ compute_correlations <- function(data = d, min_pop = 0){
 }
 
 ## threshold(s) to use (edit as you like); set to 0 to keep all municipalities
-min_pop <- 200
+min_pop <- 1000
 
 res <- compute_correlations(d, min_pop = min_pop)
 cat("\n== Correlations (min_pop = ", min_pop, ", municipalities kept = ",
@@ -127,7 +127,7 @@ cat("\n== Correlations (min_pop = ", min_pop, ", municipalities kept = ",
 print(res, row.names = FALSE)
 
 ## compare several thresholds in one table (optional)
-if (FALSE) {
+if (FALSE) {é.
   do.call(rbind, lapply(c(0, 100, 200, 500, 1000), function(m)
     compute_correlations(d, min_pop = m))) %>%
     tidyr::pivot_wider(id_cols = variable, names_from = min_pop,
