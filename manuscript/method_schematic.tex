@@ -43,65 +43,85 @@
 \draw[panel] (0,8.7) rectangle (10.4,12.7);
 \node[ptitle,anchor=west] at (0.3,12.45) {A. Model calibration (national level)};
 
+% --- left column: three model inputs, each feeding the model ---
 % A1 fertility by age
-\node[sub,font=\tiny\bfseries] at (2.0,12.2) {Fertility function};
-\draw[ax] (1.0,10.6)--(3.3,10.6);
-\draw[ax] (1.0,10.6)--(1.0,12.05);
-\draw[blue] (1.05,10.65) .. controls (1.45,10.7) and (1.7,11.95) .. (1.95,11.95)
-                         .. controls (2.2,11.95) and (2.45,10.7) .. (3.25,10.65);
-\draw[orng] (1.3,10.65)  .. controls (1.7,10.7) and (1.95,11.95) .. (2.2,11.95)
-                         .. controls (2.45,11.95) and (2.7,10.7) .. (3.3,10.65);
-\node[sub] at (2.1,10.42) {Age};
-\node[sub,rotate=90] at (0.8,11.3) {Fertility};
-\draw[blue] (2.55,11.95)--(2.72,11.95); \node[sub,anchor=west] at (2.74,11.95){2000};
-\draw[orng] (2.55,11.78)--(2.72,11.78); \node[sub,anchor=west] at (2.74,11.78){2025};
+\node[sub,font=\tiny\bfseries] at (2.0,12.22) {Fertility function};
+\draw[ax] (1.0,11.55)--(3.3,11.55);
+\draw[ax] (1.0,11.55)--(1.0,12.08);
+\draw[blue] (1.05,11.6) .. controls (1.45,11.62) and (1.7,12.0) .. (1.95,12.0)
+                        .. controls (2.2,12.0) and (2.45,11.62) .. (3.25,11.6);
+\draw[orng] (1.3,11.6)  .. controls (1.7,11.62) and (1.95,12.0) .. (2.2,12.0)
+                        .. controls (2.45,12.0) and (2.7,11.62) .. (3.3,11.6);
+\node[sub] at (2.1,11.4) {Age};
+\node[sub,rotate=90] at (0.8,11.82) {Fertility};
+\draw[blue] (2.5,12.05)--(2.63,12.05); \node[sub,anchor=west] at (2.65,12.05){2000};
+\draw[orng] (2.5,11.95)--(2.63,11.95); \node[sub,anchor=west] at (2.65,11.95){2025};
 
 % A2 population over time (two ages)
-\node[sub,font=\tiny\bfseries] at (2.0,10.3) {Population data};
-\draw[ax] (1.0,9.1)--(3.3,9.1);
-\draw[ax] (1.0,9.1)--(1.0,10.1);
-\draw[teal] (1.05,9.6) .. controls (2.0,9.68) .. (3.25,9.72);
-\draw[purp] (1.05,9.4) .. controls (2.0,9.46) .. (3.25,9.5);
-\draw[teal] (2.55,10.05)--(2.72,10.05);\node[sub,anchor=west] at (2.74,10.05){Age 15};
-\draw[purp] (2.55,9.88)--(2.72,9.88); \node[sub,anchor=west] at (2.74,9.88){Age 50};
-\node[sub] at (2.1,8.95) {Time};
-\node[sub,rotate=90] at (0.8,9.6) {Pop. size};
+\node[sub,font=\tiny\bfseries] at (2.0,11.13) {Population data};
+\draw[ax] (1.0,10.4)--(3.3,10.4);
+\draw[ax] (1.0,10.4)--(1.0,10.95);
+\draw[teal] (1.05,10.6)  .. controls (2.0,10.66) .. (3.25,10.7);
+\draw[purp] (1.05,10.48) .. controls (2.0,10.53) .. (3.25,10.56);
+\node[sub] at (2.1,10.25) {Time};
+\node[sub,rotate=90] at (0.8,10.67) {Pop. size};
+\draw[teal] (2.5,10.93)--(2.63,10.93);\node[sub,anchor=west] at (2.65,10.93){Age 15};
+\draw[purp] (2.5,10.83)--(2.63,10.83);\node[sub,anchor=west] at (2.65,10.83){Age 50};
 
-% model box
+% A3 birth data over time (two ages, slight seasonal variation: 3 seasons = 3 up/down)
+\node[sub,font=\tiny\bfseries] at (2.0,9.97) {Birth data};
+\draw[ax] (1.0,9.25)--(3.3,9.25);
+\draw[ax] (1.0,9.25)--(1.0,9.8);
+\draw[teal] (1.05,9.55)--(1.23,9.61)--(1.42,9.55)--(1.60,9.49)--(1.78,9.55)--(1.97,9.61)--(2.15,9.55)--(2.33,9.49)--(2.52,9.55)--(2.70,9.61)--(2.88,9.55)--(3.07,9.49)--(3.25,9.55);
+\draw[purp] (1.05,9.42)--(1.23,9.48)--(1.42,9.42)--(1.60,9.36)--(1.78,9.42)--(1.97,9.48)--(2.15,9.42)--(2.33,9.36)--(2.52,9.42)--(2.70,9.48)--(2.88,9.42)--(3.07,9.36)--(3.25,9.42);
+\node[sub] at (2.1,9.1) {Time};
+\node[sub,rotate=90] at (0.8,9.52) {Births};
+\draw[teal] (2.5,9.78)--(2.63,9.78);\node[sub,anchor=west] at (2.65,9.78){Age 15};
+\draw[purp] (2.5,9.68)--(2.63,9.68);\node[sub,anchor=west] at (2.65,9.68){Age 50};
+
+% model box (three inputs -> one output)
 \node[box,align=center,font=\tiny,text=black!70] (model) at (5.0,11.0) {Neg-Bin\\model};
-\draw[flow] (3.35,11.3) -- (model.west);
-\draw[flow] (3.35,9.6)  -- (model.west);
+\draw[flow] (3.4,11.8)  -- (model.west);
+\draw[flow] (3.4,10.68) -- (model.west);
+\draw[flow] (3.4,9.5)   -- (model.west);
 
-% A3 births over time (two ages, obs centred on exp)
-\node[sub] at (7.8,12.2) {births over time (two ages)};
-\draw[flow] (model.east) -- (6.2,11.0);
-\draw[ax] (6.3,10.0)--(9.3,10.0);
-\draw[ax] (6.3,10.0)--(6.3,11.7);
-\draw[teal,dashed] (6.35,10.95) .. controls (7.5,10.97) .. (9.25,10.98);
-\draw[teal]        (6.35,10.88) .. controls (7.0,11.08) and (7.6,10.9).. (8.0,10.96)
-                                .. controls (8.6,11.04) and (9.0,10.9)..(9.25,10.95);
-\draw[purp,dashed] (6.35,11.4)  .. controls (7.5,11.42) .. (9.25,11.43);
-\draw[purp]        (6.35,11.33) .. controls (7.0,11.5) and (7.6,11.35)..(8.0,11.4)
-                                .. controls (8.6,11.48) and (9.0,11.34)..(9.25,11.4);
-\node[sub] at (7.8,9.85) {time};
-\node[sub,rotate=90] at (6.1,10.85) {births};
-\draw[teal] (6.5,11.62)--(6.66,11.62);\node[sub,anchor=west] at (6.68,11.62){Age 15};
-\draw[purp] (7.5,11.62)--(7.66,11.62);\node[sub,anchor=west] at (7.68,11.62){Age 50};
-\draw[obs] (6.5,11.45)--(6.66,11.45);\node[sub,anchor=west] at (6.68,11.45){obs.};
-\draw[exp] (7.3,11.45)--(7.46,11.45);\node[sub,anchor=west] at (7.48,11.45){exp.};
+% A4 predicted (expected only) births by age over time, with seasonal variation,
+% shifted right (space for the incoming arrow) and lowered towards the x-axis.
+\node[sub,font=\tiny\bfseries] at (8.4,12.26) {Predicted births by age};
+\draw[flow] (model.east) -- (6.5,11.0);
+\draw[ax] (7.0,10.0)--(10.0,10.0);
+\draw[ax] (7.0,10.0)--(7.0,11.5);
+\draw[teal,dashed] (7.05,10.35)--(7.29,10.42)--(7.53,10.35)--(7.77,10.28)--(8.01,10.35)--(8.26,10.42)--(8.50,10.35)--(8.74,10.28)--(8.98,10.35)--(9.22,10.42)--(9.46,10.35)--(9.71,10.28)--(9.95,10.35);
+\draw[purp,dashed] (7.05,10.75)--(7.29,10.82)--(7.53,10.75)--(7.77,10.68)--(8.01,10.75)--(8.26,10.82)--(8.50,10.75)--(8.74,10.68)--(8.98,10.75)--(9.22,10.82)--(9.46,10.75)--(9.71,10.68)--(9.95,10.75);
+\node[sub] at (8.5,9.85) {Time};
+\node[sub,rotate=90] at (6.8,10.75) {Births};
+\draw[teal,dashed] (7.2,11.35)--(7.36,11.35);\node[sub,anchor=west] at (7.38,11.35){Age 15};
+\draw[purp,dashed] (8.2,11.35)--(8.36,11.35);\node[sub,anchor=west] at (8.38,11.35){Age 50};
 
 % =================================================== PANEL B (top-right)
 \draw[panel] (10.6,8.7) rectangle (16,12.7);
 \node[ptitle,anchor=west] at (10.9,12.45) {B. National estimate};
-\node[sub,anchor=west] at (10.9,12.2) {age-aggregated excess / deficit of births};
-\draw[ax] (11.6,10.4)--(15.2,10.4);
-\draw[ax] (11.6,10.4)--(11.6,12.0);
-\draw[zero] (11.6,11.1)--(15.2,11.1);
-\node[sub,anchor=east] at (11.53,11.1){0};
-\draw[obs] (11.65,11.35) .. controls (12.6,11.5) and (13.3,11.45) .. (13.8,11.1)
-                         .. controls (14.3,10.75) and (14.8,10.7) .. (15.15,10.68);
-\node[sub] at (13.4,10.2){time};
-\node[sub,rotate=90] at (11.4,11.1){excess / deficit};
+% B1 observed (solid) vs expected (dashed) national births, in black
+\node[sub,font=\tiny\bfseries] at (13.3,12.15) {Observed vs expected births};
+\draw[ax] (11.6,11.25)--(15.2,11.25);
+\draw[ax] (11.6,11.25)--(11.6,11.95);
+\draw[exp] (11.65,11.8) .. controls (13.4,11.72) .. (15.15,11.66);
+\draw[obs] (11.65,11.76)--(11.94,11.78)--(12.24,11.70)--(12.53,11.62)--(12.82,11.65)--(13.11,11.67)--(13.40,11.59)--(13.69,11.51)--(13.98,11.53)--(14.28,11.55)--(14.57,11.48)--(14.86,11.40)--(15.15,11.42);
+\node[sub] at (13.4,11.1){Time};
+\node[sub,rotate=90] at (11.4,11.6){Births};
+\draw[obs] (11.72,11.9)--(11.87,11.9);\node[sub,anchor=west] at (11.89,11.9){obs.};
+\draw[exp] (12.5,11.9)--(12.65,11.9);\node[sub,anchor=west] at (12.67,11.9){exp.};
+
+% B2 age-aggregated excess / deficit of births
+\node[sub,font=\tiny\bfseries] at (13.3,10.75) {Excess / deficit of births};
+\draw[ax] (11.6,9.1)--(15.2,9.1);
+\draw[ax] (11.6,9.1)--(11.6,10.35);
+\draw[zero] (11.6,9.75)--(15.2,9.75);
+\node[sub,anchor=east] at (11.53,9.75){0};
+\draw[obs] (11.65,10.05) .. controls (12.6,10.2) and (13.3,10.15) .. (13.8,9.75)
+                         .. controls (14.3,9.35) and (14.8,9.3) .. (15.15,9.28);
+\node[sub] at (13.4,8.95){Time};
+\node[sub,rotate=90] at (11.4,9.72){Excess / deficit};
 
 % =================================================== PANEL C (full width, below)
 \draw[panel] (0,1.1) rectangle (16,8.4);
@@ -114,19 +134,21 @@
 \node[box,fill=tTeal!15,draw=tTeal,align=center,font=\tiny,text=tTeal!50!black]
   (nA) at (1.4,6.6) {Expected births\\Age 15 --- national};
 \node[box,fill=tPurp!18,draw=tPurp,align=center,font=\tiny,text=tPurp!50!black]
-  (nB) at ([yshift=-2.7cm]nA) {Expected births\\Age 50 --- national};
+  (nB) at ([yshift=-2.15cm]nA) {Expected births\\Age 50 --- national};
 
-% municipality rows (Age 15 stack, then Age 50 stack), to the right of the national boxes
-\node[row,fill=tTeal!15,draw=tTeal]   (ra1) at ([xshift=3.2cm,yshift=0.85cm]nA) {Age 15 $\rightarrow$ Municipality 1};
+% municipality rows (Age 15 stack, then Age 50 stack), to the right of the national boxes.
+% ra1's offset is set so the Age-15 stack is vertically centred on nA, and nB (above)
+% is centred on the Age-50 stack.
+\node[row,fill=tTeal!15,draw=tTeal]   (ra1) at ([xshift=3.2cm,yshift=0.53cm]nA) {Age 15, Municipality 1};
 \node[sub] at ([yshift=0.33cm]ra1.north) {$\times$ age-specific population share};
-\node[row,fill=tTeal!8,draw=tTeal!40] (ra2) at ([yshift=-0.45cm]ra1) {Age 15 $\rightarrow$ Municipality 2};
+\node[row,fill=tTeal!8,draw=tTeal!40] (ra2) at ([yshift=-0.45cm]ra1) {Age 15, Municipality 2};
 \node[vd] (vda) at ([yshift=-0.32cm]ra2) {$\vdots$};
-\node[row,fill=tTeal!8,draw=tTeal!40] (ra3) at ([yshift=-0.28cm]vda) {Age 15 $\rightarrow$ Municipality 2107};
-\node[vd] (vmid) at ([yshift=-0.4cm]ra3) {$\vdots$};
-\node[row,fill=tPurp!18,draw=tPurp]   (rb1) at ([yshift=-0.4cm]vmid) {Age 50 $\rightarrow$ Municipality 1};
-\node[row,fill=tPurp!9,draw=tPurp!40] (rb2) at ([yshift=-0.45cm]rb1) {Age 50 $\rightarrow$ Municipality 2};
+\node[row,fill=tTeal!8,draw=tTeal!40] (ra3) at ([yshift=-0.28cm]vda) {Age 15, Municipality 2107};
+\node[vd] (vmid) at ([yshift=-0.55cm]ra3) {$\vdots$};
+\node[row,fill=tPurp!18,draw=tPurp]   (rb1) at ([yshift=-0.55cm]vmid) {Age 50, Municipality 1};
+\node[row,fill=tPurp!9,draw=tPurp!40] (rb2) at ([yshift=-0.45cm]rb1) {Age 50, Municipality 2};
 \node[vd] (vdb) at ([yshift=-0.32cm]rb2) {$\vdots$};
-\node[row,fill=tPurp!9,draw=tPurp!40] (rb3) at ([yshift=-0.28cm]vdb) {Age 50 $\rightarrow$ Municipality 2107};
+\node[row,fill=tPurp!9,draw=tPurp!40] (rb3) at ([yshift=-0.28cm]vdb) {Age 50, Municipality 2107};
 
 % distribution arrows (straight)
 \draw[->,tTeal,line width=.8pt] (nA.east) -- (ra1.west);
