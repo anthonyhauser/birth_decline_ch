@@ -50,7 +50,7 @@
 ]
 
 % =================================================== PANEL A (top-left)
-\draw[panel] (0,8.7) rectangle (10.4,12.7);
+\draw[panel] (0,8.7) rectangle (11.4,12.7);
 \node[ptitle,anchor=west] at (0.3,12.45) {A. Model calibration (national level)};
 
 % --- three parts: Data (population + births) -> Model (Bayesian box w/ fertility)
@@ -97,16 +97,16 @@
 \draw[flow] (3.2,9.75)  -- (model.west);
 
 % ---- OUTCOME (right): expected births by age (seasonal sine + trend) ----
-\node[sub,font=\tiny\bfseries] at (8.9,11.72) {Expected births by age};
-\draw[flow] (model.east) -- (7.3,10.65);
-\draw[ax] (7.6,9.85)--(10.2,9.85);
-\draw[ax] (7.6,9.85)--(7.6,11.55);
-\draw[a15,dashed] plot[domain=7.65:10.15,samples=80,smooth] (\x,{10.3-0.1*(\x-7.65)+0.07*sin(3*(\x-7.65)/2.5*360)});
-\draw[a50,dashed] plot[domain=7.65:10.15,samples=80,smooth] (\x,{10.55+0.12*(\x-7.65)+0.07*sin(3*(\x-7.65)/2.5*360)});
-\node[sub] at (8.9,9.7) {Time};
-\node[sub,rotate=90] at (7.4,10.7) {Births};
-\draw[a15,dashed] (7.8,11.35)--(7.96,11.35);\node[sub,anchor=west] at (7.98,11.35){Age 15};
-\draw[a50,dashed] (8.9,11.35)--(9.06,11.35);\node[sub,anchor=west] at (9.08,11.35){Age 50};
+\node[sub,font=\tiny\bfseries] at (9.9,11.72) {Expected births by age};
+\draw[flow] (model.east) -- (8.3,10.65);
+\draw[ax] (8.6,9.85)--(11.2,9.85);
+\draw[ax] (8.6,9.85)--(8.6,11.55);
+\draw[a15,dashed] plot[domain=8.65:11.15,samples=80,smooth] (\x,{10.3-0.1*(\x-8.65)+0.07*sin(3*(\x-8.65)/2.5*360)});
+\draw[a50,dashed] plot[domain=8.65:11.15,samples=80,smooth] (\x,{10.55+0.12*(\x-8.65)+0.07*sin(3*(\x-8.65)/2.5*360)});
+\node[sub] at (9.9,9.7) {Time};
+\node[sub,rotate=90] at (8.4,10.7) {Births};
+\draw[a15,dashed] (8.8,11.35)--(8.96,11.35);\node[sub,anchor=west] at (8.98,11.35){Age 15};
+\draw[a50,dashed] (9.9,11.35)--(10.06,11.35);\node[sub,anchor=west] at (10.08,11.35){Age 50};
 
 % =================================================== PANEL B (top-right)
 % shifted +1.5 in x to widen the gap between panels A and B
