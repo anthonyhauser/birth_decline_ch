@@ -140,7 +140,8 @@
 \end{scope}
 
 % A (outcome) -> B : national expected births feed the national estimate
-\draw[flow,dashed] (10.2,10.35) -- (11.6,11.4);
+% (horizontal, then vertical at mid-distance, then horizontal)
+\draw[flow,dashed] (10.2,10.35) -- (10.9,10.35) -- (10.9,11.4) -- (11.6,11.4);
 
 % =================================================== PANEL C (full width, below)
 \draw[panel] (0,1.1) rectangle (16,8.4);
