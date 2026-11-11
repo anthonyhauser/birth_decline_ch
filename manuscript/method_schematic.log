@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 15:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  11 NOV 2026 15:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -415,6 +415,10 @@ File: pgflibraryarrows.meta.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 (C:\TEMP\MiKTeX2\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarycalc.c
 ode.tex
 File: tikzlibrarycalc.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\TEMP\MiKTeX2\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarypositi
+oning.code.tex
+File: tikzlibrarypositioning.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 ) (C:\TEMP\MiKTeX2\tex/latex/psnfss\helvet.sty
 Package: helvet 2020/03/25 PSNFSS-v9.3 (WaS) 
 )
@@ -500,23 +504,23 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 8.54997pt on input line 42.
+(Font)              scaled to size 8.54997pt on input line 44.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 8.54997pt on input line 42.
+(Font)              scaled to size 8.54997pt on input line 44.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 4.74998pt on input line 45.
+(Font)              scaled to size 4.74998pt on input line 48.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 4.74998pt on input line 45.
+(Font)              scaled to size 4.74998pt on input line 48.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 9.49997pt on input line 126.
+(Font)              scaled to size 9.49997pt on input line 145.
 LaTeX Font Info:    Font shape `OT1/phv/m/it' in size <5> not available
-(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 172.
+(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 195.
 LaTeX Font Info:    Font shape `OT1/phv/m/sl' will be
-(Font)              scaled to size 4.74998pt on input line 172.
+(Font)              scaled to size 4.74998pt on input line 195.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 6.64998pt on input line 177.
+(Font)              scaled to size 6.64998pt on input line 200.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 6.64998pt on input line 177.
+(Font)              scaled to size 6.64998pt on input line 200.
  [1
 
 
@@ -530,17 +534,17 @@ L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14280 strings out of 467871
- 289142 string characters out of 5432322
- 713913 words of memory out of 5000000
- 42900 multiletter control sequences out of 15000+600000
+ 14298 strings out of 467871
+ 289683 string characters out of 5432322
+ 722025 words of memory out of 5000000
+ 42915 multiletter control sequences out of 15000+600000
  640171 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 117i,7n,121p,423b,895s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 117i,7n,121p,423b,818s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/TEMP/MiKTeX2/fo
 nts/type1/urw/helvetic/uhvb8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhv
 r8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on method_schematic.pdf (1 page, 44567 bytes).
+Output written on method_schematic.pdf (1 page, 44668 bytes).
 PDF statistics:
  30 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
