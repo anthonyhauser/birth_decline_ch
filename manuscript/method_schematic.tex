@@ -169,12 +169,12 @@
 % is centred on the Age-50 stack.
 \node[row,fill=cA15!15,draw=cA15]   (ra1) at ([xshift=3.2cm,yshift=0.825cm]nA) {Age 15, Municipality \#1};
 \node[row,fill=cA15!8,draw=cA15!45] (ra2) at ([yshift=-0.45cm]ra1) {Age 15, Municipality \#2};
-\node[vd] (vda) at ([yshift=-0.6cm]ra2) {$\vdots$};
+\node[vd] (vda) at ([yshift=-0.3cm]ra2) {$\vdots$};
 \node[row,fill=cA15!8,draw=cA15!45] (ra3) at ([yshift=-0.6cm]vda) {Age 15, Municipality \#2107};
-\node[vd] (vmid) at ([yshift=-0.55cm]ra3) {$\vdots$};
-\node[row,fill=cA50!15,draw=cA50]   (rb1) at ([yshift=-0.55cm]vmid) {Age 50, Municipality \#1};
+\node[vd] (vmid) at ([yshift=-0.6cm]ra3) {$\vdots$};
+\node[row,fill=cA50!15,draw=cA50]   (rb1) at ([yshift=-0.7cm]vmid) {Age 50, Municipality \#1};
 \node[row,fill=cA50!8,draw=cA50!45] (rb2) at ([yshift=-0.45cm]rb1) {Age 50, Municipality \#2};
-\node[vd] (vdb) at ([yshift=-0.6cm]rb2) {$\vdots$};
+\node[vd] (vdb) at ([yshift=-0.3cm]rb2) {$\vdots$};
 \node[row,fill=cA50!8,draw=cA50!45] (rb3) at ([yshift=-0.6cm]vdb) {Age 50, Municipality \#2107};
 
 % distribution arrows (straight)
@@ -214,12 +214,12 @@
 \draw[->,cA50,line width=1pt] (rb1.east) -- (mbox.west);
 
 % municipality-level data feeding the local step (top of panel C)
-\node[font=\scriptsize\bfseries,text=tNavy] at (6.5,7.6) {Municipality-level data};
+\node[font=\scriptsize\bfseries,text=tNavy] at (6.3,7.5) {Municipality-level data};
 \node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdp) at (5.6,7.0) {Population};
 \node[box,font=\tiny,minimum width=1.5cm,minimum height=0.5cm] (mdb) at (7.4,7.0) {Birth};
 % population share feeds the FIRST expected -> municipality (Age 50) arrow (dashed, L-shaped)
-\draw[dashed,draw=black!55,line width=.8pt] (mdp.west) -| ($(nB.east)!0.5!(rb1.west)$);
-\node[font=\tiny\itshape,text=black!60,anchor=east,align=right] at (2.6,4.3) {weighted\\by pop.};
+\draw[dashed,draw=black!55,line width=.8pt] (mdp.west) -| ($(nA.east)!0.5!(ra1.west)$);
+\node[font=\tiny\itshape,text=black!60,anchor=east,align=right] at (2.6,6.4) {weighted\\by pop.};
 % observed births feed the births plot (dashed, L-shaped) -- into the TOP of the box now
 \draw[->,dashed,draw=black!55,line width=.8pt] (mdb.east) -| ([xshift=-2.15cm]mbox.north);
 \node[font=\tiny\itshape,text=black!60,anchor=west] at (9.35,6.3) {observed births};
