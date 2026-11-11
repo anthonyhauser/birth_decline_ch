@@ -50,7 +50,7 @@
 ]
 
 % =================================================== PANEL A (top-left)
-\draw[panel] (0,8.7) rectangle (11.4,12.7);
+\draw[panel] (0,8.7) rectangle (11.2,12.7);
 \node[ptitle,anchor=west] at (0.3,12.45) {A. Model calibration (national level)};
 
 % --- three parts: Data (population + births) -> Model (Bayesian box w/ fertility)
@@ -58,7 +58,7 @@
 % section labels, aligned on top of each part
 \node[font=\scriptsize\bfseries,text=tNavy] at (1.8,12.08) {Data};
 \node[font=\scriptsize\bfseries,text=tNavy] at (5.55,12.08) {Model};
-\node[font=\scriptsize\bfseries,text=tNavy] at (8.9,12.08) {Outcome};
+\node[font=\scriptsize\bfseries,text=tNavy] at (8.7,12.08) {Outcome};
 
 % ---- DATA (left): population over time (Age 15 declining, Age 50 rising) ----
 \node[sub,font=\tiny\bfseries] at (1.8,11.72) {Population};
@@ -97,51 +97,55 @@
 \draw[flow] (3.2,9.75)  -- (model.west);
 
 % ---- OUTCOME (right): expected births by age (seasonal sine + trend) ----
-\node[sub,font=\tiny\bfseries] at (9.9,11.72) {Expected births by age};
-\draw[flow] (model.east) -- (8.3,10.65);
-\draw[ax] (8.6,9.85)--(11.2,9.85);
-\draw[ax] (8.6,9.85)--(8.6,11.55);
-\draw[a15,dashed] plot[domain=8.65:11.15,samples=80,smooth] (\x,{10.3-0.1*(\x-8.65)+0.07*sin(3*(\x-8.65)/2.5*360)});
-\draw[a50,dashed] plot[domain=8.65:11.15,samples=80,smooth] (\x,{10.55+0.12*(\x-8.65)+0.07*sin(3*(\x-8.65)/2.5*360)});
-\node[sub] at (9.9,9.7) {Time};
-\node[sub,rotate=90] at (8.4,10.7) {Births};
-\draw[a15,dashed] (8.8,11.35)--(8.96,11.35);\node[sub,anchor=west] at (8.98,11.35){Age 15};
-\draw[a50,dashed] (9.9,11.35)--(10.06,11.35);\node[sub,anchor=west] at (10.08,11.35){Age 50};
+% Change \ostart to move where the outcome plot starts (its y-axis x; default 8.6).
+\def\ostart{8.2}
+\draw[flow] (model.east) -- (\ostart-0.3,10.65);
+\begin{scope}[shift={(\ostart-8.6,0)}]
+  \node[sub,font=\tiny\bfseries] at (9.9,11.72) {Expected births by age};
+  \draw[ax] (8.6,9.85)--(11.2,9.85);
+  \draw[ax] (8.6,9.85)--(8.6,11.55);
+  \draw[a15,dashed] plot[domain=8.65:11.15,samples=80,smooth] (\x,{10.3-0.1*(\x-8.65)+0.07*sin(3*(\x-8.65)/2.5*360)});
+  \draw[a50,dashed] plot[domain=8.65:11.15,samples=80,smooth] (\x,{10.55+0.12*(\x-8.65)+0.07*sin(3*(\x-8.65)/2.5*360)});
+  \node[sub] at (9.9,9.7) {Time};
+  \node[sub,rotate=90] at (8.4,10.7) {Births};
+  \draw[a15,dashed] (8.8,11.35)--(8.96,11.35);\node[sub,anchor=west] at (8.98,11.35){Age 15};
+  \draw[a50,dashed] (9.9,11.35)--(10.06,11.35);\node[sub,anchor=west] at (10.08,11.35){Age 50};
+\end{scope}
 
 % =================================================== PANEL B (top-right)
 % shifted +1.5 in x to widen the gap between panels A and B
-\begin{scope}[shift={(1.5,0)}]
-\draw[panel] (10.6,8.7) rectangle (16,12.7);
+\begin{scope}[shift={(1.4,0)}]
+\draw[panel] (10.6,8.7) rectangle (15,12.7);
 \node[ptitle,anchor=west] at (10.9,12.45) {B. National estimate};
 % B1 observed (solid) vs expected (dashed) national births, in black.
 % Both carry the same seasonal sine; observed trends down and expected trends
 % up (expected rises a bit more) about the same mean -> excess early, deficit late.
-\node[sub,font=\tiny\bfseries] at (13.3,12.15) {Observed vs expected births};
-\draw[ax] (11.6,10.85)--(15.2,10.85);
+\node[sub,font=\tiny\bfseries] at (12.8,12.15) {Observed vs expected births};
+\draw[ax] (11.6,10.85)--(14.2,10.85);
 \draw[ax] (11.6,10.85)--(11.6,11.95);
-\draw[agg] plot[domain=11.65:15.15,samples=120,smooth] (\x,{11.4875-0.05*(\x-11.65)+0.14*sin(3*(\x-11.65)/3.5*360)});
-\draw[agg,dashed] plot[domain=11.65:15.15,samples=120,smooth] (\x,{11.3125+0.05*(\x-11.65)+0.11*sin(3*(\x-11.65)/3.5*360)});
-\node[sub] at (13.4,10.7){Time};
+\draw[agg] plot[domain=11.65:14.15,samples=120,smooth] (\x,{11.4875-0.07*(\x-11.65)+0.14*sin(3*(\x-11.65)/2.5*360)});
+\draw[agg,dashed] plot[domain=11.65:14.15,samples=120,smooth] (\x,{11.3125+0.07*(\x-11.65)+0.11*sin(3*(\x-11.65)/2.5*360)});
+\node[sub] at (12.9,10.7){Time};
 \node[sub,rotate=90] at (11.2,11.4){Births};
 \draw[agg] (11.72,11.88)--(11.87,11.88);\node[sub,anchor=west] at (11.89,11.88){obs.};
 \draw[agg,dashed] (12.5,11.88)--(12.65,11.88);\node[sub,anchor=west] at (12.67,11.88){exp.};
 
 % B2 excess / deficit of births, defined exactly as observed - expected (the same
 % two expressions as B1), scaled x2.5 about the zero line for visibility.
-\node[sub,font=\tiny\bfseries] at (13.3,10.45) {Excess / deficit of births};
-\draw[ax] (11.6,9.15)--(15.2,9.15);
+\node[sub,font=\tiny\bfseries] at (12.8,10.45) {Excess / deficit of births};
+\draw[ax] (11.6,9.15)--(14.2,9.15);
 \draw[ax] (11.6,9.15)--(11.6,10.25);
-\draw[zero] (11.6,9.7)--(15.2,9.7);
+\draw[zero] (11.6,9.7)--(14.2,9.7);
 \node[sub,anchor=east] at (11.5,9.7){0};
-\draw[agg] plot[domain=11.65:15.15,samples=120,smooth]
-  (\x,{9.7+2.5*((11.4875-0.05*(\x-11.65)+0.14*sin(3*(\x-11.65)/3.5*360))-(11.3125+0.05*(\x-11.65)+0.11*sin(3*(\x-11.65)/3.5*360)))});
-\node[sub] at (13.4,9.0){Time};
+\draw[agg] plot[domain=11.65:14.15,samples=120,smooth]
+  (\x,{9.7+2.5*((11.4875-0.07*(\x-11.65)+0.14*sin(3*(\x-11.65)/2.5*360))-(11.3125+0.07*(\x-11.65)+0.11*sin(3*(\x-11.65)/2.5*360)))});
+\node[sub] at (12.9,9.0){Time};
 \node[sub,rotate=90] at (11.15,9.7){Excess / deficit};
 \end{scope}
 
 % A (outcome) -> B : national expected births feed the national estimate
 % (horizontal, then vertical at mid-distance, then horizontal)
-\draw[flow,dashed] (10.2,10.35) -- (11.25,10.35) -- (11.25,11.4) -- (12.6,11.4);
+\draw[flow,dashed] (10.7,10.35) -- (11.5,10.35) -- (11.5,11.4) -- (12.3,11.4);
 
 % =================================================== PANEL C (full width, below)
 \draw[panel] (0,0.86) rectangle (16,8.16);
@@ -157,9 +161,8 @@
 
 % A (outcome) -> C : national expected births (Age 15) feed the municipality step
 % down from the A->B corner, left across the top of C, down to nA, then into its left edge
-\draw[flow,dashed] (11.25,10.35) -- (11.25,8.43) -- (0.1,8.43) -- (0.1,6.36) -- (nA.west);
-% continue the trunk down to the middle of the Age 50 national box
-\draw[dashed,draw=black!55,line width=1pt] (0.1,6.36) -- (0.1,6.36 -| nB);
+\draw[flow,dashed] (11.5,10.35) -- (11.5,8.43) -- (-0.4,8.43) -- (-0.4,6.36) -- (nA.west);
+\draw[flow,dashed] (-0.4,6.36)  -- (-0.4,3.6) -- (nB.west);
 
 % municipality rows (Age 15 stack, then Age 50 stack), to the right of the national boxes.
 % ra1's offset is set so the Age-15 stack is vertically centred on nA, and nB (above)
