@@ -16,6 +16,7 @@
       .exp{stroke-dasharray:5 3;}
       .flow{stroke:#555;stroke-width:2;fill:none;}
       .zero{stroke:#888;stroke-width:1;stroke-dasharray:4 3;}
+      .dots{font-size:16px;fill:#888;font-weight:bold;}
     </style>
   </defs>
 
@@ -23,7 +24,7 @@
   <rect class="panel" x="18" y="40" width="1204" height="330" rx="10"/>
   <text class="ptitle" x="34" y="66">A · Model calibration (national level)</text>
 
-  <!-- A1: fertility by age, 2000 vs 2025 (SAME peak height, shifted right) -->
+  <!-- A1: fertility by age, 2000 vs 2025 (same peak, shifted right) -->
   <text class="sub" x="150" y="88" text-anchor="middle">fertility by age</text>
   <line class="ax" x1="80" y1="195" x2="300" y2="195"/>
   <line class="ax" x1="80" y1="100" x2="80" y2="195"/>
@@ -34,15 +35,14 @@
   <line class="blue" x1="235" y1="104" x2="251" y2="104"/><text class="sub" x="255" y="107">2000</text>
   <line class="orng" x1="235" y1="118" x2="251" y2="118"/><text class="sub" x="255" y="121">2025</text>
 
-  <!-- A2: population over time, two ages (same colours as A3) -->
+  <!-- A2: population over time, two ages -->
   <text class="sub" x="150" y="238" text-anchor="middle">population over time (two ages)</text>
   <line class="ax" x1="80" y1="340" x2="300" y2="340"/>
   <line class="ax" x1="80" y1="250" x2="80" y2="340"/>
   <path class="teal" d="M83,298 C150,293 230,289 297,286"/>
   <path class="purp" d="M83,320 C150,317 230,314 297,309"/>
-  <text class="teal" x="0" y="0"/>
-  <line class="teal" x1="235" y1="258" x2="251" y2="258"/><text class="sub" x="255" y="261">age a</text>
-  <line class="purp" x1="235" y1="272" x2="251" y2="272"/><text class="sub" x="255" y="275">age b</text>
+  <line class="teal" x1="235" y1="258" x2="251" y2="258"/><text class="sub" x="255" y="261">Age 15</text>
+  <line class="purp" x1="235" y1="272" x2="251" y2="272"/><text class="sub" x="255" y="275">Age 50</text>
   <text class="lab" x="190" y="357" text-anchor="middle">time</text>
   <text class="lab" x="66" y="295" text-anchor="middle" transform="rotate(-90 66 295)">population</text>
 
@@ -54,21 +54,18 @@
   <text class="sub" x="480" y="227" text-anchor="middle">model</text>
   <path class="flow" d="M530,216 C545,216 548,216 560,216" marker-end="url(#arrow)"/>
 
-  <!-- A3: births over time, two ages, observed (solid) centred on expected (dashed) -->
+  <!-- A3: births over time, two ages, observed centred on expected -->
   <text class="sub" x="710" y="110" text-anchor="middle">number of births over time (two ages)</text>
   <line class="ax" x1="585" y1="300" x2="855" y2="300"/>
   <line class="ax" x1="585" y1="130" x2="585" y2="300"/>
-  <!-- age a: expected (dashed) flat; observed (solid) oscillates around it -->
   <path class="teal exp" d="M588,250 C650,248 720,247 852,247"/>
   <path class="teal"     d="M588,256 C640,242 690,240 740,248 C790,256 825,244 852,249"/>
-  <!-- age b -->
   <path class="purp exp" d="M588,214 C650,212 720,211 852,211"/>
   <path class="purp"     d="M588,220 C645,206 695,208 745,216 C795,224 825,208 852,213"/>
   <text class="lab" x="720" y="318" text-anchor="middle">time</text>
   <text class="lab" x="571" y="215" text-anchor="middle" transform="rotate(-90 571 215)">births</text>
-  <!-- legend -->
-  <line class="teal" x1="600" y1="132" x2="618" y2="132"/><text class="sub" x="622" y="135">age a</text>
-  <line class="purp" x1="665" y1="132" x2="683" y2="132"/><text class="sub" x="687" y="135">age b</text>
+  <line class="teal" x1="600" y1="132" x2="618" y2="132"/><text class="sub" x="622" y="135">Age 15</text>
+  <line class="purp" x1="668" y1="132" x2="686" y2="132"/><text class="sub" x="690" y="135">Age 50</text>
   <line x1="600" y1="148" x2="618" y2="148" stroke="#555" stroke-width="2"/><text class="sub" x="622" y="151">observed</text>
   <line x1="690" y1="148" x2="708" y2="148" stroke="#555" stroke-width="2" stroke-dasharray="5 3"/><text class="sub" x="712" y="151">expected (constant fertility)</text>
 
@@ -93,66 +90,68 @@
   <text class="ptitle" x="34" y="424">C · Municipality-level estimate</text>
   <text class="sub" x="34" y="441">distribute national expected births (per age) to municipalities, then compute local excess/deficit</text>
 
-  <!-- national expected-births-by-age boxes (from A) -->
-  <path class="flow" d="M905,320 C905,362 300,360 175,470" marker-end="url(#arrow)"/>
+  <!-- national expected-births-by-age boxes -->
+  <path class="flow" d="M905,320 C905,362 300,360 168,470" marker-end="url(#arrow)"/>
   <text class="sub" x="300" y="455">expected births by age (from A)</text>
-  <rect x="35" y="478" width="125" height="42" rx="6" fill="#d7f0e6" stroke="#1b9e77"/>
-  <text class="sub" x="97" y="497" text-anchor="middle" fill="#145c45">Expected births</text>
-  <text class="sub" x="97" y="511" text-anchor="middle" fill="#145c45">age a — national</text>
-  <rect x="35" y="620" width="125" height="42" rx="6" fill="#e4e1f2" stroke="#7570b3"/>
-  <text class="sub" x="97" y="639" text-anchor="middle" fill="#403a73">Expected births</text>
-  <text class="sub" x="97" y="653" text-anchor="middle" fill="#403a73">age b — national</text>
+  <rect x="35" y="470" width="125" height="42" rx="6" fill="#d7f0e6" stroke="#1b9e77"/>
+  <text class="sub" x="97" y="489" text-anchor="middle" fill="#145c45">Expected births</text>
+  <text class="sub" x="97" y="503" text-anchor="middle" fill="#145c45">Age 15 — national</text>
+  <rect x="35" y="575" width="125" height="42" rx="6" fill="#e4e1f2" stroke="#7570b3"/>
+  <text class="sub" x="97" y="594" text-anchor="middle" fill="#403a73">Expected births</text>
+  <text class="sub" x="97" y="608" text-anchor="middle" fill="#403a73">Age 50 — national</text>
 
-  <!-- 6 rows: age a -> Mun 1,2,3 ; then age b -> Mun 1,2,3 -->
-  <text class="sub" x="285" y="455" text-anchor="middle">× age-specific population share</text>
-  <!-- age a rows -->
-  <rect x="210" y="458" width="150" height="28" rx="4" fill="#d7f0e6" stroke="#1b9e77"/><text class="sub" x="285" y="476" text-anchor="middle" fill="#145c45">age a &#8594; Municipality 1</text>
-  <rect x="210" y="492" width="150" height="28" rx="4" fill="#eaf6f1" stroke="#9ed4c0"/><text class="sub" x="285" y="510" text-anchor="middle" fill="#6a9d8a">age a &#8594; Municipality 2</text>
-  <rect x="210" y="526" width="150" height="28" rx="4" fill="#eaf6f1" stroke="#9ed4c0"/><text class="sub" x="285" y="544" text-anchor="middle" fill="#6a9d8a">age a &#8594; Municipality 3</text>
-  <!-- age b rows -->
-  <rect x="210" y="600" width="150" height="28" rx="4" fill="#e4e1f2" stroke="#7570b3"/><text class="sub" x="285" y="618" text-anchor="middle" fill="#403a73">age b &#8594; Municipality 1</text>
-  <rect x="210" y="634" width="150" height="28" rx="4" fill="#efedf7" stroke="#b7b2d6"/><text class="sub" x="285" y="652" text-anchor="middle" fill="#7d78a6">age b &#8594; Municipality 2</text>
-  <rect x="210" y="668" width="150" height="28" rx="4" fill="#efedf7" stroke="#b7b2d6"/><text class="sub" x="285" y="686" text-anchor="middle" fill="#7d78a6">age b &#8594; Municipality 3</text>
+  <text class="sub" x="285" y="452" text-anchor="middle">× age-specific population share</text>
+  <!-- Age 15 rows -->
+  <rect x="205" y="456" width="165" height="24" rx="4" fill="#d7f0e6" stroke="#1b9e77"/><text class="sub" x="287" y="472" text-anchor="middle" fill="#145c45">Age 15 &#8594; Municipality 1</text>
+  <rect x="205" y="486" width="165" height="24" rx="4" fill="#eaf6f1" stroke="#9ed4c0"/><text class="sub" x="287" y="502" text-anchor="middle" fill="#6a9d8a">Age 15 &#8594; Municipality 2</text>
+  <text class="dots" x="287" y="524" text-anchor="middle">&#8942;</text>
+  <rect x="205" y="528" width="165" height="24" rx="4" fill="#eaf6f1" stroke="#9ed4c0"/><text class="sub" x="287" y="544" text-anchor="middle" fill="#6a9d8a">Age 15 &#8594; Municipality 2107</text>
+  <!-- separator between age groups -->
+  <text class="dots" x="287" y="572" text-anchor="middle">&#8942;</text>
+  <!-- Age 50 rows -->
+  <rect x="205" y="578" width="165" height="24" rx="4" fill="#e4e1f2" stroke="#7570b3"/><text class="sub" x="287" y="594" text-anchor="middle" fill="#403a73">Age 50 &#8594; Municipality 1</text>
+  <rect x="205" y="608" width="165" height="24" rx="4" fill="#efedf7" stroke="#b7b2d6"/><text class="sub" x="287" y="624" text-anchor="middle" fill="#7d78a6">Age 50 &#8594; Municipality 2</text>
+  <text class="dots" x="287" y="646" text-anchor="middle">&#8942;</text>
+  <rect x="205" y="650" width="165" height="24" rx="4" fill="#efedf7" stroke="#b7b2d6"/><text class="sub" x="287" y="666" text-anchor="middle" fill="#7d78a6">Age 50 &#8594; Municipality 2107</text>
 
   <!-- distribution arrows -->
   <g class="flow" stroke="#1b9e77">
-    <path d="M161,492 C185,486 190,474 208,472" marker-end="url(#arrow)"/>
-    <path d="M161,498 C185,502 190,506 208,506" marker-end="url(#arrow)"/>
-    <path d="M161,504 C185,525 190,538 208,540" marker-end="url(#arrow)"/>
+    <path d="M161,484 C180,476 188,470 203,468" marker-end="url(#arrow)"/>
+    <path d="M161,490 C180,496 188,498 203,498" marker-end="url(#arrow)"/>
+    <path d="M161,496 C180,530 188,540 203,540" marker-end="url(#arrow)"/>
   </g>
   <g class="flow" stroke="#7570b3">
-    <path d="M161,634 C185,626 190,616 208,614" marker-end="url(#arrow)"/>
-    <path d="M161,640 C185,644 190,648 208,648" marker-end="url(#arrow)"/>
-    <path d="M161,646 C185,666 190,680 208,682" marker-end="url(#arrow)"/>
+    <path d="M161,589 C180,592 188,590 203,590" marker-end="url(#arrow)"/>
+    <path d="M161,595 C180,614 188,620 203,620" marker-end="url(#arrow)"/>
+    <path d="M161,601 C180,655 188,662 203,662" marker-end="url(#arrow)"/>
   </g>
 
-  <!-- Municipality 1: two ages (box 1 and box 4) -> expected births line -->
-  <path class="flow" d="M361,472 C400,472 405,520 420,545" marker-end="url(#arrow)"/>
-  <path class="flow" d="M361,614 C400,614 405,575 420,560" marker-end="url(#arrow)"/>
-  <rect x="422" y="505" width="195" height="108" rx="8" fill="#fff" stroke="#c7d2e0"/>
-  <text class="sub" x="519" y="523" text-anchor="middle" font-weight="bold">Expected births — Municipality 1</text>
-  <text class="sub" x="519" y="536" text-anchor="middle">(sum over ages, over time)</text>
-  <line class="ax" x1="440" y1="600" x2="600" y2="600"/>
-  <line class="ax" x1="440" y1="548" x2="440" y2="600"/>
-  <path d="M442,592 C470,584 475,560 515,560 C560,560 575,588 598,590" stroke="#222" stroke-width="1.6" fill="none" stroke-dasharray="5 3"/>
-  <path d="M442,594 C470,586 495,572 530,580 C565,588 580,591 598,593" stroke="#222" stroke-width="1.6" fill="none"/>
-  <text class="sub" x="519" y="611" text-anchor="middle" fill="#888">&#8212; observed   -- expected</text>
+  <!-- Municipality 1: box 1 (Age15 Mun1) and box 4 (Age50 Mun1) -> Births box -->
+  <path class="flow" d="M371,468 C400,468 405,495 420,512" marker-end="url(#arrow)"/>
+  <path class="flow" d="M371,590 C400,590 405,545 420,528" marker-end="url(#arrow)"/>
+  <rect x="422" y="470" width="200" height="105" rx="8" fill="#fff" stroke="#c7d2e0"/>
+  <text class="sub" x="522" y="489" text-anchor="middle" font-weight="bold">Births: Municipality 1</text>
+  <line class="ax" x1="442" y1="560" x2="602" y2="560"/>
+  <line class="ax" x1="442" y1="505" x2="442" y2="560"/>
+  <path d="M444,552 C472,544 478,518 518,518 C562,518 578,548 600,550" stroke="#222" stroke-width="1.6" fill="none" stroke-dasharray="5 3"/>
+  <path d="M444,554 C472,546 497,532 532,540 C567,548 582,551 600,553" stroke="#222" stroke-width="1.6" fill="none"/>
+  <text class="lab" x="522" y="572" text-anchor="middle">time</text>
 
   <!-- -> excess/deficit Municipality 1 -->
-  <path class="flow" d="M519,617 C519,640 519,650 519,678" marker-end="url(#arrow)"/>
-  <rect x="412" y="683" width="215" height="130" rx="8" fill="#fff" stroke="#c7d2e0"/>
-  <text class="sub" x="519" y="702" text-anchor="middle" font-weight="bold">Excess / deficit — Municipality 1</text>
-  <text class="sub" x="519" y="715" text-anchor="middle">observed &#8722; expected</text>
-  <line class="ax" x1="445" y1="788" x2="605" y2="788"/>
-  <line class="ax" x1="445" y1="735" x2="445" y2="795"/>
-  <line class="zero" x1="445" y1="768" x2="605" y2="768"/>
-  <text class="sub" x="438" y="771" text-anchor="end">0</text>
-  <path d="M447,760 C485,754 520,758 555,772 C585,784 600,789 603,790" stroke="#222" stroke-width="1.6" fill="none"/>
-  <text class="lab" x="519" y="808" text-anchor="middle">time</text>
+  <path class="flow" d="M522,576 C522,610 522,625 522,660" marker-end="url(#arrow)"/>
+  <rect x="415" y="665" width="215" height="130" rx="8" fill="#fff" stroke="#c7d2e0"/>
+  <text class="sub" x="522" y="684" text-anchor="middle" font-weight="bold">Excess / deficit — Municipality 1</text>
+  <text class="sub" x="522" y="697" text-anchor="middle">observed &#8722; expected</text>
+  <line class="ax" x1="448" y1="770" x2="608" y2="770"/>
+  <line class="ax" x1="448" y1="717" x2="448" y2="777"/>
+  <line class="zero" x1="448" y1="750" x2="608" y2="750"/>
+  <text class="sub" x="441" y="753" text-anchor="end">0</text>
+  <path d="M450,742 C488,736 523,740 558,754 C588,766 603,771 606,772" stroke="#222" stroke-width="1.6" fill="none"/>
+  <text class="lab" x="522" y="790" text-anchor="middle">time</text>
 
   <!-- repeat note -->
-  <text class="sub" x="285" y="715" text-anchor="middle" fill="#888" font-style="italic">&#8942; same for each municipality</text>
-  <text class="sub" x="285" y="730" text-anchor="middle" fill="#888" font-style="italic">(and district, citizenship, parity)</text>
+  <text class="sub" x="287" y="712" text-anchor="middle" fill="#888" font-style="italic">&#8942; same for each municipality</text>
+  <text class="sub" x="287" y="727" text-anchor="middle" fill="#888" font-style="italic">(and district, citizenship, parity)</text>
 
   <!-- bottom banner -->
   <rect x="18" y="940" width="1204" height="44" rx="8" fill="#eef3f9" stroke="#c7d2e0"/>
