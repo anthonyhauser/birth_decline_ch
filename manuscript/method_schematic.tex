@@ -23,6 +23,7 @@
 
 \begin{document}
 \begin{tikzpicture}[
+  xscale=0.8,
   font=\sffamily,
   >={Stealth[length=5pt]},
   panel/.style={draw=pEdge,fill=pFill,rounded corners=4pt,line width=.9pt},
@@ -78,17 +79,16 @@
 \node[sub,rotate=90] at (0.7,9.75) {Births};
 
 % ---- MODEL (middle): Bayesian model box with a feature list + fertility plot ----
-\node[box,minimum width=2.7cm,minimum height=2.3cm] (model) at (5.55,10.65) {};
+\node[box,minimum width=3.1cm,minimum height=2.3cm] (model) at (5.55,10.65) {};
 \node[sub,font=\tiny,text=black!75] at (5.55,11.6) {Bayesian model};
 \node[sub,anchor=west] at (4.35,11.37) {$\bullet$~Seasonality};
 \node[sub,anchor=west] at (4.35,11.17) {$\bullet$~Cross-year correlation};
 \node[sub,anchor=west] at (4.35,10.97) {$\bullet$~Shift in childbearing age:};
 \draw[ax] (4.8,9.8)--(6.45,9.8);
 \draw[ax] (4.8,9.8)--(4.8,10.7);
-\draw[fdk] (4.85,9.85) .. controls (5.1,9.88) and (5.35,10.62) .. (5.6,10.62)
-                       .. controls (5.85,10.62) and (6.1,9.88) .. (6.4,9.85);
-\draw[flt] (4.95,9.85) .. controls (5.2,9.88) and (5.42,10.62) .. (5.65,10.62)
-                       .. controls (5.88,10.62) and (6.12,9.88) .. (6.42,9.85);
+% same bell curve, only shifted horizontally (shift in childbearing age)
+\draw[fdk] plot[domain=4.85:6.4,samples=60,smooth] (\x,{9.85+0.8*exp(-((\x-5.45)/0.33)*((\x-5.45)/0.33))});
+\draw[flt] plot[domain=4.85:6.4,samples=60,smooth] (\x,{9.85+0.8*exp(-((\x-5.75)/0.33)*((\x-5.75)/0.33))});
 \node[sub,rotate=90] at (4.6,10.25) {fertility};
 \node[sub] at (5.6,9.67) {age};
 
@@ -193,11 +193,9 @@
                           .. controls (14.3,5.6) and (14.6,5.55) .. (14.85,5.54);
   \node[sub] at (13.4,5.22){time};
 \end{scope}
-% small arrow between the two inner plots
-\draw[flow] ([xshift=-0.8cm]mbox.center) -- ([xshift=0.6cm]mbox.center);
-% age-specific municipality rows feed the box
-\draw[flow] (ra1.east) -- (mbox.west);
-\draw[flow] (rb1.east) -- (mbox.west);
+% age-specific municipality rows feed the box (coloured by age)
+\draw[->,cA15,line width=1pt] (ra1.east) -- (mbox.west);
+\draw[->,cA50,line width=1pt] (rb1.east) -- (mbox.west);
 
 % municipality-level data feeding the local step (centre-bottom)
 \node[font=\scriptsize\bfseries,text=tNavy] at (6.5,2.5) {Municipality-level data};
