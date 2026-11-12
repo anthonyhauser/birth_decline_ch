@@ -11,6 +11,8 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usetikzlibrary{arrows.meta,calc,positioning,fit,backgrounds,shapes.misc}
+\pgfdeclarelayer{bottom}   % below `background`: for the overall frame
+\pgfsetlayers{bottom,background,main}
 
 \usepackage[scaled]{helvet}
 \renewcommand{\familydefault}{\sfdefault}
@@ -54,7 +56,7 @@
   fdk/.style={draw=cFd,line width=1pt},
   flt/.style={draw=cFl,line width=1pt},
   agg/.style={draw=cA15!50!cA50,line width=1pt},   % mix of the two age colours
-  flow/.style={->,draw=black!55,line width=1pt},
+  flow/.style={->,draw=black!55,line width=1pt,shorten <=5pt,shorten >=5pt},  % gap at both ends
 ]
 
 % ====================================================================
@@ -106,7 +108,7 @@
 
 % the big box wraps the three plots and their labels
 \begin{scope}[on background layer]
-  \node[panel,fill=white,fit=(tr-y)(tr-t)(tr-x)(se-t)(se-x)(sh-t)(sh-x)(sh),inner sep=7pt] (bigbox) {};
+  \node[panel,fit=(tr-y)(tr-t)(tr-x)(se-t)(se-x)(sh-t)(sh-x)(sh),inner sep=7pt] (bigbox) {};
 \end{scope}
 
 % national births -> each of the three plots
@@ -114,10 +116,13 @@
 \draw[flow] (nb-x.south) -- (se-t.north);
 \draw[flow] (nb-x.south) -- (sh-t.north);
 
+% population -> model (big box)
+\draw[flow] (pop-x.south) -- (pop-x.south |- bigbox.north);
+
 % ====================================================================
-% 4. National expectation (below the big box, a bit to the right) + text box
+% 4. National expectation (centred under the big box's middle plot) + text box on its right
 % ====================================================================
-\node[parea,below=1.9cm of bigbox,xshift=2.2cm] (ne) {};
+\node[parea,anchor=north] (ne) at ([yshift=-1.9cm]bigbox.south -| se) {};
 \pdeco{ne}{National expectation}{Time}{Births}
 \begin{scope}[shift={(ne.south west)}]
   % expected line only
@@ -125,20 +130,27 @@
     (\x,{0.6125+0.0583*\x+0.11*sin(3*\x/\pw*360)});
 \end{scope}
 
-\node[box,text width=4.2cm,align=center,font=\scriptsize,inner sep=5pt,left=1.1cm of ne] (cf)
+\node[box,text width=4.2cm,align=center,font=\scriptsize,inner sep=5pt,right=0.8cm of ne] (cf)
   {Counterfactual birth with stable birth rate and accounting for shift in childbearing age and population changes.};
 
-% trend and shift -> expectation ; season -> expectation (faded, crossed out)
-\draw[flow] (tr-x.south) -- ([xshift=-0.9cm]ne-t.north);
-\draw[flow] (sh-x.south) -- ([xshift= 0.9cm]ne-t.north);
-\draw[flow,opacity=.4] (se-x.south) -- (ne-t.north);
+% trend (left, faded + red cross), season and shift -> expectation
+\coordinate (neL) at ([xshift=-0.9cm]ne-t.north);
+\coordinate (neR) at ([xshift= 0.9cm]ne-t.north);
+\draw[flow,opacity=.4] (tr-x.south) -- (neL);
+\draw[flow] (se-x.south) -- (ne-t.north);
+\draw[flow] (sh-x.south) -- (neR);
 \node[cross out,draw=red,line width=1.8pt,minimum size=0.3cm,inner sep=0pt]
-  at ($(se-x.south)!0.5!(ne-t.north)$) {};
+  at ($(tr-x.south)!0.5!(neL)$) {};
+
+% population -> national expectation, rounded, around the LEFT of the big box
+\draw[flow,rounded corners=8pt] (pop-y.west) -- ++(-0.3,0) |- (ne-y.west);
 
 % ====================================================================
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
+%    both are hung from the same row y, so their titles are at the same height
 % ====================================================================
-\node[parea] (nex) at ([shift={(2.8,-3.8)}]ne) {};
+\coordinate (row2) at ([yshift=-1.6cm]ne-x.south);
+\node[parea,anchor=north] (nex) at ([xshift=3.3cm]row2) {};
 \pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}
 \begin{scope}[shift={(nex.south west)}]
   \def\obsx{0.7875-0.0583*\x+0.14*sin(3*\x/\pw*360)}      % observed
@@ -151,7 +163,7 @@
 \end{scope}
 
 % municipality-level map (figure 3), no axes
-\node[inner sep=0pt] (mun) at ([shift={(-2.9,-4.2)}]ne)
+\node[inner sep=0pt,anchor=north] (mun) at ([xshift=-3.3cm]row2)
   {\includegraphics[width=4.8cm]{../figure/fig3.png}};
 \node[ttl,anchor=south] (mun-t) at ([yshift=3pt]mun.north) {Municipality-level};
 
@@ -173,12 +185,15 @@
     (\x,{\ph/2-0.25+0.12*\x+0.07*sin(3*\x/\pw*360+60)});
 \end{scope}
 
+% municipality-level -> municipal excess/deficit
+\draw[flow] (mun.south) -- (mex-t.north);
+
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
 % ====================================================================
-\begin{scope}[on background layer]
-  \node[panel,fit=(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=12pt] {};
-\end{scope}
+\begin{pgfonlayer}{bottom}
+  \node[panel,fill=white,fit=(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
+\end{pgfonlayer}
 
 \end{tikzpicture}
 \end{document}
