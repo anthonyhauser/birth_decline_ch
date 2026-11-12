@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  12 NOV 2026 18:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.26)  12 NOV 2026 18:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -525,48 +525,54 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 5.69998pt on input line 78.
+(Font)              scaled to size 5.69998pt on input line 81.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 5.69998pt on input line 78.
+(Font)              scaled to size 5.69998pt on input line 81.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 4.74998pt on input line 78.
-<../figure/fig3.png, id=4, 722.7pt x 433.62pt>
-File: ../figure/fig3.png Graphic file (type png)
-<use ../figure/fig3.png>
-Package pdftex.def Info: ../figure/fig3.png  used on input line 169.
+(Font)              scaled to size 4.27498pt on input line 81.
+LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
+(Font)              scaled to size 4.74998pt on input line 145.
+LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
+(Font)              scaled to size 4.74998pt on input line 145.
+<../figure/fig_expected_births_map.png, id=4, 722.7pt x 433.62pt>
+File: ../figure/fig_expected_births_map.png Graphic file (type png)
+<use ../figure/fig_expected_births_map.png>
+Package pdftex.def Info: ../figure/fig_expected_births_map.png  used on input l
+ine 173.
 (pdftex.def)             Requested size: 136.5733pt x 81.93872pt.
 LaTeX Font Info:    Font shape `OT1/phv/m/it' in size <5> not available
-(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 254.
+(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 260.
 LaTeX Font Info:    Font shape `OT1/phv/m/sl' will be
-(Font)              scaled to size 4.74998pt on input line 254.
+(Font)              scaled to size 4.74998pt on input line 260.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 6.64998pt on input line 263.
+(Font)              scaled to size 6.64998pt on input line 269.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 6.64998pt on input line 263.
+(Font)              scaled to size 6.64998pt on input line 269.
  [1
 
 
 Non-PDF special ignored!
-<special> papersize=287.44821pt,515.77515pt
+<special> papersize=359.90356pt,517.19595pt
 {C:/Users/an4818/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/TEMP/MiKT
-eX2/fonts/enc/dvips/base/8r.enc} <../figure/fig3.png>] (method_schematic2.aux)
+eX2/fonts/enc/dvips/base/8r.enc} <../figure/fig_expected_births_map.png>]
+(method_schematic2.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 15381 strings out of 467871
- 312592 string characters out of 5432322
- 799411 words of memory out of 5000000
- 43983 multiletter control sequences out of 15000+600000
- 638970 words of font info for 57 fonts, out of 8000000 for 9000
+ 15417 strings out of 467871
+ 313295 string characters out of 5432322
+ 798597 words of memory out of 5000000
+ 44021 multiletter control sequences out of 15000+600000
+ 640071 words of font info for 56 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  117i,8n,121p,424b,988s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/TEMP/MiKTeX2/fo
+<C:/TEMP/MiKTeX2/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/TEMP/MiKTeX2/fo
 nts/type1/urw/helvetic/uhvb8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhv
 r8a.pfb><C:/TEMP/MiKTeX2/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on method_schematic2.pdf (1 page, 2219641 bytes).
+Output written on method_schematic2.pdf (1 page, 2175855 bytes).
 PDF statistics:
  33 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
