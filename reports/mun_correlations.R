@@ -6,8 +6,8 @@
 #   sum(n_exc)/sum(n_pred) over the period 2017-2025 (unsmoothed draws,
 #   same source as the decile analysis).
 # - weighted Pearson correlation (unadjusted) and weighted PARTIAL correlation
-#   adjusting for population density (pop_dens, the first density indicator used
-#   in the main analysis).
+#   adjusting for the population-density DECILE GROUP (pop_dens split into ten
+#   groups), rather than the continuous pop_dens value.
 #
 # Run alone from the project root:  source("reports/mun_correlations.R")
 ################################################################################
@@ -75,6 +75,27 @@ mun_rel <- excess_birth_year_mun_draw_df %>%
 
 d <- df_var0 %>% left_join(mun_rel, by = "mun_id")
 
+## ---- population-density decile group (10 groups) -----------------------------
+# Split pop_dens into ten groups and adjust the partial correlation for this
+# categorical group instead of the continuous value. Deciles are POPULATION-
+# WEIGHTED (each group holds ~10% of the female 15-50 population), consistent
+# with the rest of the weighted analysis. For plain unweighted deciles (~10% of
+# municipalities per group) replace the two lines below with:
+#   d$pop_dens_dec <- factor(dplyr::ntile(d[[dens]], 10))
+n_dec <- 10
+wtd_quantile <- function(x, w, probs){
+  ok <- is.finite(x) & is.finite(w)
+  x <- x[ok]; w <- w[ok]
+  o <- order(x); x <- x[o]; w <- w[o]
+  cw <- (cumsum(w) - 0.5 * w) / sum(w)          # Hazen-type weighted cumulative prob
+  approx(cw, x, xout = probs, rule = 2, ties = "ordered")$y
+}
+dens_breaks     <- unique(c(-Inf,
+                            wtd_quantile(d[[dens]], d$n_pop,
+                                         probs = seq(1, n_dec - 1) / n_dec),
+                            Inf))
+d$pop_dens_dec  <- cut(d[[dens]], breaks = dens_breaks, include.lowest = TRUE)
+
 ## ---- weighted correlation helpers -------------------------------------------
 # weighted Pearson correlation
 wcor <- function(x, y, w){
@@ -83,12 +104,13 @@ wcor <- function(x, y, w){
   mx <- weighted.mean(x, w); my <- weighted.mean(y, w)
   sum(w * (x - mx) * (y - my)) / sqrt(sum(w * (x - mx)^2) * sum(w * (y - my)^2))
 }
-# weighted partial correlation of x and y given z (residualize both on z, weighted)
-wpcor <- function(x, y, z, w){
-  ok <- is.finite(x) & is.finite(y) & is.finite(z) & is.finite(w)
-  x <- x[ok]; y <- y[ok]; z <- z[ok]; w <- w[ok]
-  rx <- residuals(lm(x ~ z, weights = w))
-  ry <- residuals(lm(y ~ z, weights = w))
+# weighted partial correlation of x and y given a CATEGORICAL adjuster g
+# (residualize both on the factor g, weighted) -- here g = population-density decile
+wpcor_cat <- function(x, y, g, w){
+  ok <- is.finite(x) & is.finite(y) & !is.na(g) & is.finite(w)
+  x <- x[ok]; y <- y[ok]; g <- droplevels(factor(g[ok])); w <- w[ok]
+  rx <- residuals(lm(x ~ g, weights = w))
+  ry <- residuals(lm(y ~ g, weights = w))
   wcor(rx, ry, w)
 }
 # number of municipalities with complete data for a pair (for reference)
@@ -107,14 +129,14 @@ compute_correlations <- function(data = d, min_pop = 0){
   bind_rows(lapply(vars, function(v){
     x <- dd[[v]]; y <- dd$rel_exc; w <- dd$n_pop
     data.frame(
-      variable              = v,
-      n_mun                 = n_ok(x, y, w),
-      r_unadjusted          = wcor(x, y, w),
-      r_partial_adj_density = if (v == dens) NA_real_ else wpcor(x, y, dd[[dens]], w)
+      variable                 = v,
+      n_mun                    = n_ok(x, y, w),
+      r_unadjusted             = wcor(x, y, w),
+      r_partial_adj_densdecile = wpcor_cat(x, y, dd$pop_dens_dec, w)
     )
   })) %>%
     dplyr::mutate(min_pop = min_pop,
-                  across(c(r_unadjusted, r_partial_adj_density), ~ round(.x, 3))) %>%
+                  across(c(r_unadjusted, r_partial_adj_densdecile), ~ round(.x, 3))) %>%
     arrange(desc(abs(r_unadjusted)))
 }
 
@@ -127,7 +149,7 @@ cat("\n== Correlations (min_pop = ", min_pop, ", municipalities kept = ",
 print(res, row.names = FALSE)
 
 ## compare several thresholds in one table (optional)
-if (FALSE) {é.
+if (FALSE) {
   do.call(rbind, lapply(c(0, 100, 200, 500, 1000), function(m)
     compute_correlations(d, min_pop = m))) %>%
     tidyr::pivot_wider(id_cols = variable, names_from = min_pop,
@@ -137,7 +159,7 @@ if (FALSE) {é.
 
 ## ---- save -------------------------------------------------------------------
 out_file <- paste0(res_path, save.date, "_", mod_name, "_seedid", seed_id,
-                   "_mun_correlations_", min(year_range), "_", max(year_range),
+                   "_mun_correlations_densdecile_", min(year_range), "_", max(year_range),
                    "_minpop", min_pop, ".csv")
 write.csv(res, out_file, row.names = FALSE)
 cat("\nSaved:", out_file, "\n")
