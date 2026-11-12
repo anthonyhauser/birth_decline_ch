@@ -41,6 +41,7 @@
 \def\nbgap{1.5} % vertical gap (cm) between the model box and National births (above it)
 \def\popdx{2.2}   % cm: Population plot centre is this far LEFT of the model box's left edge
 \def\nexph{1.6}   % cm: height of the National excess plot (bigger than \ph); Municipality-level box copies its box size
+\def\jdy{0.5}    % cm: height above National excess where the two arrows join
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
 \def\nedy{1.7}  % cm: model box -> National expectation (room for the three arrows)
 \def\rowdy{1.7} % cm: National expectation -> row of National excess / Municipality-level
@@ -261,14 +262,16 @@
 % model box / text box (routeR), then left into the box
 \coordinate (routeR) at ($(bigbox.east)+(0.4cm,0)$);   % vertical run: clear of the model box (and the text box)
 \coordinate (nexE) at ($(nex-box.north)+(-\adx,\agap)$);   % common arrival point on National excess/deficit
+\coordinate (nexJ) at ($(nexE)+(0,\jdy cm)$);   % the two arrows JOIN here, then one short arrow goes down to nexE
 \coordinate (oS) at ($(nb-box.east)+(\agap,0)$);
 % horizontal -> vertical -> diagonal: (obsP) is where the vertical run ends and the diagonal starts
-\coordinate (obsP) at ($(routeR |- nexE)+(0,0.8cm)$);   % 0.8cm = height of the diagonal part
-\draw[flow,rounded corners=8pt] (oS) -- (oS -| routeR) -- (obsP) -- (nexE);
+\coordinate (obsP) at ($(routeR |- nexJ)+(0,0.5cm)$);   % 0.5cm = height of the diagonal part
+\draw[flow,-,rounded corners=8pt] (oS) -- (oS -| routeR) -- (obsP) -- (nexJ);   % no head: it joins the other arrow
+\draw[flow] (nexJ) -- (nexE);                                  % common final arrow
 
 % expected births -> national / municipality-level
-\draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- (nexE)
-  node[midway,sloped,above=1pt,font=\tiny\itshape,text=black!65]
+\draw[flow,-] ($(ne-box.south)+(0.4cm,-\agap)$)  -- (nexJ)
+  node[pos=0.4,sloped,above=1pt,font=\tiny\itshape,text=black!65]
   {compared to observed births};
 \draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$);
 
