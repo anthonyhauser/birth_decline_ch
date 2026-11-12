@@ -143,7 +143,7 @@
 \def\ppw{1.7}   % population plot width  (cm)
 \def\pph{0.9}   % population plot height (cm)
 \node[parea,minimum width=\ppw cm,minimum height=\pph cm] (pop) at ($(bigbox.west |- bigbox.center)+(-\popdx cm,0)$) {};
-\pdeco{pop}{Population}{Time}{Pop. size}
+\pdeco{pop}{National population}{Time}{Pop. size}
 \begin{scope}[shift={(pop.south west)},xscale={\ppw/\pw},yscale={\pph/\ph}]
   \draw[a50] (0.05,0.35) .. controls (1,0.5) and (2,0.8) .. (\pw-0.05,1.1);
 \end{scope}
@@ -314,7 +314,7 @@
 %     straight horizontal line (no arrowhead) from its right middle to that midpoint
 \coordinate (M2) at ($(mun-box.south)!0.5!(mex-box.north)$);
 \node[parea,minimum width=\ppw cm,minimum height=\pph cm] (mb) at (pop |- M2) {};
-\pdeco{mb}{Municipal births}{Time}{Births}
+\pdeco{mb}{Municipal observed births}{Time}{Births}
 \begin{scope}[shift={(mb.south west)},xscale={\ppw/\pw},yscale={\pph/\ph}]
   % three curves = the three biggest cities (same seasonal sine, different level/trend)
   \draw[draw=cZur,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
