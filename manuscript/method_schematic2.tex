@@ -58,7 +58,7 @@
   panel/.style={draw=pEdge,fill=pFill,rounded corners=4pt,line width=.9pt},
   box/.style={draw=pEdge,fill=white,rounded corners=3pt,line width=.7pt},
   parea/.style={minimum width=\pw cm,minimum height=\ph cm,inner sep=0pt,outer sep=0pt},
-  ttl/.style={font=\scriptsize\bfseries,text=tNavy},
+  ttl/.style={font=\fontsize{6}{7}\selectfont\bfseries,text=tNavy},   % plot titles
   sub/.style={font=\tiny,text=black!60},
   ax/.style={black!45,line width=.5pt},
   zero/.style={black!50,line width=.5pt,densely dashed},
@@ -117,10 +117,10 @@
 \end{scope}
 
 % the big box wraps the three plots and their labels
-% box title, top left (above the plot titles)
-\node[ttl,anchor=south west] (bb-t) at ($(sh-y.west |- sh-t.north)+(0,5pt)$) {Model decomposition};
+% room for the box title above the plot titles (invisible point that the box must contain)
+\coordinate (bbtop) at ($(sh-y.west |- sh-t.north)+(0,0.3cm)$);
 \begin{scope}[on background layer]
-  \node[panel,fit=(bb-t)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
+  \node[panel,fit=(bbtop)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
 \end{scope}
 
 
@@ -208,6 +208,9 @@
 % ne-box, cf, nex-box, mun-box, mex-box). \agap = clear space left at each end.
 % Off-centre arrows lean toward the middle of the figure by \adx.
 % ====================================================================
+% box title, tucked into the top-left corner of the model box
+\node[ttl,anchor=north west] (bb-t) at ($(bigbox.north west)+(4pt,-3pt)$) {Model decomposition};
+
 % national (observed) births -> model box, centre
 \draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north -| se)+(0,\agap)$);
 
@@ -251,10 +254,10 @@
 \draw[flow] ($(mun-box.south)+(\adx,-\agap)$) -- ($(mex-box.north)+(\adx,\agap)$);
 
 % section label, top left of the figure (left edge of Population, top edge of Observed births)
-\node[font=\small\bfseries,text=tNavy,anchor=north west] (inp) at (pop-box.west |- nb-box.north) {Input};
+\node[font=\scriptsize\bfseries,text=tNavy,anchor=north west] (inp) at (pop-box.west |- nb-box.north) {Input};
 
 % section label "Output": just outside the top-left corner of the Expected births box
-\node[font=\small\bfseries,text=tNavy,anchor=south west] (outp) at ($(ne-box.north west)+(0,2pt)$) {Output};
+\node[font=\scriptsize\bfseries,text=tNavy,anchor=south west] (outp) at ($(ne-box.north west)+(0,2pt)$) {Output};
 
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
