@@ -34,6 +34,7 @@ map_sf <- exp_mun_df %>%
   st_as_sf()
 
 ## ---- the three biggest cities: dot + leader line + name (same logic/offsets as fig3) ----
+city_col <- "#15497A"      # dark blue for city dots / lines / names
 mpc <- 15000                 # metres of map per cm of the figure (tune like in figures.qmd)
 city_offsets <- tibble::tribble(
   ~mun_name2, ~label,   ~dx_cm, ~dy_cm, ~hjust,
@@ -56,12 +57,17 @@ fig_exp <- ggplot(map_sf) +
   geom_sf(aes(fill = n_exp), color = NA) +
   scale_fill_gradient(low = "#FBE3C2", high = "#9E2B25", trans = "log10",
                       guide = "none") +                          # no legend
+  # leader line = white halo underneath + dark-blue line on top: readable on the light-orange
+  # AND the dark-red municipalities (blue is the complement of the orange/red fill)
   geom_segment(data = city_xy, aes(x = cx, y = cy, xend = lx, yend = ly),
-               inherit.aes = FALSE, linewidth = 0.3, colour = "grey20") +
-  geom_point(data = city_xy, aes(x = cx, y = cy),
-             inherit.aes = FALSE, size = 0.7, colour = "grey20") +
+               inherit.aes = FALSE, linewidth = 1.1, colour = "white") +
+  geom_segment(data = city_xy, aes(x = cx, y = cy, xend = lx, yend = ly),
+               inherit.aes = FALSE, linewidth = 0.45, colour = city_col) +
+  geom_point(data = city_xy, aes(x = cx, y = cy), inherit.aes = FALSE,
+             shape = 21, size = 1.6, stroke = 0.6, fill = city_col, colour = "white") +
+  # names sit outside the map (white background) -> same dark blue, bold
   geom_text(data = city_xy, aes(x = lx, y = ly, label = label, hjust = hjust),
-            inherit.aes = FALSE, vjust = 0.5, size = 3) +
+            inherit.aes = FALSE, vjust = 0.5, size = 3.2, fontface = "bold", colour = city_col) +
   coord_sf(clip = "off") +                                       # labels may sit outside the map
   theme_void() +
   theme(legend.position = "none")
