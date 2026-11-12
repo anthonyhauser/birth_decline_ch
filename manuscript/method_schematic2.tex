@@ -168,7 +168,9 @@
 
 % municipality-level map (figure 3), no axes
 \node[inner sep=0pt,anchor=north] (mun) at ([xshift=-2.4cm,yshift=2pt]row2)
-  {\includegraphics[width=4.8cm]{../figure/fig3.png}};
+  {\IfFileExists{../figure/fig_expected_births_map.png}%
+    {\includegraphics[width=4.8cm]{../figure/fig_expected_births_map.png}}%   expected births 2025 (run reports/fig_expected_births_map.R)
+    {\includegraphics[width=4.8cm]{../figure/fig3.png}}};   % fallback until that file exists
 \node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipality-level};
 
 
