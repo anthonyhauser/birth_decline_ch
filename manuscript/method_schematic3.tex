@@ -312,7 +312,8 @@
 \end{scope}
 % (b) Municipal births: level with the MIDDLE of the arrow Municipality-level -> Municipal excess;
 %     straight horizontal line (no arrowhead) from its right middle to that midpoint
-\coordinate (M2) at ($(mun-box.south)!0.5!(mex-box.north)$);
+\def\mfrac{0.3}   % where the Municipal observed births line meets the arrow: fraction of the arrow length from its top
+\coordinate (M2) at ($($(mun-box.south)+(0,-\agap)$)!\mfrac!($(mex-box.north)+(0,\agap)$)$);
 \node[parea,minimum width=\ppw cm,minimum height=\pph cm] (mb) at (pop |- M2) {};
 \pdeco{mb}{Municipal observed births}{Time}{Births}
 \begin{scope}[shift={(mb.south west)},xscale={\ppw/\pw},yscale={\pph/\ph}]
