@@ -250,8 +250,8 @@
 % national (observed) births -> model box, centre
 \draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north)+(0,\agap)$);   % straight, centre to centre
 % italic comment on the right of that arrow, two lines (width-limited)
-\node[anchor=west,align=left,text width=1.6cm,font=\tiny\itshape,text=black!65]
-  at ($($(nb-box.south)+(0,-\agap)$)!0.5!($(bigbox.north)+(0,\agap)$)+(3pt,0)$) {inferred by the Bayesian model};
+\node[anchor=west,inner sep=0pt,align=left,text width=1.6cm,font=\tiny\itshape,text=black!65]
+  at ($($(nb-box.south)+(0,-\agap)$)!0.5!($(bigbox.north)+(0,\agap)$)+(2pt,0)$) {inferred by the Bayesian model};
 
 % shift (left), trend (middle, faded + red cross), season (right) -> expected births.
 % All three start on the SAME y (bottom edge of the model box) and end on the SAME y.
@@ -287,8 +287,8 @@
 % expected births -> national / municipality-level
 \draw[flow,-] ($(ne-box.south)+(0.4cm,-\agap)$)  -- (nexJ);
 % comment on the common final arrow: right of it, just before it arrives, two lines (width-limited)
-\node[anchor=west,align=left,text width=1.4cm,font=\tiny\itshape,text=black!65]
-  at ($(nexJ)!0.5!(nexE)+(3pt,0)$) {compared to observed births};
+\node[anchor=west,inner sep=0pt,align=left,text width=1.4cm,font=\tiny\itshape,text=black!65]
+  at ($(nexJ)!0.5!(nexE)+(2pt,0)$) {compared to observed births};
 \draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$);
 
 % municipality-level -> municipal excess/deficit (same centre line)
@@ -332,12 +332,12 @@
 }
 \draw[densely dashed,draw=black!55,line width=1pt] ($(mp-box.east |- M1)+(\agap,0)$) -- (M1);
 % label: centred on the dashed line, sitting on top of it
-\node[anchor=south,align=center,text width=2.4cm,font=\tiny\itshape,text=black!65]
-  at ($($(mp-box.east |- M1)+(\agap,0)$)!0.5!(M1)+(0,1pt)$) {distributed over municipalities acc. to pop. size};
+\node[anchor=south,inner sep=0pt,align=center,text width=2.4cm,font=\tiny\itshape,text=black!65]
+  at ($($(mp-box.east |- M1)+(\agap,0)$)!0.5!(M1)+(0,0.5pt)$) {distributed over municipalities acc. to pop. size};
 \draw[draw=black!55,line width=1pt] ($(mb-box.east |- M2)+(\agap,0)$) -- (M2);
 % italic comment, centred on top of that line, two lines (width-limited)
-\node[anchor=south,align=center,text width=1.4cm,font=\tiny\itshape,text=black!65]
-  at ($($(mb-box.east |- M2)+(\agap,0)$)!0.5!(M2)+(0,1pt)$) {compared to observed births};
+\node[anchor=south,inner sep=0pt,align=center,text width=1.4cm,font=\tiny\itshape,text=black!65]
+  at ($($(mb-box.east |- M2)+(\agap,0)$)!0.5!(M2)+(0,0.5pt)$) {compared to observed births};
 
 % section label "Input": just left of the top of the Observed births box
 \node[font=\scriptsize\bfseries,text=tNavy,anchor=north east] (inp) at ($(nb-box.north west)+(-0.15cm,0)$) {Input};
