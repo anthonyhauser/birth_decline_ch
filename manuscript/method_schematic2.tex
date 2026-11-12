@@ -118,10 +118,10 @@
 % national births -> each of the three plots
 \draw[flow] ([yshift=-\agap]nb-x.south) -- ([yshift=\agap]se-t.north);
 
-% population -> model (big box): leaves the left of Population, runs down the left of the
-% big box (routeL) and enters the MIDDLE of its left side
+% population -> model (big box): from the bottom-right of Population to the top of the big box,
+% centre but a bit to the left (-0.6cm)
 \coordinate (routeL) at ([xshift=-0.95cm]pop-y.west);
-\draw[flow,rounded corners=8pt,shorten >=10pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (bigbox.west);
+\draw[flow] ([yshift=-6pt]pop.south east) -- ([xshift=-0.6cm,yshift=6pt]se.north |- bigbox.north);
 
 % ====================================================================
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
