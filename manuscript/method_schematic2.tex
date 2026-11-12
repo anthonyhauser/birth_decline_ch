@@ -22,6 +22,8 @@
 \definecolor{tOrng}{HTML}{E6550D}
 \definecolor{pFill}{HTML}{FBFCFE}
 \definecolor{pEdge}{HTML}{C7D2E0}
+\definecolor{yFill}{HTML}{FFF7D9}   % pale yellow (data boxes)
+\definecolor{yEdge}{HTML}{E8D697}
 \definecolor{cA15}{HTML}{F2A65A}   % light orange
 \definecolor{cA50}{HTML}{9E2B25}   % dark red
 \definecolor{cFd}{HTML}{15497A}    % fertility : dark blue
@@ -181,9 +183,16 @@
 % ====================================================================
 % boxes around single plots (title + axis labels included). Add/remove a line to toggle one.
 % ====================================================================
-\foreach \n in {nb,pop,ne,nex,mex}{
+\foreach \n in {ne,nex,mex}{
   \begin{scope}[on background layer]
     \node[box,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=5pt] (\n-box) {};
+  \end{scope}
+}
+
+% data plots (observed births, population): pale yellow
+\foreach \n in {nb,pop}{
+  \begin{scope}[on background layer]
+    \node[box,fill=yFill,draw=yEdge,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=5pt] (\n-box) {};
   \end{scope}
 }
 
