@@ -32,6 +32,7 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{2.5}     % plot width  (cm)
 \def\ph{1.2}   % plot height (cm)
+\def\mdx{0.6}    % cm: how far the model box is moved LEFT of National births
 \def\bgap{0.8}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
 \def\nbgap{3.2} % vertical gap (cm) between National births and the model box: reduce to move the box up
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
@@ -91,7 +92,7 @@
 % ====================================================================
 % 3. Big box with three plots: Shift in childbearing age | Season | Trend
 % ====================================================================
-\node[parea,below=\nbgap cm of nb] (se) {};              % middle (centred under nb)
+\node[parea,below=\nbgap cm of nb,xshift=-\mdx cm] (se) {};              % middle (centred under nb)
 \node[parea,left =\bgap cm of se] (sh) {};   % Shift (left)
 \node[parea,right=\bgap cm of se] (tr) {};   % Trend (right)
 
@@ -148,7 +149,7 @@
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
 %    both are hung from the same row y, so their titles are at the same height
 % ====================================================================
-\coordinate (row2) at ($(se |- ne-x.south)+(0,-\rowdy cm)$);   % lower row stays centred on Season
+\coordinate (row2) at ($(nb |- ne-x.south)+(0,-\rowdy cm)$);   % lower row stays centred on National births
 \node[parea,anchor=north] (nex) at ([xshift=2.9cm]row2) {};
 \def\tgap{3pt}\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}\def\tgap{1pt}
 \begin{scope}[shift={(nex.south west)}]
