@@ -265,6 +265,14 @@ render_report = function(cfg, last_year_rep){
 lapply(old_configs, function(cfg) render_report(cfg, last_year_rep = 2024))
 lapply(configs,     function(cfg) render_report(cfg, last_year_rep = last_year))
 
+if(FALSE){
+  save.date = configs[[1]]$save.date
+  mod_name  = configs[[1]]$mod_name
+  seed_id   = configs[[1]]$seed_id
+  res_path  = configs[[1]]$res_path
+  ntile_year_suffix = if(last_year==2025) paste0("_2017_",last_year) else ""
+}
+
 #figures and supplementary figures----------------------------------------------
 fig_configs = list(
   list(save.date_rep = "20260309", save.date2_rep = "20260320", res_path_rep = "results/",      ntile_year_suffix_rep = "",           last_year_rep = 2024),
