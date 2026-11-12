@@ -334,10 +334,17 @@
 % label: centred on the dashed line, sitting on top of it
 \node[anchor=south,inner sep=0pt,align=center,text width=2.4cm,font=\tiny\itshape,text=black!65]
   at ($($(mp-box.east |- M1)+(\agap,0)$)!0.5!(M1)+(0,0.5pt)$) {distributed over municipalities acc. to pop. size};
-\draw[draw=black!55,line width=1pt] ($(mb-box.east |- M2)+(\agap,0)$) -- (M2);
-% italic comment, centred on top of that line, two lines (width-limited)
+% Municipal observed births line: horizontal, then it curves smoothly downward and MERGES into the
+% vertical arrow (like the two arrows into National excess). \mr = radius of the bend.
+\def\mr{0.4}   % cm
+\coordinate (mbS) at ($(mb-box.east |- M2)+(\agap,0)$);   % start of the line
+\coordinate (mbC) at ($(M2)+(-\mr,0)$);                    % where the bend starts
+\coordinate (mbJ) at ($(M2)+(0,-\mr)$);                    % where it joins the vertical arrow
+\draw[draw=black!55,line width=1pt] (mbS) -- (mbC)
+  .. controls ($(mbC)+({0.6*\mr},0)$) and ($(mbJ)+(0,{0.6*\mr})$) .. (mbJ);
+% italic comment, centred on top of the straight part (width-limited, two lines)
 \node[anchor=south,inner sep=0pt,align=center,text width=1.4cm,font=\tiny\itshape,text=black!65]
-  at ($($(mb-box.east |- M2)+(\agap,0)$)!0.5!(M2)+(0,0.5pt)$) {compared to observed births};
+  at ($(mbS)!0.5!(mbC)+(0,0.5pt)$) {compared to observed births};
 
 % section label "Input": just left of the top of the Observed births box
 \node[font=\scriptsize\bfseries,text=tNavy,anchor=north east] (inp) at ($(nb-box.north west)+(-0.15cm,0)$) {Input};
