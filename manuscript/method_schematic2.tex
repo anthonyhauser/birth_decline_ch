@@ -241,11 +241,12 @@
 % observed births -> national excess/deficit: out to the right, down the right of the
 % model box / text box (routeR), then left into the box
 \coordinate (routeR) at ($(cf.east)+(0.5cm,0)$);
+\coordinate (nexE) at ($(nex-box.north)+(-\adx,\agap)$);   % common arrival point on National excess/deficit
 \coordinate (oS) at ($(nb-box.east)+(\agap,0)$);
-\draw[flow,rounded corners=8pt] (oS) -- (oS -| routeR) |- ($(nex-box.east)+(\agap,0)$);
+\draw[flow,rounded corners=8pt] (oS) -- (oS -| routeR) |- (nexE);
 
 % expected births -> national / municipality-level
-\draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- ($(nex-box.north)+(-\adx,\agap)$)
+\draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- (nexE)
   node[midway,right=2pt,align=left,text width=2.4cm,font=\tiny\itshape,text=black!65]
   {compared to observed births};
 \draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$)
