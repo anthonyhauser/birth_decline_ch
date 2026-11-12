@@ -296,6 +296,16 @@ lapply(fig_configs, function(cfg){
   render_figures("reports/supp_figues.qmd", cfg$save.date_rep, cfg$save.date2_rep, cfg$res_path_rep, cfg$ntile_year_suffix_rep, cfg$last_year_rep)
 })
 
+if(FALSE){
+  save.date= "20260625"
+  save.date2 = "20260625"
+  seed_id=1
+  res_path = "results/2025/"
+  ntile_year_suffix = "_2017_2025"
+  last_year = 2025
+  mod_name = "mod8" 
+}
+
 #some number used in manuscripts, only for 2025 --------------------------------
 save.date="20260625"; mod_name_full="mod8_2025"; seed_id=1
 mod_name_swiss="mod8_swiss_2025"; mod_name_nonswiss="mod8_non-swiss_2025"

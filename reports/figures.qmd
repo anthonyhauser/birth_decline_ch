@@ -50,9 +50,9 @@ filter_parity = dplyr::case_when(grepl("second", mod_name) ~ "second",
 filter_ctz2 = dplyr::case_when(grepl("non-swiss", mod_name) ~ "non-swiss",
                                grepl("swiss", mod_name) ~ "swiss",
                                TRUE ~ "all")
-include_ctz = TRUE #filter_ctz2!="swiss"
 
 year_suffix       = if(last_year == 2025) paste0("_", last_year) else ""
+mod_name_full     = paste0(mod_name,             year_suffix)
 mod_name_full     = paste0(mod_name,             year_suffix)
 mod_name_swiss    = paste0(mod_name, "_swiss",     year_suffix)
 mod_name_nonswiss = paste0(mod_name, "_non-swiss", year_suffix)
