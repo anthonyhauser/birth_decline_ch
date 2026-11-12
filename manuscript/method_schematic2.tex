@@ -241,7 +241,9 @@
 
 % expected births -> national / municipality-level
 \draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- ($(nex-box.north)+(-\adx,\agap)$);
-\draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$);
+\draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$)
+  node[midway,left=2pt,align=right,text width=2.4cm,font=\tiny\itshape,text=black!65]
+  {distributed over municipalities acc. to pop. size};
 
 % municipality-level -> municipal excess/deficit (left column: leans right)
 \draw[flow] ($(mun-box.south)+(\adx,-\agap)$) -- ($(mex-box.north)+(\adx,\agap)$);
