@@ -130,7 +130,7 @@
 % 4. Expected births (centred under the model box, i.e. under Observed births) + text box on its right
 % ====================================================================
 \node[parea,anchor=north] (ne) at ($(bigbox.south)+(0,-\nedy cm)$) {};   % same centre line as Observed births
-\pdeco{ne}{Expected births}{Time}{Births}
+\pdeco{ne}{National expected births}{Time}{Births}
 \begin{scope}[shift={(ne.south west)}]
   % expected line only
   \draw[agg,dashed] plot[domain=0.05:\pw-0.05,samples=100,smooth]
