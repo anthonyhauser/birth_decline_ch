@@ -364,9 +364,9 @@ fig3 = excess_birth_adj2_mun_df %>%
   geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
   scale_fill_gradient2(
     name = "Relative excess birth",
-    low = "#4575B4",   # blue         (deficit)  -- ColorBrewer RdYlBu, colourblind-safe
+    low = "#D73027",   # red          (deficit)  -- colourblind-safe red/yellow/purple
     mid = "#FFFFBF",   # light yellow (neutral at 0)
-    high = "#D73027",  # red          (excess)
+    high = "#5E3C99",  # purple       (excess)
     midpoint = 0,
     breaks = c(-0.2, 0, 0.2),
     labels = scales::percent_format(accuracy = 1),
