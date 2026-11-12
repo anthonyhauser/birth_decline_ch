@@ -60,14 +60,15 @@ fig_exp <- ggplot(map_sf) +
   # leader line = white halo underneath + dark-blue line on top: readable on the light-orange
   # AND the dark-red municipalities (blue is the complement of the orange/red fill)
   geom_segment(data = city_xy, aes(x = cx, y = cy, xend = lx, yend = ly),
-               inherit.aes = FALSE, linewidth = 1.1, colour = "white") +
+               inherit.aes = FALSE, linewidth = 3.2, colour = "white") +
   geom_segment(data = city_xy, aes(x = cx, y = cy, xend = lx, yend = ly),
-               inherit.aes = FALSE, linewidth = 0.45, colour = city_col) +
+               inherit.aes = FALSE, linewidth = 1.4, colour = city_col) +
   geom_point(data = city_xy, aes(x = cx, y = cy), inherit.aes = FALSE,
-             shape = 21, size = 1.6, stroke = 0.6, fill = city_col, colour = "white") +
-  # names sit outside the map (white background) -> same dark blue, bold
+             shape = 21, size = 5, stroke = 1.2, fill = city_col, colour = "white") +
+  # names sit outside the map (white background) -> same dark blue, bold.
+  # sizes are large on purpose: the PNG is shrunk to ~4.8 cm in the schematic (x0.19)
   geom_text(data = city_xy, aes(x = lx, y = ly, label = label, hjust = hjust),
-            inherit.aes = FALSE, vjust = 0.5, size = 3.2, fontface = "bold", colour = city_col) +
+            inherit.aes = FALSE, vjust = 0.5, size = 10, fontface = "bold", colour = city_col) +
   coord_sf(clip = "off") +                                       # labels may sit outside the map
   theme_void() +
   theme(legend.position = "none")
