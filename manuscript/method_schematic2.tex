@@ -131,7 +131,7 @@
 \begin{scope}[shift={(ne.south west)}]
   % expected line only
   \draw[agg,dashed] plot[domain=0.05:\pw-0.05,samples=100,smooth]
-    (\x,{0.6125+0.0583*\x+0.11*sin(3*\x/\pw*360)});
+    (\x,{0.95-0.1*\x+0.11*sin(3*\x/\pw*360)});
 \end{scope}
 
 \node[box,text width=4.2cm,align=center,font=\scriptsize,inner sep=5pt,right=0.6cm of ne] (cf)
