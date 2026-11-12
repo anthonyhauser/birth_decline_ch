@@ -134,8 +134,11 @@
     (\x,{0.95-0.1*\x+0.11*sin(3*\x/\pw*360)});
 \end{scope}
 
-\node[box,text width=4.2cm,align=center,font=\scriptsize,inner sep=5pt,right=0.6cm of ne] (cf)
-  {Counterfactual birth with stable birth rate and accounting for shift in childbearing age and population changes.};
+\node[box,text width=5.2cm,align=left,font=\scriptsize,inner sep=5pt,right=0.6cm of ne] (cf)
+  {\textbf{Expected birth}: Counterfactual number of birth given\\[2pt]
+   $\bullet$~a \textbf{stable} birth rate (i.e., no trend)\\
+   $\bullet$~the population changes\\
+   $\bullet$~shift in childbearing age};
 
 % trend (left, faded + red cross), season and shift -> expectation
 \coordinate (neL) at ([xshift=-0.5cm,yshift=\agap]ne-t.north);
