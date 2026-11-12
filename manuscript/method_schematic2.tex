@@ -30,13 +30,14 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{3}     % plot width  (cm)
 \def\ph{1.5}   % plot height (cm)
+\def\tgap{1pt}  % gap between a plot and its title (national excess uses 3pt)
 
 % plot decoration: axes + title + x label + y label, attached to node #1.
 % optional first argument = how far left the y label sits (default 2pt)
 \newcommand{\pdeco}[5][2pt]{%
   \draw[ax] (#2.south west)--(#2.south east);
   \draw[ax] (#2.south west)--(#2.north west);
-  \node[ttl,anchor=south] (#2-t) at ([yshift=3pt]#2.north) {#3};
+  \node[ttl,anchor=south] (#2-t) at ([yshift=\tgap]#2.north) {#3};
   \node[sub,anchor=north] (#2-x) at ([yshift=-1pt]#2.south) {#4};
   \node[sub,rotate=90,anchor=south] (#2-y) at ([xshift=-#1]#2.west) {#5};
 }
@@ -81,7 +82,7 @@
 % ====================================================================
 % 3. Big box with three plots: Trend | Season | Shift in childbearing age
 % ====================================================================
-\node[parea,below=2.9cm of nb] (se) {};              % middle (centred under nb)
+\node[parea,below=3.5cm of nb] (se) {};              % middle (centred under nb)
 \node[parea,left =1.1cm of se] (tr) {};
 \node[parea,right=1.1cm of se] (sh) {};
 
@@ -112,9 +113,7 @@
 \end{scope}
 
 % national births -> each of the three plots
-\draw[flow] (nb-x.south) -- (tr-t.north);
 \draw[flow] (nb-x.south) -- (se-t.north);
-\draw[flow] (nb-x.south) -- (sh-t.north);
 
 % population -> model (big box)
 \draw[flow] (pop-x.south) -- (pop-x.south |- bigbox.north);
@@ -143,7 +142,7 @@
   at ($(tr-x.south)!0.5!(neL)$) {};
 
 % population -> national expectation, rounded, around the LEFT of the big box
-\draw[flow,rounded corners=8pt] (pop-y.west) -- ++(-0.3,0) |- (ne-y.west);
+\draw[flow,rounded corners=8pt,shorten <=0pt] ([xshift=-8pt]pop-y.west) -- ([xshift=-0.55cm]pop-y.west) |- (ne-y.west);
 
 % ====================================================================
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
@@ -151,7 +150,7 @@
 % ====================================================================
 \coordinate (row2) at ([yshift=-1.6cm]ne-x.south);
 \node[parea,anchor=north] (nex) at ([xshift=2.9cm]row2) {};
-\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}
+\def\tgap{3pt}\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}\def\tgap{1pt}
 \begin{scope}[shift={(nex.south west)}]
   \def\obsx{0.7875-0.0583*\x+0.14*sin(3*\x/\pw*360)}      % observed
   \def\expx{0.6125+0.0583*\x+0.11*sin(3*\x/\pw*360)}      % expected
@@ -163,9 +162,9 @@
 \end{scope}
 
 % municipality-level map (figure 3), no axes
-\node[inner sep=0pt,anchor=north] (mun) at ([xshift=-2.9cm]row2)
+\node[inner sep=0pt,anchor=north] (mun) at ([xshift=-2.9cm,yshift=2pt]row2)
   {\includegraphics[width=4.8cm]{../figure/fig3.png}};
-\node[ttl,anchor=south] (mun-t) at ([yshift=3pt]mun.north) {Municipality-level};
+\node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipality-level};
 
 % national expectation -> national / municipality-level
 \draw[flow] (ne-x.south) -- (nex-t.north);
