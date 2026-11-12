@@ -356,12 +356,46 @@ ggsave(filename = paste0(code_root_path,"slides/images/fig2.pdf"),
 
 ::: {#fig-fig3}
 ```{r,  fig.height=6,fig.width=10}
-fig3 = excess_birth_adj2_mun_df %>% 
-  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>% 
+# --- city labels with leader lines ----------------------------------------
+# metres of map per cm on the rendered figure (10x6 in with ~equal aspect);
+# tune this single constant if the offsets look too long/short after compiling
+mpc = 15000
+
+# offsets requested (in cm on the figure); hjust: 0 = text to the right of the
+# anchor, 1 = text to the left
+city_offsets = tibble::tribble(
+  ~mun_name2, ~label,     ~dx_cm, ~dy_cm, ~hjust,
+  "Genève",   "Geneva",      1.0,    0.0,     0,
+  "Lausanne", "Lausanne",   -0.2,   -1.0,     1,
+  "Bern",     "Bern",       -4.0,    3.0,     1,
+  "Basel",    "Basel",      -0.5,    0.5,     1,
+  "Zürich",   "Zurich",     -2.0,    3.0,     1
+)
+
+city_xy = new_mun_sf %>%
+  filter(mun_name2 %in% city_offsets$mun_name2) %>%
+  group_by(mun_name2) %>% dplyr::summarise(.groups = "drop") %>%
+  sf::st_point_on_surface() %>%
+  dplyr::mutate(cx = sf::st_coordinates(.)[,1],
+                cy = sf::st_coordinates(.)[,2]) %>%
+  sf::st_drop_geometry() %>%
+  left_join(city_offsets, by = "mun_name2") %>%
+  dplyr::mutate(lx = cx + dx_cm * mpc,
+                ly = cy + dy_cm * mpc)
+
+fig3 = excess_birth_adj2_mun_df %>%
+  left_join(new_mun_sf %>% dplyr::mutate(mun_id=as.numeric(mun_id)), by = c("mun_id")) %>%
   st_as_sf() %>%
   ggplot() +
   geom_sf(aes(fill = rel_exc_mean), color = NA) +
   geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
+  geom_segment(data = city_xy, aes(x = cx, y = cy, xend = lx, yend = ly),
+               inherit.aes = FALSE, linewidth = 0.3, colour = "grey20") +
+  geom_point(data = city_xy, aes(x = cx, y = cy),
+             inherit.aes = FALSE, size = 0.7, colour = "grey20") +
+  geom_text(data = city_xy, aes(x = lx, y = ly, label = label, hjust = hjust),
+            inherit.aes = FALSE, vjust = 0.5, size = 3) +
+  coord_sf(clip = "off") +
   scale_fill_gradient2(
     name = "Relative excess birth",
     low = "#D73027",   # red          (deficit)  -- colourblind-safe red/yellow/purple
