@@ -154,13 +154,38 @@ x0 <- df$mother_age[idx]
 delta <- (y1 - y3) / (2 * (y1 - 2 * y2 + y3))
 peak_age <- x0 + delta
 
-p3 = gp_rel_df %>% 
+#peak markers (squares) linking panels B and C: the modelled peak age
+#(2000 peak + modelled relative shift) for the three displayed years
+sq_years = c(2000, 2010, last_year)
+peak_pts_b_df = birth_prob_by_age_df %>%
+  filter(year %in% sq_years) %>%
+  group_by(year) %>%
+  dplyr::summarise(peak_est = max(est), .groups = "drop") %>%
+  left_join(gp_rel_df %>% dplyr::select(year, gp_shift = est), by = "year") %>%
+  dplyr::mutate(peak_age_mod = peak_age + gp_shift)
+peak_pts_c_df = gp_rel_df %>%
+  dplyr::mutate(peak_age_mod = est + peak_age) %>%
+  filter(year %in% sq_years)
+
+#add a square at the peak of each fertility curve in panel B
+p2 = p2 +
+  geom_point(data = peak_pts_b_df,
+             aes(x = peak_age_mod, y = peak_est, fill = factor(year)),
+             shape = 22, size = 2.8, colour = "black",
+             inherit.aes = FALSE, show.legend = FALSE)
+
+p3 = gp_rel_df %>%
   dplyr::mutate(est = est + peak_age,
                 lwb = lwb + peak_age,
-                upb = upb + peak_age) %>% 
+                upb = upb + peak_age) %>%
   ggplot(aes(x=year,y=est,ymin=lwb,ymax=upb))+
   geom_ribbon(fill="black",alpha=0.2)+
   geom_line(col="black")+
+  #same squares as in panel B, marking the peak age for those years
+  geom_point(data = peak_pts_c_df,
+             aes(x = year, y = peak_age_mod, fill = factor(year)),
+             shape = 22, size = 2.8, colour = "black",
+             inherit.aes = FALSE, show.legend = FALSE)+
   scale_y_continuous(name="Age of fertility peak")+
   scale_x_continuous(name="Calendar year")+
   theme(plot.margin = margin(5.5, 9, 5.5, 5.5))
@@ -336,14 +361,12 @@ fig3 = excess_birth_adj2_mun_df %>%
   st_as_sf() %>%
   ggplot() +
   geom_sf(aes(fill = rel_exc_mean), color = NA) +
-  geom_sf(data = regions_sf %>% mutate(dist_id = as.numeric(dist_id)), 
-          fill = NA, color = "black", size = 0.3) +
   geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
   scale_fill_gradient2(
     name = "Relative excess birth",
-    low = "red",
-    mid = "lightyellow",
-    high = "green",
+    low = "#4575B4",   # blue         (deficit)  -- ColorBrewer RdYlBu, colourblind-safe
+    mid = "#FFFFBF",   # light yellow (neutral at 0)
+    high = "#D73027",  # red          (excess)
     midpoint = 0,
     breaks = c(-0.2, 0, 0.2),
     labels = scales::percent_format(accuracy = 1),
