@@ -365,11 +365,11 @@ mpc = 15000
 # anchor, 1 = text to the left
 city_offsets = tibble::tribble(
   ~mun_name2, ~label,     ~dx_cm, ~dy_cm, ~hjust,
-  "Genève",   "Geneva",      1.0,    0.0,     0,
-  "Lausanne", "Lausanne",   -0.2,   -1.0,     1,
-  "Bern",     "Bern",       -4.0,    3.0,     1,
+  "Genève",   "Geneva",      1.0,   -0.4,     0,
+  "Lausanne", "Lausanne",   0.2,   -1.8,     1,
+  "Bern",     "Bern",       -3.3,    2.2,     1,
   "Basel",    "Basel",      -0.5,    0.5,     1,
-  "Zürich",   "Zurich",     -2.0,    3.0,     1
+  "Zürich",   "Zurich",     -2.0,    2.2,     1
 )
 
 city_xy = new_mun_sf %>%
@@ -394,7 +394,7 @@ fig3 = excess_birth_adj2_mun_df %>%
   geom_point(data = city_xy, aes(x = cx, y = cy),
              inherit.aes = FALSE, size = 0.7, colour = "grey20") +
   geom_text(data = city_xy, aes(x = lx, y = ly, label = label, hjust = hjust),
-            inherit.aes = FALSE, vjust = 0.5, size = 3) +
+            inherit.aes = FALSE, vjust = 0.5, size = 4) +
   coord_sf(clip = "off") +
   scale_fill_gradient2(
     name = "Relative excess birth",
