@@ -32,6 +32,7 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{2.2}     % plot width  (cm)
 \def\ph{1.2}   % plot height (cm)
+\def\cfdx{2.3}   % cm: gap between Expected births and its text box (bigger = further right)
 \def\cfdy{0.3}   % cm: how far the Expected-birth text box is raised
 \def\bgap{0.6}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
 \def\nbgap{1.5} % vertical gap (cm) between the model box and National births (above it)
@@ -117,16 +118,6 @@
 \end{scope}
 
 % ====================================================================
-% 2. Population (slightly below, to the left of National births)
-% ====================================================================
-\node[parea] (pop) at ([shift={(-4.0,-0.5)}]nb) {};
-\pdeco{pop}{Population}{Time}{Pop. size}
-\begin{scope}[shift={(pop.south west)}]
-  \draw[a50] (0.05,0.35) .. controls (1,0.5) and (2,0.8) .. (\pw-0.05,1.1);
-\end{scope}
-
-
-% ====================================================================
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
 % ====================================================================
 \coordinate (midSS) at ($(sh)!0.5!(se)$);   % exactly between Shift and Season
@@ -138,7 +129,19 @@
     (\x,{0.95-0.1*\x+0.11*sin(3*\x/\pw*360)});
 \end{scope}
 
-\node[box,fill=black!6,rounded corners=0pt,text width=3.0cm,align=left,font=\fontsize{6}{7}\selectfont,inner sep=4pt,right=0.8cm of ne,yshift=\cfdy cm] (cf)
+% ====================================================================
+% 2. Population: small plot just left of Expected births, level with it, and left of the
+%    model box (so its upper arrow can run up and then right into the box)
+% ====================================================================
+\def\ppw{1.7}   % population plot width  (cm)
+\def\pph{0.9}   % population plot height (cm)
+\node[parea,minimum width=\ppw cm,minimum height=\pph cm] (pop) at ($(bigbox.west |- ne)+(-0.6cm,0)$) {};
+\pdeco{pop}{Population}{Time}{Pop. size}
+\begin{scope}[shift={(pop.south west)},xscale={\ppw/\pw},yscale={\pph/\ph}]
+  \draw[a50] (0.05,0.35) .. controls (1,0.5) and (2,0.8) .. (\pw-0.05,1.1);
+\end{scope}
+
+\node[box,fill=black!6,rounded corners=0pt,text width=2.7cm,align=left,font=\fontsize{6}{7}\selectfont,inner sep=4pt,right=\cfdx cm of ne,yshift=\cfdy cm] (cf)
   {\textbf{Expected birth}: Counterfactual number of birth given\\[2pt]
    $\bullet$~a \textbf{stable} birth rate (i.e., no trend)\\
    $\bullet$~the population changes\\
@@ -218,9 +221,6 @@
 % national (observed) births -> model box, centre
 \draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north)+(0,\agap)$);   % straight, centre to centre
 
-% population -> model box: from the bottom right of Population to the top, centre but a bit left
-\draw[flow] ($(pop-box.south east)+(-\adx,-\agap/3)$) -- ($(bigbox.north)+(-0.6cm,\agap/3)$);
-
 % shift (left), season, trend (right, faded + red cross) -> expected births.
 % All three start on the SAME y (bottom edge of the model box) and end on the SAME y.
 \coordinate (sL) at ($(sh.south |- bigbox.south)+(\adx,-\agap)$);   % Shift (left)
@@ -236,10 +236,12 @@
 \node[cross out,draw=red,line width=1.8pt,minimum size=0.3cm,inner sep=0pt]
   at ($(sR)!0.5!(neR)$) {};
 
-% population -> expected births, rounded, down the left of the model box
-\coordinate (routeL) at ($(bigbox.west)+(-0.3cm,0)$);
-\coordinate (pS) at ($(pop-box.south west)+(0.3cm,-\agap/2)$);
-\draw[flow,rounded corners=8pt] (pS) -- (pS -| routeL) |- ($(ne-box.west)+(-\agap,0)$);
+% population -> model box: up from the top middle of Population, then right into the middle of
+% the model box's side
+\coordinate (pS) at ($(pop-box.north)+(0,\agap)$);
+\draw[flow,rounded corners=8pt] (pS) -- (pS |- bigbox.west) -- ($(bigbox.west)+(-\agap,0)$);
+% population -> expected births: straight, right middle to left middle
+\draw[flow] ($(pop-box.east)+(\agap,0)$) -- ($(ne-box.west)+(-\agap,0)$);
 
 % observed births -> national excess/deficit: out to the right, down the right of the
 % model box / text box (routeR), then left into the box
@@ -247,7 +249,7 @@
 \coordinate (nexE) at ($(nex-box.north)+(-\adx,\agap)$);   % common arrival point on National excess/deficit
 \coordinate (oS) at ($(nb-box.east)+(\agap,0)$);
 % horizontal -> vertical -> diagonal: (obsP) is where the vertical run ends and the diagonal starts
-\coordinate (obsP) at ($(routeR |- nexE)+(0,1.5cm)$);   % 1.5cm = height of the diagonal part
+\coordinate (obsP) at ($(routeR |- nexE)+(0,0.8cm)$);   % 0.8cm = height of the diagonal part
 \draw[flow,rounded corners=8pt] (oS) -- (oS -| routeR) -- (obsP) -- (nexE);
 
 % expected births -> national / municipality-level
@@ -261,8 +263,8 @@
 % municipality-level -> municipal excess/deficit (same centre line)
 \draw[flow] ($(mun-box.south)+(0,-\agap)$) -- ($(mex-box.north)+(0,\agap)$);   % same centre line: straight
 
-% section label, top left of the figure (left edge of Population, top edge of Observed births)
-\node[font=\scriptsize\bfseries,text=tNavy,anchor=north west] (inp) at (pop-box.west |- nb-box.north) {Input};
+% section label "Input": just left of the top of the Observed births box
+\node[font=\scriptsize\bfseries,text=tNavy,anchor=north east] (inp) at ($(nb-box.north west)+(-0.15cm,0)$) {Input};
 
 % section label "Output": just outside the top-left corner of the Expected births box
 \node[font=\scriptsize\bfseries,text=tNavy,anchor=south west] (outp) at ($(ne-box.north west)+(0,2pt)$) {Output};
@@ -271,7 +273,7 @@
 % overall box (single panel). Delete this block for no frame.
 % ====================================================================
 \begin{pgfonlayer}{bottom}
-  \node[panel,fill=white,fit=(inp)(routeL)(routeR)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=8pt] {};
+  \node[panel,fill=white,fit=(inp)(routeR)(pop-box)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=8pt] {};
 \end{pgfonlayer}
 
 \end{tikzpicture}
