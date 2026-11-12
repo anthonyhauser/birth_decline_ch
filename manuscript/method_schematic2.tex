@@ -22,8 +22,8 @@
 \definecolor{tOrng}{HTML}{E6550D}
 \definecolor{pFill}{HTML}{FBFCFE}
 \definecolor{pEdge}{HTML}{C7D2E0}
-\definecolor{yFill}{HTML}{FFFCEE}   % pale yellow (data boxes)
-\definecolor{yEdge}{HTML}{F1E7BE}
+\definecolor{yFill}{HTML}{FFFDF4}   % pale yellow (data boxes)
+\definecolor{yEdge}{HTML}{F3EBC9}
 \definecolor{cA15}{HTML}{F2A65A}   % light orange
 \definecolor{cA50}{HTML}{9E2B25}   % dark red
 \definecolor{cFd}{HTML}{15497A}    % fertility : dark blue
@@ -32,7 +32,7 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{2.2}     % plot width  (cm)
 \def\ph{1.2}   % plot height (cm)
-\def\cfdy{0.4}   % cm: how far the Expected-birth text box is raised
+\def\cfdy{0.3}   % cm: how far the Expected-birth text box is raised
 \def\bgap{0.6}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
 \def\nbgap{1.5} % vertical gap (cm) between the model box and National births (above it)
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
@@ -138,7 +138,7 @@
     (\x,{0.95-0.1*\x+0.11*sin(3*\x/\pw*360)});
 \end{scope}
 
-\node[box,fill=black!6,rounded corners=0pt,text width=3.4cm,align=left,font=\fontsize{6}{7}\selectfont,inner sep=4pt,right=0.4cm of ne,yshift=\cfdy cm] (cf)
+\node[box,fill=black!6,rounded corners=0pt,text width=3.0cm,align=left,font=\fontsize{6}{7}\selectfont,inner sep=4pt,right=0.8cm of ne,yshift=\cfdy cm] (cf)
   {\textbf{Expected birth}: Counterfactual number of birth given\\[2pt]
    $\bullet$~a \textbf{stable} birth rate (i.e., no trend)\\
    $\bullet$~the population changes\\
@@ -187,15 +187,15 @@
 % ====================================================================
 % boxes around single plots (title + axis labels included). Add/remove a line to toggle one.
 % ====================================================================
-\foreach \n in {ne,nex,mex}{
+\foreach \n in {pop,nex,mex}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
     \node[box,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 
-% data plots (observed births, population): pale yellow
-\foreach \n in {nb,pop}{
+% observed births and expected births: pale yellow
+\foreach \n in {nb,ne}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
     \node[box,fill=yFill,draw=yEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
