@@ -249,6 +249,9 @@
 % section label, top left of the figure (left edge of Population, top edge of Observed births)
 \node[font=\small\bfseries,text=tNavy,anchor=north west] (inp) at (pop-box.west |- nb-box.north) {Input};
 
+% section label "Output": just outside the top-left corner of the Expected births box
+\node[font=\small\bfseries,text=tNavy,anchor=south west] (outp) at ($(ne-box.north west)+(0,2pt)$) {Output};
+
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
 % ====================================================================
