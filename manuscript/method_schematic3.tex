@@ -312,9 +312,9 @@
   \end{scope}
 }
 \draw[densely dashed,draw=black!55,line width=1pt] ($(mp-box.east |- M1)+(\agap,0)$) -- (M1);
-% label of the Expected births -> Municipality-level arrow: above the dashed line, left of the arrow
-\node[anchor=south east,align=right,text width=2.2cm,font=\tiny\itshape,text=black!65]
-  at ($(M1)+(-4pt,1pt)$) {distributed over municipalities acc. to pop. size};
+% label: centred on the dashed line, sitting on top of it
+\node[anchor=south,align=center,text width=2.4cm,font=\tiny\itshape,text=black!65]
+  at ($($(mp-box.east |- M1)+(\agap,0)$)!0.5!(M1)+(0,1pt)$) {distributed over municipalities acc. to pop. size};
 \draw[draw=black!55,line width=1pt] ($(mb-box.east |- M2)+(\agap,0)$) -- (M2);
 
 % section label "Input": just left of the top of the Observed births box
