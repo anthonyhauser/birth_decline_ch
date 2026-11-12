@@ -205,11 +205,16 @@
 % ====================================================================
 % boxes around single plots (title + axis labels included). Add/remove a line to toggle one.
 % ====================================================================
-\foreach \n in {nb,ne,nex,mex}{
+\foreach \n in {nb,pop,ne,nex,mex}{
   \begin{scope}[on background layer]
     \node[box,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=5pt] (\n-box) {};
   \end{scope}
 }
+
+% municipality-level map has no axis labels: box around title + image
+\begin{scope}[on background layer]
+  \node[box,fit=(mun-t)(mun),inner sep=5pt] (mun-box) {};
+\end{scope}
 
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
