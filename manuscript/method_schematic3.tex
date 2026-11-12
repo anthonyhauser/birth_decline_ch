@@ -25,7 +25,11 @@
 \definecolor{cBas}{HTML}{7B3294}   % Basel
 \definecolor{pFill}{HTML}{FBFCFE}
 \definecolor{pEdge}{HTML}{C7D2E0}
-\definecolor{yFill}{HTML}{FFFDF4}   % pale yellow (data boxes)
+\definecolor{yFill}{HTML}{FFFDF4}   % (unused now) pale yellow
+\definecolor{rFill}{HTML}{FFF7F5}   % very light red    : national level boxes
+\definecolor{rEdge}{HTML}{F3D8D4}
+\definecolor{vFill}{HTML}{F8F5FC}   % very light violet : municipal level boxes
+\definecolor{vEdge}{HTML}{DDD3EC}
 \definecolor{yEdge}{HTML}{F3EBC9}
 \definecolor{cA15}{HTML}{F2A65A}   % light orange
 \definecolor{cA50}{HTML}{9E2B25}   % dark red
@@ -111,7 +115,7 @@
 \coordinate (bbtop) at ($(sh-y.west |- sh-t.north)+(0,0.3cm)$);
 \coordinate (bbR) at ($(tr)!-1!(sh-y.north |- tr)$);   % mirror image of the left edge -> box is symmetric about Trend
 \begin{scope}[on background layer]
-  \node[panel,fit=(bbtop)(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
+  \node[panel,fill=rFill,draw=rEdge,fit=(bbtop)(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
 \end{scope}
 
 % ====================================================================
@@ -173,7 +177,7 @@
 % its box, drawn now so that the Municipality-level box can copy its size
 \begin{scope}[on background layer]
   \coordinate (nex-yr) at ($(nex)!-1!(nex-y.north |- nex)$);
-  \node[box,fit=(nex-yr)(nex-y)(nex-t)(nex-x)(nex),inner sep=3pt] (nex-box) {};
+  \node[box,fill=rFill,draw=rEdge,fit=(nex-yr)(nex-y)(nex-t)(nex-x)(nex),inner sep=3pt] (nex-box) {};
 \end{scope}
 % measure that box (width, height) and the height of a title, in pt
 \path let \p1=($(nex-box.north east)-(nex-box.south west)$) in \pgfextra{\xdef\nexw{\x1}\xdef\nexh{\y1}};
@@ -187,7 +191,7 @@
     {\includegraphics[height=\imgh]{../figure/fig3.png}}};   % fallback until that file exists
 \node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipality-level};
 \begin{scope}[on background layer]
-  \node[box,fit=(mun-t)(mun),inner sep=3pt,minimum width=\nexw] (mun-box) {};
+  \node[box,fill=vFill,draw=vEdge,fit=(mun-t)(mun),inner sep=3pt,minimum width=\nexw] (mun-box) {};
 \end{scope}
 
 
@@ -212,18 +216,26 @@
 % ====================================================================
 % boxes around single plots (title + axis labels included). Add/remove a line to toggle one.
 % ====================================================================
-\foreach \n in {pop,mex}{
+% national-level boxes: very light red (Population)
+\foreach \n in {pop}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
-    \node[box,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \node[box,fill=rFill,draw=rEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+  \end{scope}
+}
+% municipal-level box: very light violet (Municipal excess/deficit)
+\foreach \n in {mex}{
+  \begin{scope}[on background layer]
+    \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
+    \node[box,fill=vFill,draw=vEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 
-% observed births and expected births: pale yellow
+% observed births and expected births: very light red
 \foreach \n in {nb,ne}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
-    \node[box,fill=yFill,draw=yEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \node[box,fill=rFill,draw=rEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 
@@ -313,7 +325,7 @@
 \foreach \n in {mp,mb}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
-    \node[box,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \node[box,fill=vFill,draw=vEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 \draw[densely dashed,draw=black!55,line width=1pt] ($(mp-box.east |- M1)+(\agap,0)$) -- (M1);
