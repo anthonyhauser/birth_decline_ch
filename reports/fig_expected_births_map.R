@@ -42,7 +42,7 @@ city_offsets <- tibble::tribble(
   ~mun_name2, ~label,   ~dx_cm, ~dy_cm, ~hjust, ~col,
   "Genève",   "Geneva",    1.0,   -0.4,      0,   "#009E73",   # green
   "Basel",    "Basel",    -0.5,    0.5,      1,   "#7B3294",   # purple
-  "Zürich",   "Zurich",   -2.0,    2.2,      1,   "#0057B8"    # blue
+  "Zürich",   "Zurich",   -1.4,    2.9,      1,   "#0057B8"    # blue
 )
 city_xy <- new_mun_sf %>%
   filter(mun_name2 %in% city_offsets$mun_name2) %>%
