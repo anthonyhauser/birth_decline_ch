@@ -106,11 +106,14 @@
 % (centres/width are fractions of \pw, so both curves always fit entirely in the plot)
 \begin{scope}[shift={(sh.south west)}]
   \draw[fdk] plot[domain=0.05:\pw-0.05,samples=80,smooth]
-    (\x,{0.1+1.1*exp(-((\x-0.364*\pw)/(0.164*\pw))*((\x-0.364*\pw)/(0.164*\pw)))});
+    (\x,{0.1+1.1*exp(-((\x-0.30*\pw)/(0.15*\pw))*((\x-0.30*\pw)/(0.15*\pw)))});
   \draw[flt] plot[domain=0.05:\pw-0.05,samples=80,smooth]
-    (\x,{0.1+1.1*exp(-((\x-0.636*\pw)/(0.164*\pw))*((\x-0.636*\pw)/(0.164*\pw)))});
+    (\x,{0.1+1.1*exp(-((\x-0.57*\pw)/(0.15*\pw))*((\x-0.57*\pw)/(0.15*\pw)))});
   % small black arrow from the first peak to the second (the shift)
-  \draw[-{Stealth[length=3pt,width=2.5pt]},black,line width=0.6pt] ({0.364*\pw+0.11},1.12) -- ({0.636*\pw-0.11},1.12);
+  \draw[-{Stealth[length=3pt,width=2.5pt]},black,line width=0.6pt] ({0.30*\pw+0.11},1.12) -- ({0.57*\pw-0.11},1.12);
+  % year labels, top right inside the plot (curves were moved slightly left to leave room)
+  \node[anchor=north east,inner sep=0pt,font=\fontsize{4}{4.5}\selectfont,text=cFd] at (\pw-0.05,\ph-0.04) {2000};
+  \node[anchor=north east,inner sep=0pt,font=\fontsize{4}{4.5}\selectfont,text=cFl] at (\pw-0.05,\ph-0.20) {2025};
 \end{scope}
 
 % the big box wraps the three plots and their labels
