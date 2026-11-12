@@ -120,13 +120,13 @@
 
 % population -> model (big box): from the bottom-right of Population to the top of the big box,
 % centre but a bit to the left (-0.6cm)
-\coordinate (routeL) at ([xshift=-0.95cm]pop-y.west);
-\draw[flow] ([yshift=-6pt]pop.south east) -- ([xshift=-0.6cm,yshift=6pt]se.north |- bigbox.north);
+\coordinate (routeL) at ($(bigbox.west)+(-0.45cm,0)$);   % vertical run, just left of the big box
+\draw[flow] ($(pop.south east)+(-\adx,-6pt)$) -- ($(se.north |- bigbox.north)+(-0.6cm,6pt)$);
 
 % ====================================================================
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
 % ====================================================================
-\node[parea,anchor=north] (ne) at ([yshift=-1.9cm]bigbox.south -| se) {};
+\node[parea,anchor=north] (ne) at ($(bigbox.south -| se)+(0,-1.9cm)$) {};
 \pdeco{ne}{National expectation}{Time}{Births}
 \begin{scope}[shift={(ne.south west)}]
   % expected line only
@@ -142,9 +142,9 @@
 \coordinate (neM) at ([yshift=\agap]ne-t.north);
 \coordinate (neR) at ([xshift= 0.5cm,yshift=\agap]ne-t.north);
 % all three start on the SAME y: the bottom edge of the big box (x = centre of each plot)
-\coordinate (sL) at ([xshift=\adx,yshift=-\agap]tr.south |- bigbox.south);
-\coordinate (sM) at ([yshift=-\agap]se.south |- bigbox.south);
-\coordinate (sR) at ([xshift=-\adx,yshift=-\agap]sh.south |- bigbox.south);
+\coordinate (sL) at ($(tr.south |- bigbox.south)+(\adx,-\agap)$);
+\coordinate (sM) at ($(se.south |- bigbox.south)+(0,-\agap)$);
+\coordinate (sR) at ($(sh.south |- bigbox.south)+(-\adx,-\agap)$);
 \draw[flow,opacity=.4] (sL) -- (neL);
 \draw[flow] (sM) -- (neM);
 \draw[flow] (sR) -- (neR);
@@ -152,7 +152,9 @@
   at ($(sL)!0.5!(neL)$) {};
 
 % population -> national expectation, rounded, around the LEFT of the big box
-\draw[flow,rounded corners=8pt,shorten >=10pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (ne-y.west);
+% starts at the bottom-left of Population (closer to the centre than its y label)
+\coordinate (pS) at ($(pop.south west)+(0.3cm,-6pt)$);
+\draw[flow,rounded corners=8pt,shorten >=10pt] (pS) -- (pS -| routeL) |- (ne-y.west);
 
 % ====================================================================
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
@@ -195,7 +197,7 @@
 \end{scope}
 
 % municipality-level -> municipal excess/deficit
-\draw[flow] ([yshift=-\agap]mun.south) -- ([yshift=\agap]mex-t.north);
+\draw[flow] ($(mun.south)+(\adx,-\agap)$) -- ($(mex-t.north)+(\adx,\agap)$);   % left column: leans right (toward the centre)
 
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
