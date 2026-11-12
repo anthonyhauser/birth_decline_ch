@@ -86,11 +86,11 @@
 \end{scope}
 
 % ====================================================================
-% 3. Big box with three plots: Trend | Season | Shift in childbearing age
+% 3. Big box with three plots: Shift in childbearing age | Season | Trend
 % ====================================================================
 \node[parea,below=\nbgap cm of nb] (se) {};              % middle (centred under nb)
-\node[parea,left =1.1cm of se] (tr) {};
-\node[parea,right=1.1cm of se] (sh) {};
+\node[parea,left =1.1cm of se] (sh) {};   % Shift (left)
+\node[parea,right=1.1cm of se] (tr) {};   % Trend (right)
 
 \pdeco{tr}{Trend}{Time}{Birth rate}
 \pdeco{se}{Season}{Time}{Birth rate}
@@ -115,14 +115,15 @@
 
 % the big box wraps the three plots and their labels
 \begin{scope}[on background layer]
-  \node[panel,fit=(tr-y)(tr-t)(tr-x)(se-t)(se-x)(sh-t)(sh-x)(sh),inner sep=7pt] (bigbox) {};
+  \node[panel,fit=(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
 \end{scope}
 
 
 % ====================================================================
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
 % ====================================================================
-\node[parea,anchor=north] (ne) at ($(bigbox.south -| se)+(0,-\nedy cm)$) {};
+\coordinate (midSS) at ($(sh)!0.5!(se)$);   % exactly between Shift and Season
+\node[parea,anchor=north] (ne) at ($(midSS |- bigbox.south)+(0,-\nedy cm)$) {};
 \pdeco{ne}{Expected births}{Time}{Births}
 \begin{scope}[shift={(ne.south west)}]
   % expected line only
@@ -142,7 +143,7 @@
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
 %    both are hung from the same row y, so their titles are at the same height
 % ====================================================================
-\coordinate (row2) at ([yshift=-\rowdy cm]ne-x.south);
+\coordinate (row2) at ($(se |- ne-x.south)+(0,-\rowdy cm)$);   % lower row stays centred on Season
 \node[parea,anchor=north] (nex) at ([xshift=2.9cm]row2) {};
 \def\tgap{3pt}\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}\def\tgap{1pt}
 \begin{scope}[shift={(nex.south west)}]
@@ -201,19 +202,19 @@
 % population -> model box: from the bottom right of Population to the top, centre but a bit left
 \draw[flow] ($(pop-box.south east)+(-\adx,-\agap/3)$) -- ($(bigbox.north -| se)+(-0.6cm,\agap/3)$);
 
-% trend (left, faded + red cross), season, shift -> expected births.
+% shift (left), season, trend (right, faded + red cross) -> expected births.
 % All three start on the SAME y (bottom edge of the model box) and end on the SAME y.
-\coordinate (sL) at ($(tr.south |- bigbox.south)+(\adx,-\agap)$);
+\coordinate (sL) at ($(sh.south |- bigbox.south)+(\adx,-\agap)$);   % Shift (left)
 \coordinate (sM) at ($(se.south |- bigbox.south)+(0,-\agap)$);
-\coordinate (sR) at ($(sh.south |- bigbox.south)+(-\adx,-\agap)$);
+\coordinate (sR) at ($(tr.south |- bigbox.south)+(-\adx,-\agap)$);   % Trend (right)
 \coordinate (neL) at ($(ne-box.north)+(-0.5cm,\agap)$);
 \coordinate (neM) at ($(ne-box.north)+(0,\agap)$);
 \coordinate (neR) at ($(ne-box.north)+(0.5cm,\agap)$);
-\draw[flow,opacity=.4] (sL) -- (neL);
+\draw[flow] (sL) -- (neL);
 \draw[flow] (sM) -- (neM);
-\draw[flow] (sR) -- (neR);
+\draw[flow,opacity=.4] (sR) -- (neR);   % trend: faded + crossed
 \node[cross out,draw=red,line width=1.8pt,minimum size=0.3cm,inner sep=0pt]
-  at ($(sL)!0.5!(neL)$) {};
+  at ($(sR)!0.5!(neR)$) {};
 
 % population -> expected births, rounded, down the left of the model box
 \coordinate (routeL) at ($(bigbox.west)+(-0.45cm,0)$);
