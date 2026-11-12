@@ -31,6 +31,7 @@
 \def\pw{3}     % plot width  (cm)
 \def\ph{1.5}   % plot height (cm)
 \def\nbgap{2.5} % vertical gap (cm) between National births and the model box: reduce to move the box up
+\def\agap{12pt}  % vertical gap left at the start/end of arrows (same y for all arrows)
 \def\tgap{1pt}  % gap between a plot and its title (national excess uses 3pt)
 
 % plot decoration: axes + title + x label + y label, attached to node #1.
@@ -58,7 +59,7 @@
   fdk/.style={draw=cFd,line width=1pt},
   flt/.style={draw=cFl,line width=1pt},
   agg/.style={draw=cA15!50!cA50,line width=1pt},   % mix of the two age colours
-  flow/.style={->,draw=black!55,line width=1pt,shorten <=14pt,shorten >=14pt},  % gap at both ends
+  flow/.style={->,draw=black!55,line width=1pt,},
 ]
 
 % ====================================================================
@@ -114,12 +115,12 @@
 \end{scope}
 
 % national births -> each of the three plots
-\draw[flow] (nb-x.south) -- (se-t.north);
+\draw[flow] ([yshift=-\agap]nb-x.south) -- ([yshift=\agap]se-t.north);
 
 % population -> model (big box): leaves the left of Population, runs down the left of the
 % big box (routeL) and enters the MIDDLE of its left side
 \coordinate (routeL) at ([xshift=-0.95cm]pop-y.west);
-\draw[flow,rounded corners=8pt,shorten <=0pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (bigbox.west);
+\draw[flow,rounded corners=8pt,shorten >=10pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (bigbox.west);
 
 % ====================================================================
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
@@ -136,20 +137,21 @@
   {Counterfactual birth with stable birth rate and accounting for shift in childbearing age and population changes.};
 
 % trend (left, faded + red cross), season and shift -> expectation
-\coordinate (neL) at ([xshift=-0.9cm]ne-t.north);
-\coordinate (neR) at ([xshift= 0.9cm]ne-t.north);
+\coordinate (neL) at ([xshift=-0.9cm,yshift=\agap]ne-t.north);
+\coordinate (neM) at ([yshift=\agap]ne-t.north);
+\coordinate (neR) at ([xshift= 0.9cm,yshift=\agap]ne-t.north);
 % all three start on the SAME y: the bottom edge of the big box (x = centre of each plot)
-\coordinate (sL) at (tr.south |- bigbox.south);
-\coordinate (sM) at (se.south |- bigbox.south);
-\coordinate (sR) at (sh.south |- bigbox.south);
+\coordinate (sL) at ([yshift=-\agap]tr.south |- bigbox.south);
+\coordinate (sM) at ([yshift=-\agap]se.south |- bigbox.south);
+\coordinate (sR) at ([yshift=-\agap]sh.south |- bigbox.south);
 \draw[flow,opacity=.4] (sL) -- (neL);
-\draw[flow] (sM) -- (ne-t.north);
+\draw[flow] (sM) -- (neM);
 \draw[flow] (sR) -- (neR);
 \node[cross out,draw=red,line width=1.8pt,minimum size=0.3cm,inner sep=0pt]
   at ($(sL)!0.5!(neL)$) {};
 
 % population -> national expectation, rounded, around the LEFT of the big box
-\draw[flow,rounded corners=8pt,shorten <=0pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (ne-y.west);
+\draw[flow,rounded corners=8pt,shorten >=10pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (ne-y.west);
 
 % ====================================================================
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
@@ -174,8 +176,8 @@
 \node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipality-level};
 
 % national expectation -> national / municipality-level
-\draw[flow] (ne-x.south) -- (nex-t.north);
-\draw[flow] (ne-x.south) -- (mun-t.north);
+\draw[flow] ([xshift= 0.4cm,yshift=-\agap]ne-x.south) -- ([yshift=\agap]nex-t.north);
+\draw[flow] ([xshift=-0.4cm,yshift=-\agap]ne-x.south) -- ([yshift=\agap]mun-t.north);
 
 % ====================================================================
 % 6. Municipal excess/deficit (below the municipality map), two coloured lines
@@ -192,7 +194,7 @@
 \end{scope}
 
 % municipality-level -> municipal excess/deficit
-\draw[flow] (mun.south) -- (mex-t.north);
+\draw[flow] ([yshift=-\agap]mun.south) -- ([yshift=\agap]mex-t.north);
 
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
