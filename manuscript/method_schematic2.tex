@@ -67,7 +67,7 @@
 % 1. National births (top, centred)
 % ====================================================================
 \node[parea] (nb) at (0,0) {};
-\pdeco{nb}{National births}{Time}{Births}
+\pdeco{nb}{Observed births}{Time}{Births}
 \begin{scope}[shift={(nb.south west)}]
   \draw[a50] plot[domain=0.05:\pw-0.05,samples=100,smooth]
     (\x,{0.55+0.17*\x+0.14*sin(3*\x/\pw*360)});
@@ -127,7 +127,7 @@
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
 % ====================================================================
 \node[parea,anchor=north] (ne) at ($(bigbox.south -| se)+(0,-1.9cm)$) {};
-\pdeco{ne}{National expectation}{Time}{Births}
+\pdeco{ne}{Expected births}{Time}{Births}
 \begin{scope}[shift={(ne.south west)}]
   % expected line only
   \draw[agg,dashed] plot[domain=0.05:\pw-0.05,samples=100,smooth]

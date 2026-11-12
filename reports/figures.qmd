@@ -170,8 +170,8 @@ peak_pts_c_df = gp_rel_df %>%
 #add a square at the peak of each fertility curve in panel B
 p2 = p2 +
   geom_point(data = peak_pts_b_df,
-             aes(x = peak_age_mod, y = peak_est, fill = factor(year)),
-             shape = 21, size = 2.2, colour = NA,
+             aes(x = peak_age_mod, y = peak_est, fill = factor(year),colour=factor(year)),
+             shape = 21, size = 3, 
              inherit.aes = FALSE, show.legend = FALSE)
 
 p3 = gp_rel_df %>%
@@ -183,8 +183,8 @@ p3 = gp_rel_df %>%
   geom_line(col="black")+
   #same squares as in panel B, marking the peak age for those years
   geom_point(data = peak_pts_c_df,
-             aes(x = year, y = peak_age_mod, fill = factor(year)),
-             shape = 21, size = 2.8, colour = NA,
+             aes(x = year, y = peak_age_mod, fill = factor(year),colour=factor(year)),
+             shape = 21, size = 4, 
              inherit.aes = FALSE, show.legend = FALSE)+
   scale_y_continuous(name="Age of fertility peak")+
   scale_x_continuous(name="Calendar year")+
@@ -347,7 +347,7 @@ ggsave(filename = paste0(code_root_path,"slides/images/fig2.pdf"),
        width = 12, height = 10, units = "in")
 ```
 
-**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2011-`r last_year`. E. Relative excess birth by citizenship over years.
+**Excess birth**. A. Annual number of births, as observed (red points) and expected (black lines corresponding to the mean posterior and gray area to the 95% credibility interval (95% CrI)), from 2000 to `r last_year`. B. Relative excess birth by year from 2000 to `r last_year`. C. Relative excess birth by month between 2020 and `r last_year`. D. Relative excess birth by citizenship aggregated by region of the world in 2017-`r last_year`. E. Relative excess birth by citizenship over years.
 :::
 
 </div>
@@ -631,7 +631,7 @@ ggsave(filename =  paste0(code_root_path,"slides/images/fig5.pdf"),
        width = 10, height = 9,units = "in", dpi = 600)
 ```
 
-**Sub-group excess births**: A. Fertility curve by maternal citizenship. Probability of having a child per month according to maternal age for Swiss (red) and non-Swiss (yellow) residents. B. Relative excess births by year from 2000 to 2025 according to maternal citizenship. C. Relative excess births according to municipality-level population density deciles, by maternal citizenship. D. Relative excess births by year from 2000 to 2025 according to birth parity, distinguishing first births (green) from higher-order births (blue). E. Relative excess births according to municipality-level population density deciles, by birth parity. The estimate from the main analysis (black line) is shown for comparison. Lines represent posterior means and shaded areas the 95% credible intervals (95% CrI).
+**Sub-group excess births**: A. Fertility curve by maternal citizenship. Probability of having a child per month according to maternal age for Swiss (red) and non-Swiss (yellow) residents. B. Relative excess births by year from 2000 to 2025 according to maternal citizenship. C. Relative excess births according to municipality-level population density deciles, by maternal citizenship. D. Relative excess births by year from 2005 to 2025 according to birth parity, distinguishing first births (green) from higher-order births (blue). E. Relative excess births according to municipality-level population density deciles, by birth parity. The estimate from the main analysis (black line) is shown for comparison. Lines represent posterior means and shaded areas the 95% credible intervals (95% CrI).
 :::
 
 </div>
