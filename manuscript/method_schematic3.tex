@@ -345,12 +345,7 @@
 % section label "Output": just left of the top of the Expected births box (same as "Input")
 \node[font=\scriptsize\bfseries,text=tNavy,anchor=north east] (outp) at ($(ne-box.north west)+(-0.15cm,0)$) {Output};
 
-% ====================================================================
-% overall box (single panel). Delete this block for no frame.
-% ====================================================================
-\begin{pgfonlayer}{bottom}
-  \node[panel,fill=white,fit=(inp)(outp)(routeR)(pop-box)(mp-box)(mb-box)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun-box)(mex-t)(mex-x)(mex-y),inner sep=8pt] {};
-\end{pgfonlayer}
+% (the overall frame around everything was removed)
 
 \end{tikzpicture}
 \end{document}
