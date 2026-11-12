@@ -32,10 +32,9 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{2.2}     % plot width  (cm)
 \def\ph{1.2}   % plot height (cm)
-\def\mdx{0.6}    % cm: how far the model box is moved LEFT of National births
 \def\cfdy{0.4}   % cm: how far the Expected-birth text box is raised
 \def\bgap{0.6}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
-\def\nbgap{2.4} % vertical gap (cm) between National births and the model box: reduce to move the box up
+\def\nbgap{1.5} % vertical gap (cm) between the model box and National births (above it)
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
 \def\nedy{1.7}  % cm: model box -> National expectation (room for the three arrows)
 \def\rowdy{1.7} % cm: National expectation -> row of National excess / Municipality-level
@@ -72,20 +71,9 @@
 ]
 
 % ====================================================================
-% 1. National births (top, centred)
-% ====================================================================
-\node[parea] (nb) at (0,0) {};
-\pdeco{nb}{Observed births}{Time}{Births}
-\begin{scope}[shift={(nb.south west)}]
-  \draw[a50] plot[domain=0.05:\pw-0.05,samples=100,smooth]
-    (\x,{0.55+0.17*\x+0.14*sin(3*\x/\pw*360)});
-\end{scope}
-
-
-% ====================================================================
 % 3. Big box with three plots: Shift in childbearing age | Season | Trend
 % ====================================================================
-\node[parea,below=\nbgap cm of nb,xshift=-0 cm] (se) {};              % middle (centred under nb)
+\node[parea] (se) at (0,0) {};              % middle plot = origin of the figure
 \node[parea,left =\bgap cm of se] (sh) {};   % Shift (left)
 \node[parea,right=\bgap cm of se] (tr) {};   % Trend (right)
 
@@ -113,14 +101,25 @@
 % the big box wraps the three plots and their labels
 % room for the box title above the plot titles (invisible point that the box must contain)
 \coordinate (bbtop) at ($(sh-y.west |- sh-t.north)+(0,0.3cm)$);
+\coordinate (bbR) at ($(se)!-1!(sh-y.west |- se)$);   % mirror image of the left edge -> box is symmetric about Season
 \begin{scope}[on background layer]
-  \node[panel,fit=(bbtop)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
+  \node[panel,fit=(bbtop)(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
+\end{scope}
+
+% ====================================================================
+% 1. National births (top, centred)
+% ====================================================================
+\node[parea,anchor=south] (nb) at ($(bigbox.north)+(0,\nbgap cm)$) {};   % centred exactly above the model box
+\pdeco{nb}{Observed births}{Time}{Births}
+\begin{scope}[shift={(nb.south west)}]
+  \draw[a50] plot[domain=0.05:\pw-0.05,samples=100,smooth]
+    (\x,{0.55+0.17*\x+0.14*sin(3*\x/\pw*360)});
 \end{scope}
 
 % ====================================================================
 % 2. Population (slightly below, to the left of National births)
 % ====================================================================
-\node[parea] (pop) at ([shift={(-1.0,-0.5)}]se) {};
+\node[parea] (pop) at ([shift={(-4.0,-0.5)}]nb) {};
 \pdeco{pop}{Population}{Time}{Pop. size}
 \begin{scope}[shift={(pop.south west)}]
   \draw[a50] (0.05,0.35) .. controls (1,0.5) and (2,0.8) .. (\pw-0.05,1.1);
@@ -190,14 +189,16 @@
 % ====================================================================
 \foreach \n in {ne,nex,mex}{
   \begin{scope}[on background layer]
-    \node[box,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \coordinate (\n-yr) at ($(\n)!-1!(\n-y.west |- \n)$);
+    \node[box,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 
 % data plots (observed births, population): pale yellow
 \foreach \n in {nb,pop}{
   \begin{scope}[on background layer]
-    \node[box,fill=yFill,draw=yEdge,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \coordinate (\n-yr) at ($(\n)!-1!(\n-y.west |- \n)$);
+    \node[box,fill=yFill,draw=yEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 
@@ -215,10 +216,10 @@
 \node[ttl,anchor=north west] (bb-t) at ($(bigbox.north west)+(4pt,-3pt)$) {Model decomposition};
 
 % national (observed) births -> model box, centre
-\draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north -| se)+(0,\agap)$);
+\draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north)+(0,\agap)$);   % straight, centre to centre
 
 % population -> model box: from the bottom right of Population to the top, centre but a bit left
-\draw[flow] ($(pop-box.south east)+(-\adx,-\agap/3)$) -- ($(bigbox.north -| se)+(-0.6cm,\agap/3)$);
+\draw[flow] ($(pop-box.south east)+(-\adx,-\agap/3)$) -- ($(bigbox.north)+(-0.6cm,\agap/3)$);
 
 % shift (left), season, trend (right, faded + red cross) -> expected births.
 % All three start on the SAME y (bottom edge of the model box) and end on the SAME y.
