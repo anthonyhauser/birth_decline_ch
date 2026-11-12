@@ -41,10 +41,10 @@
 \def\nbgap{1.5} % vertical gap (cm) between the model box and National births (above it)
 \def\popdx{2.2}   % cm: Population plot centre is this far LEFT of the model box's left edge
 \def\nexph{1.6}   % cm: height of the National excess plot (bigger than \ph); Municipality-level box copies its box size
-\def\jdy{0.5}    % cm: height above National excess where the two arrows join
+\def\jdy{0.7}    % cm: height above National excess where the two arrows join
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
 \def\nedy{1.7}  % cm: model box -> National expectation (room for the three arrows)
-\def\rowdy{1.7} % cm: National expectation -> row of National excess / Municipality-level
+\def\rowdy{2.1} % cm: National expectation -> row of National excess / Municipality-level
 \def\mexdy{2.2} % cm: Municipality-level -> Municipal excess/deficit
 \def\agap{6pt}  % vertical gap left at the start/end of arrows (same y for all arrows)
 \def\tgap{0pt}  % gap between a plot and its title (national excess uses 3pt)
@@ -270,9 +270,10 @@
 \draw[flow] (nexJ) -- (nexE);                                  % common final arrow
 
 % expected births -> national / municipality-level
-\draw[flow,-] ($(ne-box.south)+(0.4cm,-\agap)$)  -- (nexJ)
-  node[pos=0.4,sloped,above=1pt,font=\tiny\itshape,text=black!65]
-  {compared to observed births};
+\draw[flow,-] ($(ne-box.south)+(0.4cm,-\agap)$)  -- (nexJ);
+% comment on the common final arrow: right of it, just before it arrives, two lines (width-limited)
+\node[anchor=west,align=left,text width=1.4cm,font=\tiny\itshape,text=black!65]
+  at ($(nexJ)!0.5!(nexE)+(3pt,0)$) {compared to observed births};
 \draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$);
 
 % municipality-level -> municipal excess/deficit (same centre line)
