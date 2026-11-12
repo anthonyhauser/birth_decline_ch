@@ -138,11 +138,15 @@
 % trend (left, faded + red cross), season and shift -> expectation
 \coordinate (neL) at ([xshift=-0.9cm]ne-t.north);
 \coordinate (neR) at ([xshift= 0.9cm]ne-t.north);
-\draw[flow,opacity=.4] (tr-x.south) -- (neL);
-\draw[flow] (se-x.south) -- (ne-t.north);
-\draw[flow] (sh-x.south) -- (neR);
+% all three start on the SAME y: the bottom edge of the big box (x = centre of each plot)
+\coordinate (sL) at (tr.south |- bigbox.south);
+\coordinate (sM) at (se.south |- bigbox.south);
+\coordinate (sR) at (sh.south |- bigbox.south);
+\draw[flow,opacity=.4] (sL) -- (neL);
+\draw[flow] (sM) -- (ne-t.north);
+\draw[flow] (sR) -- (neR);
 \node[cross out,draw=red,line width=1.8pt,minimum size=0.3cm,inner sep=0pt]
-  at ($(tr-x.south)!0.5!(neL)$) {};
+  at ($(sL)!0.5!(neL)$) {};
 
 % population -> national expectation, rounded, around the LEFT of the big box
 \draw[flow,rounded corners=8pt,shorten <=0pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (ne-y.west);
