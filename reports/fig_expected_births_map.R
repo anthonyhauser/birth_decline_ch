@@ -34,7 +34,7 @@ map_sf <- exp_mun_df %>%
   st_as_sf()
 
 ## ---- the three biggest cities: dot + leader line + name (same logic/offsets as fig3) ----
-city_col <- "#15497A"      # dark blue for city dots / lines / names
+city_col <- "#0057B8"      # CHANGE HERE: colour of city dots / lines / names (strong blue; try "#006D77" teal or "black")
 mpc <- 15000                 # metres of map per cm of the figure (tune like in figures.qmd)
 city_offsets <- tibble::tribble(
   ~mun_name2, ~label,   ~dx_cm, ~dy_cm, ~hjust,
