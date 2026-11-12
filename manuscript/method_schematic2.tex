@@ -31,6 +31,7 @@
 \def\pw{3}     % plot width  (cm)
 \def\ph{1.5}   % plot height (cm)
 \def\nbgap{2.5} % vertical gap (cm) between National births and the model box: reduce to move the box up
+\def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
 \def\agap{12pt}  % vertical gap left at the start/end of arrows (same y for all arrows)
 \def\tgap{1pt}  % gap between a plot and its title (national excess uses 3pt)
 
@@ -47,7 +48,7 @@
 \begin{document}
 \begin{tikzpicture}[
   font=\sffamily,
-  >={Stealth[length=5pt]},
+  >={Stealth[length=8pt,width=6pt]},
   panel/.style={draw=pEdge,fill=pFill,rounded corners=4pt,line width=.9pt},
   box/.style={draw=pEdge,fill=white,rounded corners=3pt,line width=.7pt},
   parea/.style={minimum width=\pw cm,minimum height=\ph cm,inner sep=0pt,outer sep=0pt},
@@ -137,13 +138,13 @@
   {Counterfactual birth with stable birth rate and accounting for shift in childbearing age and population changes.};
 
 % trend (left, faded + red cross), season and shift -> expectation
-\coordinate (neL) at ([xshift=-0.9cm,yshift=\agap]ne-t.north);
+\coordinate (neL) at ([xshift=-0.5cm,yshift=\agap]ne-t.north);
 \coordinate (neM) at ([yshift=\agap]ne-t.north);
-\coordinate (neR) at ([xshift= 0.9cm,yshift=\agap]ne-t.north);
+\coordinate (neR) at ([xshift= 0.5cm,yshift=\agap]ne-t.north);
 % all three start on the SAME y: the bottom edge of the big box (x = centre of each plot)
-\coordinate (sL) at ([yshift=-\agap]tr.south |- bigbox.south);
+\coordinate (sL) at ([xshift=\adx,yshift=-\agap]tr.south |- bigbox.south);
 \coordinate (sM) at ([yshift=-\agap]se.south |- bigbox.south);
-\coordinate (sR) at ([yshift=-\agap]sh.south |- bigbox.south);
+\coordinate (sR) at ([xshift=-\adx,yshift=-\agap]sh.south |- bigbox.south);
 \draw[flow,opacity=.4] (sL) -- (neL);
 \draw[flow] (sM) -- (neM);
 \draw[flow] (sR) -- (neR);
@@ -176,8 +177,8 @@
 \node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipality-level};
 
 % national expectation -> national / municipality-level
-\draw[flow] ([xshift= 0.4cm,yshift=-\agap]ne-x.south) -- ([yshift=\agap]nex-t.north);
-\draw[flow] ([xshift=-0.4cm,yshift=-\agap]ne-x.south) -- ([yshift=\agap]mun-t.north);
+\draw[flow] ([xshift= 0.4cm,yshift=-\agap]ne-x.south) -- ([xshift=-\adx,yshift=\agap]nex-t.north);
+\draw[flow] ([xshift=-0.4cm,yshift=-\agap]ne-x.south) -- ([xshift=\adx,yshift=\agap]mun-t.north);
 
 % ====================================================================
 % 6. Municipal excess/deficit (below the municipality map), two coloured lines
