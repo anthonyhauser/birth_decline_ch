@@ -120,7 +120,7 @@
 % 1. National births (top, centred)
 % ====================================================================
 \node[parea,anchor=south] (nb) at ($(bigbox.north)+(0,\nbgap cm)$) {};   % centred exactly above the model box
-\pdeco{nb}{Observed births}{Time}{Births}
+\pdeco{nb}{National observed births}{Time}{Births}
 \begin{scope}[shift={(nb.south west)}]
   \draw[a50] plot[domain=0.05:\pw-0.05,samples=100,smooth]
     (\x,{0.55+0.17*\x+0.14*sin(3*\x/\pw*360)});
