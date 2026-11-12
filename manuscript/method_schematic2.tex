@@ -20,6 +20,9 @@
 \definecolor{tNavy}{HTML}{1A3B5D}
 \definecolor{tTeal}{HTML}{1B9E77}
 \definecolor{tOrng}{HTML}{E6550D}
+\definecolor{cZur}{HTML}{0057B8}   % Zurich  (same as the map)
+\definecolor{cGen}{HTML}{009E73}   % Geneva
+\definecolor{cBas}{HTML}{7B3294}   % Basel
 \definecolor{pFill}{HTML}{FBFCFE}
 \definecolor{pEdge}{HTML}{C7D2E0}
 \definecolor{yFill}{HTML}{FFFDF4}   % pale yellow (data boxes)
@@ -182,10 +185,13 @@
 \begin{scope}[shift={(mex.south west)}]
   \draw[zero] (0,{\ph/2})--(\pw,{\ph/2});
   \node[sub,anchor=east] at (0,{\ph/2}) {0};
-  \draw[draw=tTeal,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
+  % three curves = the three biggest cities (colours as on the map)
+  \draw[draw=cZur,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
     (\x,{\ph/2+0.4-0.27*\x+0.07*sin(3*\x/\pw*360)});
-  \draw[draw=tOrng,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
+  \draw[draw=cGen,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
     (\x,{\ph/2-0.25+0.12*\x+0.07*sin(3*\x/\pw*360+60)});
+  \draw[draw=cBas,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
+    (\x,{\ph/2+0.08-0.04*\x+0.07*sin(3*\x/\pw*360+120)});
 \end{scope}
 
 
