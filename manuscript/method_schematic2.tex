@@ -30,6 +30,7 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{3}     % plot width  (cm)
 \def\ph{1.5}   % plot height (cm)
+\def\nbgap{2.5} % vertical gap (cm) between National births and the model box: reduce to move the box up
 \def\tgap{1pt}  % gap between a plot and its title (national excess uses 3pt)
 
 % plot decoration: axes + title + x label + y label, attached to node #1.
@@ -82,7 +83,7 @@
 % ====================================================================
 % 3. Big box with three plots: Trend | Season | Shift in childbearing age
 % ====================================================================
-\node[parea,below=3.5cm of nb] (se) {};              % middle (centred under nb)
+\node[parea,below=\nbgap cm of nb] (se) {};              % middle (centred under nb)
 \node[parea,left =1.1cm of se] (tr) {};
 \node[parea,right=1.1cm of se] (sh) {};
 
@@ -115,8 +116,10 @@
 % national births -> each of the three plots
 \draw[flow] (nb-x.south) -- (se-t.north);
 
-% population -> model (big box)
-\draw[flow] (pop-x.south) -- (pop-x.south |- bigbox.north);
+% population -> model (big box): leaves the left of Population, runs down the left of the
+% big box (routeL) and enters the MIDDLE of its left side
+\coordinate (routeL) at ([xshift=-0.95cm]pop-y.west);
+\draw[flow,rounded corners=8pt,shorten <=0pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (bigbox.west);
 
 % ====================================================================
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
@@ -142,7 +145,7 @@
   at ($(tr-x.south)!0.5!(neL)$) {};
 
 % population -> national expectation, rounded, around the LEFT of the big box
-\draw[flow,rounded corners=8pt,shorten <=0pt] ([xshift=-8pt]pop-y.west) -- ([xshift=-0.55cm]pop-y.west) |- (ne-y.west);
+\draw[flow,rounded corners=8pt,shorten <=0pt] ([xshift=-8pt]pop-y.west) -- (routeL) |- (ne-y.west);
 
 % ====================================================================
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
@@ -191,7 +194,7 @@
 % overall box (single panel). Delete this block for no frame.
 % ====================================================================
 \begin{pgfonlayer}{bottom}
-  \node[panel,fill=white,fit=(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
+  \node[panel,fill=white,fit=(routeL)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
 \end{pgfonlayer}
 
 \end{tikzpicture}
