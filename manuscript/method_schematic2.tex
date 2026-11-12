@@ -30,8 +30,11 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{3}     % plot width  (cm)
 \def\ph{1.5}   % plot height (cm)
-\def\nbgap{2.5} % vertical gap (cm) between National births and the model box: reduce to move the box up
+\def\nbgap{3.2} % vertical gap (cm) between National births and the model box: reduce to move the box up
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
+\def\nedy{2.6}  % cm: model box -> National expectation (room for the three arrows)
+\def\rowdy{2.6} % cm: National expectation -> row of National excess / Municipality-level
+\def\mexdy{2.6} % cm: Municipality-level -> Municipal excess/deficit
 \def\agap{12pt}  % vertical gap left at the start/end of arrows (same y for all arrows)
 \def\tgap{1pt}  % gap between a plot and its title (national excess uses 3pt)
 
@@ -115,18 +118,11 @@
   \node[panel,fit=(tr-y)(tr-t)(tr-x)(se-t)(se-x)(sh-t)(sh-x)(sh),inner sep=7pt] (bigbox) {};
 \end{scope}
 
-% national births -> each of the three plots
-\draw[flow] ([yshift=-\agap]nb-x.south) -- ([yshift=\agap]se-t.north);
-
-% population -> model (big box): from the bottom-right of Population to the top of the big box,
-% centre but a bit to the left (-0.6cm)
-\coordinate (routeL) at ($(bigbox.west)+(-0.45cm,0)$);   % vertical run, just left of the big box
-\draw[flow] ($(pop.south east)+(-\adx,-6pt)$) -- ($(se.north |- bigbox.north)+(-0.6cm,6pt)$);
 
 % ====================================================================
 % 4. National expectation (centred under the big box's middle plot) + text box on its right
 % ====================================================================
-\node[parea,anchor=north] (ne) at ($(bigbox.south -| se)+(0,-1.9cm)$) {};
+\node[parea,anchor=north] (ne) at ($(bigbox.south -| se)+(0,-\nedy cm)$) {};
 \pdeco{ne}{Expected births}{Time}{Births}
 \begin{scope}[shift={(ne.south west)}]
   % expected line only
@@ -140,30 +136,13 @@
    $\bullet$~the population changes\\
    $\bullet$~shift in childbearing age};
 
-% trend (left, faded + red cross), season and shift -> expectation
-\coordinate (neL) at ([xshift=-0.5cm,yshift=\agap]ne-t.north);
-\coordinate (neM) at ([yshift=\agap]ne-t.north);
-\coordinate (neR) at ([xshift= 0.5cm,yshift=\agap]ne-t.north);
-% all three start on the SAME y: the bottom edge of the big box (x = centre of each plot)
-\coordinate (sL) at ($(tr.south |- bigbox.south)+(\adx,-\agap)$);
-\coordinate (sM) at ($(se.south |- bigbox.south)+(0,-\agap)$);
-\coordinate (sR) at ($(sh.south |- bigbox.south)+(-\adx,-\agap)$);
-\draw[flow,opacity=.4] (sL) -- (neL);
-\draw[flow] (sM) -- (neM);
-\draw[flow] (sR) -- (neR);
-\node[cross out,draw=red,line width=1.8pt,minimum size=0.3cm,inner sep=0pt]
-  at ($(sL)!0.5!(neL)$) {};
 
-% population -> national expectation, rounded, around the LEFT of the big box
-% starts at the bottom-left of Population (closer to the centre than its y label)
-\coordinate (pS) at ($(pop.south west)+(0.3cm,-6pt)$);
-\draw[flow,rounded corners=8pt,shorten >=10pt] (pS) -- (pS -| routeL) |- (ne-y.west);
 
 % ====================================================================
 % 5. National excess/deficit (below, a bit right)  and  Municipality-level map (below, a bit left)
 %    both are hung from the same row y, so their titles are at the same height
 % ====================================================================
-\coordinate (row2) at ([yshift=-1.6cm]ne-x.south);
+\coordinate (row2) at ([yshift=-\rowdy cm]ne-x.south);
 \node[parea,anchor=north] (nex) at ([xshift=2.9cm]row2) {};
 \def\tgap{3pt}\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}\def\tgap{1pt}
 \begin{scope}[shift={(nex.south west)}]
@@ -181,14 +160,11 @@
   {\includegraphics[width=4.8cm]{../figure/fig3.png}};
 \node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipality-level};
 
-% national expectation -> national / municipality-level
-\draw[flow] ([xshift= 0.4cm,yshift=-\agap]ne-x.south) -- ([xshift=-\adx,yshift=\agap]nex-t.north);
-\draw[flow] ([xshift=-0.4cm,yshift=-\agap]ne-x.south) -- ([xshift=\adx,yshift=\agap]mun-t.north);
 
 % ====================================================================
 % 6. Municipal excess/deficit (below the municipality map), two coloured lines
 % ====================================================================
-\node[parea,below=1.9cm of mun] (mex) {};
+\node[parea,below=\mexdy cm of mun] (mex) {};
 \pdeco[9pt]{mex}{Municipal excess/deficit of births}{Time}{Excess/deficit}
 \begin{scope}[shift={(mex.south west)}]
   \draw[zero] (0,{\ph/2})--(\pw,{\ph/2});
@@ -199,8 +175,6 @@
     (\x,{\ph/2-0.25+0.12*\x+0.07*sin(3*\x/\pw*360+60)});
 \end{scope}
 
-% municipality-level -> municipal excess/deficit
-\draw[flow] ($(mun.south)+(\adx,-\agap)$) -- ($(mex-t.north)+(\adx,\agap)$);   % left column: leans right (toward the centre)
 
 % ====================================================================
 % boxes around single plots (title + axis labels included). Add/remove a line to toggle one.
@@ -215,6 +189,43 @@
 \begin{scope}[on background layer]
   \node[box,fit=(mun-t)(mun),inner sep=5pt] (mun-box) {};
 \end{scope}
+
+% ====================================================================
+% ARROWS -- every arrow is defined from the EDGES of the boxes (nb-box, pop-box, bigbox,
+% ne-box, cf, nex-box, mun-box, mex-box). \agap = clear space left at each end.
+% Off-centre arrows lean toward the middle of the figure by \adx.
+% ====================================================================
+% national (observed) births -> model box, centre
+\draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north -| se)+(0,\agap)$);
+
+% population -> model box: from the bottom right of Population to the top, centre but a bit left
+\draw[flow] ($(pop-box.south east)+(-\adx,-\agap/3)$) -- ($(bigbox.north -| se)+(-0.6cm,\agap/3)$);
+
+% trend (left, faded + red cross), season, shift -> expected births.
+% All three start on the SAME y (bottom edge of the model box) and end on the SAME y.
+\coordinate (sL) at ($(tr.south |- bigbox.south)+(\adx,-\agap)$);
+\coordinate (sM) at ($(se.south |- bigbox.south)+(0,-\agap)$);
+\coordinate (sR) at ($(sh.south |- bigbox.south)+(-\adx,-\agap)$);
+\coordinate (neL) at ($(ne-box.north)+(-0.5cm,\agap)$);
+\coordinate (neM) at ($(ne-box.north)+(0,\agap)$);
+\coordinate (neR) at ($(ne-box.north)+(0.5cm,\agap)$);
+\draw[flow,opacity=.4] (sL) -- (neL);
+\draw[flow] (sM) -- (neM);
+\draw[flow] (sR) -- (neR);
+\node[cross out,draw=red,line width=1.8pt,minimum size=0.3cm,inner sep=0pt]
+  at ($(sL)!0.5!(neL)$) {};
+
+% population -> expected births, rounded, down the left of the model box
+\coordinate (routeL) at ($(bigbox.west)+(-0.45cm,0)$);
+\coordinate (pS) at ($(pop-box.south west)+(0.3cm,-\agap/2)$);
+\draw[flow,rounded corners=8pt] (pS) -- (pS -| routeL) |- ($(ne-box.west)+(-\agap,0)$);
+
+% expected births -> national / municipality-level
+\draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- ($(nex-box.north)+(-\adx,\agap)$);
+\draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$);
+
+% municipality-level -> municipal excess/deficit (left column: leans right)
+\draw[flow] ($(mun-box.south)+(\adx,-\agap)$) -- ($(mex-box.north)+(\adx,\agap)$);
 
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
