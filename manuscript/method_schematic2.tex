@@ -246,11 +246,14 @@
 % municipality-level -> municipal excess/deficit (left column: leans right)
 \draw[flow] ($(mun-box.south)+(\adx,-\agap)$) -- ($(mex-box.north)+(\adx,\agap)$);
 
+% section label, top left of the figure (left edge of Population, top edge of Observed births)
+\node[font=\small\bfseries,text=tNavy,anchor=north west] (inp) at (pop-box.west |- nb-box.north) {Input};
+
 % ====================================================================
 % overall box (single panel). Delete this block for no frame.
 % ====================================================================
 \begin{pgfonlayer}{bottom}
-  \node[panel,fill=white,fit=(routeL)(routeR)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
+  \node[panel,fill=white,fit=(inp)(routeL)(routeR)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
 \end{pgfonlayer}
 
 \end{tikzpicture}
