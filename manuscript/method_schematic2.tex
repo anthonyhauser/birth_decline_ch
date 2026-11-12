@@ -224,11 +224,12 @@
 % shift (left), season, trend (right, faded + red cross) -> expected births.
 % All three start on the SAME y (bottom edge of the model box) and end on the SAME y.
 \coordinate (sL) at ($(sh.south |- bigbox.south)+(\adx,-\agap)$);   % Shift (left)
-\coordinate (sM) at ($(se.south |- bigbox.south)+(0,-\agap)$);
+\coordinate (sM) at ($(se.south |- bigbox.south)+(-\adx,-\agap)$);   % mirror of sL about the Expected births centre
 \coordinate (sR) at ($(tr.south |- bigbox.south)+(-\adx,-\agap)$);   % Trend (right)
-\coordinate (neL) at ($(ne-box.north)+(-0.5cm,\agap)$);
-\coordinate (neM) at ($(ne-box.north)+(0,\agap)$);
-\coordinate (neR) at ($(ne-box.north)+(0.5cm,\agap)$);
+% Shift and Season arrows are exact mirror images about the Expected births centre line
+\coordinate (neL) at ($(ne-box.north)+(-0.4cm,\agap)$);
+\coordinate (neM) at ($(ne-box.north)+(0.4cm,\agap)$);
+\coordinate (neR) at ($(ne-box.north)+(1.0cm,\agap)$);   % trend
 \draw[flow] (sL) -- (neL);
 \draw[flow] (sM) -- (neM);
 \draw[flow,opacity=.4] (sR) -- (neR);   % trend: faded + crossed
