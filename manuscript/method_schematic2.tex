@@ -30,6 +30,7 @@
 % ------------------------------------------------------------------ parameters
 \def\pw{2.5}     % plot width  (cm)
 \def\ph{1.2}   % plot height (cm)
+\def\bgap{0.8}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
 \def\nbgap{3.2} % vertical gap (cm) between National births and the model box: reduce to move the box up
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
 \def\nedy{2.1}  % cm: model box -> National expectation (room for the three arrows)
@@ -89,8 +90,8 @@
 % 3. Big box with three plots: Shift in childbearing age | Season | Trend
 % ====================================================================
 \node[parea,below=\nbgap cm of nb] (se) {};              % middle (centred under nb)
-\node[parea,left =1.1cm of se] (sh) {};   % Shift (left)
-\node[parea,right=1.1cm of se] (tr) {};   % Trend (right)
+\node[parea,left =\bgap cm of se] (sh) {};   % Shift (left)
+\node[parea,right=\bgap cm of se] (tr) {};   % Trend (right)
 
 \pdeco{tr}{Trend}{Time}{Birth rate}
 \pdeco{se}{Season}{Time}{Birth rate}
