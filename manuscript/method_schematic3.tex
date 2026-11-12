@@ -245,7 +245,7 @@
 % Off-centre arrows lean toward the middle of the figure by \adx.
 % ====================================================================
 % box title: ABOVE the model box, left-aligned with it
-\node[ttl,anchor=south west] (bb-t) at ($(bigbox.north west)+(0,2pt)$) {Model decomposition};
+\node[ttl,font=\scriptsize\bfseries,anchor=south west] (bb-t) at ($(bigbox.north west)+(0,2pt)$) {Model decomposition};   % same size as Input / Output
 
 % national (observed) births -> model box, centre
 \draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north)+(0,\agap)$);   % straight, centre to centre
