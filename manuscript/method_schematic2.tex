@@ -33,6 +33,7 @@
 \def\pw{2.5}     % plot width  (cm)
 \def\ph{1.2}   % plot height (cm)
 \def\mdx{0.6}    % cm: how far the model box is moved LEFT of National births
+\def\cfdy{0.4}   % cm: how far the Expected-birth text box is raised
 \def\bgap{0.8}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
 \def\nbgap{3.2} % vertical gap (cm) between National births and the model box: reduce to move the box up
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
@@ -137,7 +138,7 @@
     (\x,{0.95-0.1*\x+0.11*sin(3*\x/\pw*360)});
 \end{scope}
 
-\node[box,rounded corners=0pt,text width=4.4cm,align=left,font=\scriptsize,inner sep=5pt,right=0.6cm of ne] (cf)
+\node[box,rounded corners=0pt,text width=4.4cm,align=left,font=\scriptsize,inner sep=5pt,right=0.6cm of ne,yshift=\cfdy cm] (cf)
   {\textbf{Expected birth}: Counterfactual number of birth given\\[2pt]
    $\bullet$~a \textbf{stable} birth rate (i.e., no trend)\\
    $\bullet$~the population changes\\
