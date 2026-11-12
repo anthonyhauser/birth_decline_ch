@@ -220,6 +220,12 @@
 \coordinate (pS) at ($(pop-box.south west)+(0.3cm,-\agap/2)$);
 \draw[flow,rounded corners=8pt] (pS) -- (pS -| routeL) |- ($(ne-box.west)+(-\agap,0)$);
 
+% observed births -> national excess/deficit: out to the right, down the right of the
+% model box / text box (routeR), then left into the box
+\coordinate (routeR) at ($(cf.east)+(0.5cm,0)$);
+\coordinate (oS) at ($(nb-box.east)+(\agap,0)$);
+\draw[flow,rounded corners=8pt] (oS) -- (oS -| routeR) |- ($(nex-box.east)+(\agap,0)$);
+
 % expected births -> national / municipality-level
 \draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- ($(nex-box.north)+(-\adx,\agap)$);
 \draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$);
@@ -231,7 +237,7 @@
 % overall box (single panel). Delete this block for no frame.
 % ====================================================================
 \begin{pgfonlayer}{bottom}
-  \node[panel,fill=white,fit=(routeL)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
+  \node[panel,fill=white,fit=(routeL)(routeR)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
 \end{pgfonlayer}
 
 \end{tikzpicture}
