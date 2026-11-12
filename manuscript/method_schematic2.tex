@@ -101,7 +101,7 @@
 % the big box wraps the three plots and their labels
 % room for the box title above the plot titles (invisible point that the box must contain)
 \coordinate (bbtop) at ($(sh-y.west |- sh-t.north)+(0,0.3cm)$);
-\coordinate (bbR) at ($(se)!-1!(sh-y.west |- se)$);   % mirror image of the left edge -> box is symmetric about Season
+\coordinate (bbR) at ($(se)!-1!(sh-y.north |- se)$);   % mirror image of the left edge -> box is symmetric about Season
 \begin{scope}[on background layer]
   \node[panel,fit=(bbtop)(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
 \end{scope}
@@ -189,7 +189,7 @@
 % ====================================================================
 \foreach \n in {ne,nex,mex}{
   \begin{scope}[on background layer]
-    \coordinate (\n-yr) at ($(\n)!-1!(\n-y.west |- \n)$);
+    \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
     \node[box,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
@@ -197,7 +197,7 @@
 % data plots (observed births, population): pale yellow
 \foreach \n in {nb,pop}{
   \begin{scope}[on background layer]
-    \coordinate (\n-yr) at ($(\n)!-1!(\n-y.west |- \n)$);
+    \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
     \node[box,fill=yFill,draw=yEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
@@ -257,8 +257,8 @@
   node[midway,left=2pt,align=right,text width=2.4cm,font=\tiny\itshape,text=black!65]
   {distributed over municipalities acc. to pop. size};
 
-% municipality-level -> municipal excess/deficit (left column: leans right)
-\draw[flow] ($(mun-box.south)+(\adx,-\agap)$) -- ($(mex-box.north)+(\adx,\agap)$);
+% municipality-level -> municipal excess/deficit (same centre line)
+\draw[flow] ($(mun-box.south)+(0,-\agap)$) -- ($(mex-box.north)+(0,\agap)$);   % same centre line: straight
 
 % section label, top left of the figure (left edge of Population, top edge of Observed births)
 \node[font=\scriptsize\bfseries,text=tNavy,anchor=north west] (inp) at (pop-box.west |- nb-box.north) {Input};
