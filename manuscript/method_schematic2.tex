@@ -240,7 +240,9 @@
 \draw[flow,rounded corners=8pt] (oS) -- (oS -| routeR) |- ($(nex-box.east)+(\agap,0)$);
 
 % expected births -> national / municipality-level
-\draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- ($(nex-box.north)+(-\adx,\agap)$);
+\draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- ($(nex-box.north)+(-\adx,\agap)$)
+  node[midway,right=2pt,align=left,text width=2.4cm,font=\tiny\itshape,text=black!65]
+  {compared to observed births};
 \draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$)
   node[midway,left=2pt,align=right,text width=2.4cm,font=\tiny\itshape,text=black!65]
   {distributed over municipalities acc. to pop. size};
