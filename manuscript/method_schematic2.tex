@@ -30,7 +30,7 @@
 \definecolor{cFl}{HTML}{7FB3E0}    % fertility : light blue
 
 % ------------------------------------------------------------------ parameters
-\def\pw{2.5}     % plot width  (cm)
+\def\pw{2.2}     % plot width  (cm)
 \def\ph{1.2}   % plot height (cm)
 \def\mdx{0.6}    % cm: how far the model box is moved LEFT of National births
 \def\cfdy{0.4}   % cm: how far the Expected-birth text box is raised
@@ -81,19 +81,11 @@
     (\x,{0.55+0.17*\x+0.14*sin(3*\x/\pw*360)});
 \end{scope}
 
-% ====================================================================
-% 2. Population (slightly below, to the left of National births)
-% ====================================================================
-\node[parea] (pop) at ([shift={(-4.0,-0.5)}]nb) {};
-\pdeco{pop}{Population}{Time}{Pop. size}
-\begin{scope}[shift={(pop.south west)}]
-  \draw[a50] (0.05,0.35) .. controls (1,0.5) and (2,0.8) .. (\pw-0.05,1.1);
-\end{scope}
 
 % ====================================================================
 % 3. Big box with three plots: Shift in childbearing age | Season | Trend
 % ====================================================================
-\node[parea,below=\nbgap cm of nb,xshift=-\mdx cm] (se) {};              % middle (centred under nb)
+\node[parea,below=\nbgap cm of nb,xshift=-0 cm] (se) {};              % middle (centred under nb)
 \node[parea,left =\bgap cm of se] (sh) {};   % Shift (left)
 \node[parea,right=\bgap cm of se] (tr) {};   % Trend (right)
 
@@ -123,6 +115,15 @@
 \coordinate (bbtop) at ($(sh-y.west |- sh-t.north)+(0,0.3cm)$);
 \begin{scope}[on background layer]
   \node[panel,fit=(bbtop)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
+\end{scope}
+
+% ====================================================================
+% 2. Population (slightly below, to the left of National births)
+% ====================================================================
+\node[parea] (pop) at ([shift={(-1.0,-0.5)}]se) {};
+\pdeco{pop}{Population}{Time}{Pop. size}
+\begin{scope}[shift={(pop.south west)}]
+  \draw[a50] (0.05,0.35) .. controls (1,0.5) and (2,0.8) .. (\pw-0.05,1.1);
 \end{scope}
 
 
