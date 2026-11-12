@@ -111,11 +111,9 @@
 \end{scope}
 
 % the big box wraps the three plots and their labels
-% room for the box title above the plot titles (invisible point that the box must contain)
-\coordinate (bbtop) at ($(sh-y.west |- sh-t.north)+(0,0.3cm)$);
 \coordinate (bbR) at ($(tr)!-1!(sh-y.north |- tr)$);   % mirror image of the left edge -> box is symmetric about Trend
 \begin{scope}[on background layer]
-  \node[panel,fill=rFill,draw=rEdge,fit=(bbtop)(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
+  \node[panel,fill=rFill,draw=rEdge,fit=(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner xsep=7pt,inner ysep=3pt] (bigbox) {};
 \end{scope}
 
 % ====================================================================
@@ -245,8 +243,8 @@
 % ne-box, cf, nex-box, mun-box, mex-box). \agap = clear space left at each end.
 % Off-centre arrows lean toward the middle of the figure by \adx.
 % ====================================================================
-% box title, tucked into the top-left corner of the model box
-\node[ttl,anchor=north west] (bb-t) at ($(bigbox.north west)+(4pt,-3pt)$) {Model decomposition};
+% box title: ABOVE the model box, left-aligned with it
+\node[ttl,anchor=south west] (bb-t) at ($(bigbox.north west)+(0,2pt)$) {Model decomposition};
 
 % national (observed) births -> model box, centre
 \draw[flow] ($(nb-box.south)+(0,-\agap)$) -- ($(bigbox.north)+(0,\agap)$);   % straight, centre to centre
