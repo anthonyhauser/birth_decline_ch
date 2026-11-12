@@ -51,7 +51,8 @@
 \def\rowdy{2.1} % cm: National expectation -> row of National excess / Municipality-level
 \def\mexdy{2.2} % cm: Municipality-level -> Municipal excess/deficit
 \def\agap{6pt}  % vertical gap left at the start/end of arrows (same y for all arrows)
-\def\tgap{0pt}  % gap between a plot and its title (national excess uses 3pt)
+\def\tgap{3pt}  % gap between a plot and its title
+\def\bsep{1.5pt} % box padding above/below (reduced to pay for the larger title gap -> box height unchanged)
 
 % plot decoration: axes + title + x label + y label, attached to node #1.
 % optional first argument = how far left the y label sits (default 2pt)
@@ -108,12 +109,14 @@
     (\x,{0.1+1.1*exp(-((\x-0.364*\pw)/(0.164*\pw))*((\x-0.364*\pw)/(0.164*\pw)))});
   \draw[flt] plot[domain=0.05:\pw-0.05,samples=80,smooth]
     (\x,{0.1+1.1*exp(-((\x-0.636*\pw)/(0.164*\pw))*((\x-0.636*\pw)/(0.164*\pw)))});
+  % small black arrow from the first peak to the second (the shift)
+  \draw[-{Stealth[length=3pt,width=2.5pt]},black,line width=0.6pt] ({0.364*\pw+0.11},1.12) -- ({0.636*\pw-0.11},1.12);
 \end{scope}
 
 % the big box wraps the three plots and their labels
 \coordinate (bbR) at ($(tr)!-1!(sh-y.north |- tr)$);   % mirror image of the left edge -> box is symmetric about Trend
 \begin{scope}[on background layer]
-  \node[panel,fill=rFill,draw=rEdge,fit=(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner xsep=7pt,inner ysep=3pt] (bigbox) {};
+  \node[panel,fill=rFill,draw=rEdge,fit=(bbR)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner xsep=7pt,inner ysep=\bsep] (bigbox) {};
 \end{scope}
 
 % ====================================================================
@@ -163,7 +166,7 @@
 % ====================================================================
 \coordinate (row2) at ($(nb |- ne-x.south)+(0,-\rowdy cm)$);   % lower row stays centred on National births
 \node[parea,anchor=north,minimum height=\nexph cm] (nex) at ([xshift=2.4cm]row2) {};
-\def\tgap{3pt}\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}\def\tgap{1pt}
+\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}
 \begin{scope}[shift={(nex.south west)},yscale={\nexph/\ph}]
   \def\obsx{0.7875-0.0583*\x+0.14*sin(3*\x/\pw*360)}      % observed
   \def\expx{0.6125+0.0583*\x+0.11*sin(3*\x/\pw*360)}      % expected
@@ -176,21 +179,21 @@
 % its box, drawn now so that the Municipality-level box can copy its size
 \begin{scope}[on background layer]
   \coordinate (nex-yr) at ($(nex)!-1!(nex-y.north |- nex)$);
-  \node[box,fill=rFill,draw=rEdge,fit=(nex-yr)(nex-y)(nex-t)(nex-x)(nex),inner sep=3pt] (nex-box) {};
+  \node[box,fill=rFill,draw=rEdge,fit=(nex-yr)(nex-y)(nex-t)(nex-x)(nex),inner xsep=3pt,inner ysep=\bsep] (nex-box) {};
 \end{scope}
 % measure that box (width, height) and the height of a title, in pt
 \path let \p1=($(nex-box.north east)-(nex-box.south west)$) in \pgfextra{\xdef\nexw{\x1}\xdef\nexh{\y1}};
 \path let \p1=($(nex-t.north)-(nex-t.south)$) in \pgfextra{\xdef\ttlh{\y1}};
-\pgfmathsetlengthmacro{\imgh}{\nexh-6pt-\ttlh-1pt}   % map height so that the box height = National excess box height
+\pgfmathsetlengthmacro{\imgh}{\nexh-2*\bsep-\ttlh-\tgap}   % map height so that the box height = National excess box height
 
 % municipality-level map, box = same size as the National excess box
-\node[inner sep=0pt,anchor=north] (mun) at ([xshift=-2.4cm,yshift=2pt]row2)
+\node[inner sep=0pt,anchor=north] (mun) at ([xshift=-2.4cm]row2)
   {\IfFileExists{../figure/fig_expected_births_map.png}%
     {\includegraphics[height=\imgh]{../figure/fig_expected_births_map.png}}%   expected births 2025 (run reports/fig_expected_births_map.R)
     {\includegraphics[height=\imgh]{../figure/fig3.png}}};   % fallback until that file exists
-\node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipal expected births};
+\node[ttl,anchor=south] (mun-t) at ([yshift=\tgap]mun.north) {Municipal expected births};
 \begin{scope}[on background layer]
-  \node[box,fill=vFill,draw=vEdge,fit=(mun-t)(mun),inner sep=3pt,minimum width=\nexw] (mun-box) {};
+  \node[box,fill=vFill,draw=vEdge,fit=(mun-t)(mun),inner xsep=3pt,inner ysep=\bsep,minimum width=\nexw] (mun-box) {};
 \end{scope}
 
 
@@ -219,14 +222,14 @@
 \foreach \n in {pop}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
-    \node[box,fill=rFill,draw=rEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \node[box,fill=rFill,draw=rEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner xsep=3pt,inner ysep=\bsep] (\n-box) {};
   \end{scope}
 }
 % municipal-level box: very light violet (Municipal excess/deficit)
 \foreach \n in {mex}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
-    \node[box,fill=vFill,draw=vEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \node[box,fill=vFill,draw=vEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner xsep=3pt,inner ysep=\bsep] (\n-box) {};
   \end{scope}
 }
 
@@ -234,7 +237,7 @@
 \foreach \n in {nb,ne}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
-    \node[box,fill=rFill,draw=rEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \node[box,fill=rFill,draw=rEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner xsep=3pt,inner ysep=\bsep] (\n-box) {};
   \end{scope}
 }
 
@@ -328,7 +331,7 @@
 \foreach \n in {mp,mb}{
   \begin{scope}[on background layer]
     \coordinate (\n-yr) at ($(\n)!-1!(\n-y.north |- \n)$);
-    \node[box,fill=vFill,draw=vEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
+    \node[box,fill=vFill,draw=vEdge,fit=(\n-yr)(\n-y)(\n-t)(\n-x)(\n),inner xsep=3pt,inner ysep=\bsep] (\n-box) {};
   \end{scope}
 }
 \draw[densely dashed,draw=black!55,line width=1pt] ($(mp-box.east |- M1)+(\agap,0)$) -- (M1);
