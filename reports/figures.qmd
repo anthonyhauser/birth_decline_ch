@@ -362,9 +362,12 @@ fig3 = excess_birth_adj2_mun_df %>%
   ggplot() +
   geom_sf(aes(fill = rel_exc_mean), color = NA) +
   geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
-  scale_fill_viridis_c(
+  scale_fill_gradient2(
     name = "Relative excess birth",
-    option = "viridis",
+    low = "#2166AC",   # blue   (deficit)  -- ColorBrewer RdBu, colourblind-safe
+    mid = "#F7F7F7",   # neutral at 0
+    high = "#B2182B",  # red    (excess)
+    midpoint = 0,
     breaks = c(-0.2, 0, 0.2),
     labels = scales::percent_format(accuracy = 1),
     #limits = c(-0.4, 0.4)
