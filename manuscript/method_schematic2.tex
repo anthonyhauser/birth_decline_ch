@@ -34,12 +34,12 @@
 \def\ph{1.2}   % plot height (cm)
 \def\mdx{0.6}    % cm: how far the model box is moved LEFT of National births
 \def\cfdy{0.4}   % cm: how far the Expected-birth text box is raised
-\def\bgap{0.8}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
-\def\nbgap{3.2} % vertical gap (cm) between National births and the model box: reduce to move the box up
+\def\bgap{0.6}   % cm: horizontal gap between Shift | Season | Trend (min ~0.6: y labels)
+\def\nbgap{2.4} % vertical gap (cm) between National births and the model box: reduce to move the box up
 \def\adx{0.7cm}   % off-centre arrows lean toward the middle of the figure by this much
-\def\nedy{2.1}  % cm: model box -> National expectation (room for the three arrows)
-\def\rowdy{2.1} % cm: National expectation -> row of National excess / Municipality-level
-\def\mexdy{2.1} % cm: Municipality-level -> Municipal excess/deficit
+\def\nedy{1.7}  % cm: model box -> National expectation (room for the three arrows)
+\def\rowdy{1.7} % cm: National expectation -> row of National excess / Municipality-level
+\def\mexdy{1.7} % cm: Municipality-level -> Municipal excess/deficit
 \def\agap{6pt}  % vertical gap left at the start/end of arrows (same y for all arrows)
 \def\tgap{0pt}  % gap between a plot and its title (national excess uses 3pt)
 
@@ -84,7 +84,7 @@
 % ====================================================================
 % 2. Population (slightly below, to the left of National births)
 % ====================================================================
-\node[parea] (pop) at ([shift={(-4.4,-0.9)}]nb) {};
+\node[parea] (pop) at ([shift={(-4.0,-0.5)}]nb) {};
 \pdeco{pop}{Population}{Time}{Pop. size}
 \begin{scope}[shift={(pop.south west)}]
   \draw[a50] (0.05,0.35) .. controls (1,0.5) and (2,0.8) .. (\pw-0.05,1.1);
@@ -138,7 +138,7 @@
     (\x,{0.95-0.1*\x+0.11*sin(3*\x/\pw*360)});
 \end{scope}
 
-\node[box,rounded corners=0pt,text width=3.4cm,align=left,font=\fontsize{6}{7}\selectfont,inner sep=4pt,right=0.6cm of ne,yshift=\cfdy cm] (cf)
+\node[box,rounded corners=0pt,text width=3.4cm,align=left,font=\fontsize{6}{7}\selectfont,inner sep=4pt,right=0.4cm of ne,yshift=\cfdy cm] (cf)
   {\textbf{Expected birth}: Counterfactual number of birth given\\[2pt]
    $\bullet$~a \textbf{stable} birth rate (i.e., no trend)\\
    $\bullet$~the population changes\\
@@ -151,7 +151,7 @@
 %    both are hung from the same row y, so their titles are at the same height
 % ====================================================================
 \coordinate (row2) at ($(nb |- ne-x.south)+(0,-\rowdy cm)$);   % lower row stays centred on National births
-\node[parea,anchor=north] (nex) at ([xshift=2.9cm]row2) {};
+\node[parea,anchor=north] (nex) at ([xshift=2.4cm]row2) {};
 \def\tgap{3pt}\pdeco[9pt]{nex}{National excess/deficit of births}{Time}{Excess/deficit}\def\tgap{1pt}
 \begin{scope}[shift={(nex.south west)}]
   \def\obsx{0.7875-0.0583*\x+0.14*sin(3*\x/\pw*360)}      % observed
@@ -164,7 +164,7 @@
 \end{scope}
 
 % municipality-level map (figure 3), no axes
-\node[inner sep=0pt,anchor=north] (mun) at ([xshift=-2.9cm,yshift=2pt]row2)
+\node[inner sep=0pt,anchor=north] (mun) at ([xshift=-2.4cm,yshift=2pt]row2)
   {\includegraphics[width=4.8cm]{../figure/fig3.png}};
 \node[ttl,anchor=south] (mun-t) at ([yshift=1pt]mun.north) {Municipality-level};
 
@@ -189,20 +189,20 @@
 % ====================================================================
 \foreach \n in {ne,nex,mex}{
   \begin{scope}[on background layer]
-    \node[box,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=5pt] (\n-box) {};
+    \node[box,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 
 % data plots (observed births, population): pale yellow
 \foreach \n in {nb,pop}{
   \begin{scope}[on background layer]
-    \node[box,fill=yFill,draw=yEdge,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=5pt] (\n-box) {};
+    \node[box,fill=yFill,draw=yEdge,fit=(\n-y)(\n-t)(\n-x)(\n),inner sep=3pt] (\n-box) {};
   \end{scope}
 }
 
 % municipality-level map has no axis labels: box around title + image
 \begin{scope}[on background layer]
-  \node[box,fit=(mun-t)(mun),inner sep=5pt] (mun-box) {};
+  \node[box,fit=(mun-t)(mun),inner sep=3pt] (mun-box) {};
 \end{scope}
 
 % ====================================================================
@@ -234,13 +234,13 @@
   at ($(sR)!0.5!(neR)$) {};
 
 % population -> expected births, rounded, down the left of the model box
-\coordinate (routeL) at ($(bigbox.west)+(-0.45cm,0)$);
+\coordinate (routeL) at ($(bigbox.west)+(-0.3cm,0)$);
 \coordinate (pS) at ($(pop-box.south west)+(0.3cm,-\agap/2)$);
 \draw[flow,rounded corners=8pt] (pS) -- (pS -| routeL) |- ($(ne-box.west)+(-\agap,0)$);
 
 % observed births -> national excess/deficit: out to the right, down the right of the
 % model box / text box (routeR), then left into the box
-\coordinate (routeR) at ($(cf.east)+(0.5cm,0)$);
+\coordinate (routeR) at ($(cf.east)+(0.3cm,0)$);
 \coordinate (nexE) at ($(nex-box.north)+(-\adx,\agap)$);   % common arrival point on National excess/deficit
 \coordinate (oS) at ($(nb-box.east)+(\agap,0)$);
 % horizontal -> vertical -> diagonal: (obsP) is where the vertical run ends and the diagonal starts
@@ -249,7 +249,7 @@
 
 % expected births -> national / municipality-level
 \draw[flow] ($(ne-box.south)+(0.4cm,-\agap)$)  -- (nexE)
-  node[midway,right=2pt,align=left,text width=2.4cm,font=\tiny\itshape,text=black!65]
+  node[midway,sloped,above=1pt,font=\tiny\itshape,text=black!65]
   {compared to observed births};
 \draw[flow] ($(ne-box.south)+(-0.4cm,-\agap)$) -- ($(mun-box.north)+(\adx,\agap)$)
   node[midway,left=2pt,align=right,text width=2.4cm,font=\tiny\itshape,text=black!65]
@@ -268,7 +268,7 @@
 % overall box (single panel). Delete this block for no frame.
 % ====================================================================
 \begin{pgfonlayer}{bottom}
-  \node[panel,fill=white,fit=(inp)(routeL)(routeR)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=14pt] {};
+  \node[panel,fill=white,fit=(inp)(routeL)(routeR)(pop-y)(pop-t)(nb-t)(bigbox)(cf)(ne-y)(nex-t)(nex-x)(nex-y)(mun)(mun-t)(mex-t)(mex-x)(mex-y),inner sep=8pt] {};
 \end{pgfonlayer}
 
 \end{tikzpicture}
