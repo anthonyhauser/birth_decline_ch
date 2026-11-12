@@ -286,7 +286,10 @@
 \node[parea,minimum width=\ppw cm,minimum height=\pph cm] (mp) at (pop |- M1) {};
 \pdeco{mp}{Municipal population}{Time}{Pop. size}
 \begin{scope}[shift={(mp.south west)},xscale={\ppw/\pw},yscale={\pph/\ph}]
-  \draw[a50] (0.05,0.5) .. controls (1,0.6) and (2,0.65) .. (\pw-0.05,0.9);
+  % three curves = the three biggest cities (colours as on the map and in Municipal excess)
+  \draw[draw=cZur,line width=1pt] (0.05,0.75) .. controls (1,0.85) and (2,0.95) .. (\pw-0.05,1.1);
+  \draw[draw=cGen,line width=1pt] (0.05,0.5)  .. controls (1,0.55) and (2,0.5)  .. (\pw-0.05,0.45);
+  \draw[draw=cBas,line width=1pt] (0.05,0.25) .. controls (1,0.3)  and (2,0.4)  .. (\pw-0.05,0.6);
 \end{scope}
 % (b) Municipal births: level with the MIDDLE of the arrow Municipality-level -> Municipal excess;
 %     straight horizontal line (no arrowhead) from its right middle to that midpoint
@@ -294,8 +297,13 @@
 \node[parea,minimum width=\ppw cm,minimum height=\pph cm] (mb) at (pop |- M2) {};
 \pdeco{mb}{Municipal births}{Time}{Births}
 \begin{scope}[shift={(mb.south west)},xscale={\ppw/\pw},yscale={\pph/\ph}]
-  \draw[a50] plot[domain=0.05:\pw-0.05,samples=100,smooth]
-    (\x,{0.6+0.1*\x+0.14*sin(3*\x/\pw*360)});
+  % three curves = the three biggest cities (same seasonal sine, different level/trend)
+  \draw[draw=cZur,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
+    (\x,{0.95-0.1*\x+0.12*sin(3*\x/\pw*360)});
+  \draw[draw=cGen,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
+    (\x,{0.65+0.05*\x+0.12*sin(3*\x/\pw*360+40)});
+  \draw[draw=cBas,line width=1pt] plot[domain=0.05:\pw-0.05,samples=100,smooth]
+    (\x,{0.35+0.1*\x+0.12*sin(3*\x/\pw*360+80)});
 \end{scope}
 \foreach \n in {mp,mb}{
   \begin{scope}[on background layer]
