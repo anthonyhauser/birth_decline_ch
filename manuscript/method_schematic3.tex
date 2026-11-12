@@ -98,11 +98,12 @@
     (\x,{0.75+0.3*sin(3*\x/\pw*360)});
 \end{scope}
 % shift in childbearing age: same fertility curve, shifted horizontally
+% (centres/width are fractions of \pw, so both curves always fit entirely in the plot)
 \begin{scope}[shift={(sh.south west)}]
   \draw[fdk] plot[domain=0.05:\pw-0.05,samples=80,smooth]
-    (\x,{0.1+1.1*exp(-((\x-1.15)/0.42)*((\x-1.15)/0.42))});
+    (\x,{0.1+1.1*exp(-((\x-0.364*\pw)/(0.164*\pw))*((\x-0.364*\pw)/(0.164*\pw)))});
   \draw[flt] plot[domain=0.05:\pw-0.05,samples=80,smooth]
-    (\x,{0.1+1.1*exp(-((\x-1.75)/0.42)*((\x-1.75)/0.42))});
+    (\x,{0.1+1.1*exp(-((\x-0.636*\pw)/(0.164*\pw))*((\x-0.636*\pw)/(0.164*\pw)))});
 \end{scope}
 
 % the big box wraps the three plots and their labels
