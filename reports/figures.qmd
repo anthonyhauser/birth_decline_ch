@@ -171,7 +171,7 @@ peak_pts_c_df = gp_rel_df %>%
 p2 = p2 +
   geom_point(data = peak_pts_b_df,
              aes(x = peak_age_mod, y = peak_est, fill = factor(year)),
-             shape = 22, size = 2.8, colour = "black",
+             shape = 21, size = 2.2, colour = NA,
              inherit.aes = FALSE, show.legend = FALSE)
 
 p3 = gp_rel_df %>%
@@ -184,7 +184,7 @@ p3 = gp_rel_df %>%
   #same squares as in panel B, marking the peak age for those years
   geom_point(data = peak_pts_c_df,
              aes(x = year, y = peak_age_mod, fill = factor(year)),
-             shape = 22, size = 2.8, colour = "black",
+             shape = 21, size = 2.8, colour = NA,
              inherit.aes = FALSE, show.legend = FALSE)+
   scale_y_continuous(name="Age of fertility peak")+
   scale_x_continuous(name="Calendar year")+
@@ -364,9 +364,9 @@ fig3 = excess_birth_adj2_mun_df %>%
   geom_sf(data = lake_sf, fill = "lightblue", color = NA, alpha = 0.5) +
   scale_fill_gradient2(
     name = "Relative excess birth",
-    low = "#4575B4",   # blue         (deficit)  -- ColorBrewer RdYlBu, colourblind-safe
+    low = "#D73027",   # red          (deficit)  -- colourblind-safe red/yellow/purple
     mid = "#FFFFBF",   # light yellow (neutral at 0)
-    high = "#D73027",  # red          (excess)
+    high = "#5E3C99",  # purple       (excess)
     midpoint = 0,
     breaks = c(-0.2, 0, 0.2),
     labels = scales::percent_format(accuracy = 1),
