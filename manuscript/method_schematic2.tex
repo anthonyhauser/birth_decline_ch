@@ -117,8 +117,10 @@
 \end{scope}
 
 % the big box wraps the three plots and their labels
+% box title, top left (above the plot titles)
+\node[ttl,anchor=south west] (bb-t) at ($(sh-y.west |- sh-t.north)+(0,5pt)$) {Model decomposition};
 \begin{scope}[on background layer]
-  \node[panel,fit=(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
+  \node[panel,fit=(bb-t)(sh-y)(sh-t)(sh-x)(se-t)(se-x)(tr-t)(tr-x)(tr),inner sep=7pt] (bigbox) {};
 \end{scope}
 
 
